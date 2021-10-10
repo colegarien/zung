@@ -1,12 +1,12 @@
-defmodule Zung.State.Login.Introduction do
+defmodule Zung.State.Login.Intro do
   @behaviour Zung.State.State
 
   @impl Zung.State.State
-  @spec run(%Zung.Client{}, any) ::
-          {Zung.State.Login.AccountCreation, %{}}
-          | {Zung.State.Login.AccountLogin, %{account_name: binary}}
-          | {Zung.State.Login.Introduction, any}
   def run(%Zung.Client{} = client, data) do
+    handle_intro(client, data)
+  end
+
+  defp handle_intro(%Zung.Client{} = client, data) do
     login_action = prompt_login(client)
 
     case login_action do
@@ -42,5 +42,4 @@ defmodule Zung.State.Login.Introduction do
       true -> {:ok, trimmed_dirt}
     end
   end
-
 end

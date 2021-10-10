@@ -1,6 +1,8 @@
 defmodule Zung.DataStore do
   use GenServer
 
+  #TODO should split data-store into different pieces of mutable data (i.e. userstore vs character vs location etc stores?)
+
   # CLIENT-SIDE
   def start_link(intial_state \\ %{}) do
     GenServer.start_link(__MODULE__, intial_state, name: DataStore)
@@ -19,6 +21,13 @@ defmodule Zung.DataStore do
     GenServer.cast(DataStore, {:add_user, new_user})
   end
 
+  def get_location(account_name) do
+    GenServer.call(DataStore, {:get_location, account_name})
+  end
+  def update_location(account_name, new_location) do
+    GenServer.cast(DataStore, {:update_location, {account_name, new_location}})
+  end
+
   # SERVER-SIDE
   def init(state \\ %{}) do
     {:ok, state}
@@ -34,11 +43,20 @@ defmodule Zung.DataStore do
     {:reply, matches?, state}
   end
 
+  def handle_call({:get_location, account_name}, _from, state) do
+    location = Map.get(state, :locations, %{})
+      |> Map.get(account_name, :void) # TODO make default error "void" room
+    {:reply, location, state}
+  end
+
   def handle_call(_request, _from, state), do: {:reply, state, state}
 
 
   def handle_cast({:add_user, new_user}, state) do
     {:noreply, Map.update(state, :users, [new_user], &([new_user | &1]))}
+  end
+  def handle_cast({:update_location, {account_name, new_location}}, state) do
+    {:noreply, Map.update(state, :locations, %{account_name => new_location}, &Map.put(&1, account_name, new_location))}
   end
   def handle_cast(_request, state), do: {:noreply, state}
 end

@@ -11,7 +11,10 @@ defmodule Zung.Application do
             account_name: "ozzy",
             password: "pass123",
           },
-        ]
+        ],
+        locations: %{
+          "ozzy" => Zung.Game.Room1,
+        }
       }},
       {Task.Supervisor, name: Zung.Server.TaskSupervisor},
       Supervisor.child_spec({Task, fn -> Zung.Server.accept(port) end}, restart: :permanent)

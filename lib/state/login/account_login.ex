@@ -17,7 +17,7 @@ defmodule Zung.State.Login.AccountLogin do
 
     if Zung.DataStore.password_matches?(account_name, account_password) do
       Zung.Client.write_line(client, "||YEL||Welcome #{String.trim(account_name)}! ||RESET||")
-      {Zung.State.Game, %{account_name: account_name}}
+      {Zung.State.Game.Main, %{account_name: account_name}}
     else
       Zung.Client.write_line(client, "||RED||Incorrect Password.||RESET||")
       handle_login(client, account_name, attempt + 1, max_attempts)
