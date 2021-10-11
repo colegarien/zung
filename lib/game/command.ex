@@ -1,6 +1,6 @@
 defmodule Zung.Game.Command do
 
-  # TODO ideas for commnads -> https://github.com/sneezymud/dikumud/blob/master/lib/help_table
+  # TODO ideas for commands -> https://github.com/sneezymud/dikumud/blob/master/lib/help_table
   # TODO cool alias section -> https://github.com/Yuffster/CircleMUD/blob/master/lib/text/help/commands.hlp
   # TODO nice website -> https://dslmud.fandom.com/wiki/Commands
 
@@ -9,6 +9,7 @@ defmodule Zung.Game.Command do
     case String.split(line) do
       ["do", thing] -> {:ok, {:do, thing}}
       ["quit"] -> {:ok, :quit}
+      ["look"] -> {:look, :room}
       ["north"] -> {:move, :north}
       ["south"] -> {:move, :south}
       ["east"] -> {:move, :east}
@@ -33,6 +34,10 @@ defmodule Zung.Game.Command do
 
   def run({:move, direction}) do
     {:move, direction}
+  end
+
+  def run({:look, :room}) do
+    {:look, :room}
   end
 
   def run(_command) do

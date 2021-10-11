@@ -3,6 +3,7 @@ defmodule Zung.Game.Room1 do
   def title(), do: "The Brig"
   def description(), do: "A small, cramped room in the bottom of a ship"
 
+  # TODO how shoudl rooms work with elixir?
   def describe() do
     title_string = "||BOLD||||GRN||#{title()}||RESET||"
     description_string = "||YEL||#{description()}||RESET||"

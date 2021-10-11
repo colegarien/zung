@@ -4,11 +4,14 @@ defmodule Zung.State.Game.Main do
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     # TODO good place for intro MOTD or brief of past happenings while away
-    game_loop(client, Zung.DataStore.get_location(data[:account_name]))
+    current_room = Zung.DataStore.get_location(data[:account_name])
+    current_room.describe()
+
+
+    game_loop(client, current_room)
   end
 
   def game_loop(%Zung.Client{} = client, current_room) do
-    Zung.Client.write_data(client, current_room.describe())
     Zung.Client.write_data(client, "||NL||||RESET||> ")
     {status, action} =
       with data <- Zung.Client.read_line(client),
@@ -28,6 +31,7 @@ defmodule Zung.State.Game.Main do
     else
       case {status, action} do
         {:ok, output} -> Zung.Client.write_line(client, output)
+        {:look, :room} -> Zung.Client.write_data(client, current_room.describe())
         {:error, :unknown_command} -> Zung.Client.write_line(client, "||GRN||Wut?||RESET||")
       end
       game_loop(client, current_room)
