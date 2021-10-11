@@ -21,11 +21,15 @@ defmodule Zung.DataStore do
     GenServer.cast(DataStore, {:add_user, new_user})
   end
 
-  def get_location(account_name) do
-    GenServer.call(DataStore, {:get_location, account_name})
+  def get_current_room_id(account_name) do
+    GenServer.call(DataStore, {:get_current_room_id, account_name})
   end
-  def update_location(account_name, new_location) do
-    GenServer.cast(DataStore, {:update_location, {account_name, new_location}})
+  def update_current_room_id(account_name, new_room_id) do
+    GenServer.cast(DataStore, {:update_current_room_id, {account_name, new_room_id}})
+  end
+
+  def get_room(room_id) do
+    GenServer.call(DataStore, {:get_room, room_id})
   end
 
   # SERVER-SIDE
@@ -43,10 +47,16 @@ defmodule Zung.DataStore do
     {:reply, matches?, state}
   end
 
-  def handle_call({:get_location, account_name}, _from, state) do
-    location = Map.get(state, :locations, %{})
-      |> Map.get(account_name, :void) # TODO make default error "void" room
-    {:reply, location, state}
+  def handle_call({:get_current_room_id, account_name}, _from, state) do
+    room_id = Map.get(state, :locations, %{})
+      |> Map.get(account_name, "the_void")
+    {:reply, room_id, state}
+  end
+
+  def handle_call({:get_room, room_id}, _from, state) do
+    room = Map.get(state, :rooms, %{})
+      |> Map.get(room_id, %Zung.Game.Room{})
+    {:reply, room, state}
   end
 
   def handle_call(_request, _from, state), do: {:reply, state, state}
@@ -55,8 +65,8 @@ defmodule Zung.DataStore do
   def handle_cast({:add_user, new_user}, state) do
     {:noreply, Map.update(state, :users, [new_user], &([new_user | &1]))}
   end
-  def handle_cast({:update_location, {account_name, new_location}}, state) do
-    {:noreply, Map.update(state, :locations, %{account_name => new_location}, &Map.put(&1, account_name, new_location))}
+  def handle_cast({:update_current_room_id, {account_name, new_room_id}}, state) do
+    {:noreply, Map.update(state, :locations, %{account_name => new_room_id}, &Map.put(&1, account_name, new_room_id))}
   end
   def handle_cast(_request, state), do: {:noreply, state}
 end

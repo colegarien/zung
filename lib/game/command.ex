@@ -3,6 +3,7 @@ defmodule Zung.Game.Command do
   # TODO ideas for commands -> https://github.com/sneezymud/dikumud/blob/master/lib/help_table
   # TODO cool alias section -> https://github.com/Yuffster/CircleMUD/blob/master/lib/text/help/commands.hlp
   # TODO nice website -> https://dslmud.fandom.com/wiki/Commands
+  # TODO neat thing about room/area building -> http://www.forgottenkingdoms.org/builders/blessons.php
 
 
   def parse(line) do

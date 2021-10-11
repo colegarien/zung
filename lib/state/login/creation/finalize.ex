@@ -8,7 +8,7 @@ defmodule Zung.State.Login.Creation.Finalize do
       password: data[:account_password],
     }
     Zung.DataStore.add_user(new_user)
-    Zung.DataStore.update_location(data[:account_name], Zung.Game.Room1)
+    Zung.DataStore.update_current_room_id(data[:account_name], "newbie/room_1")
     Zung.Client.write_data(client, "||NL||||GRN||Success!||RESET||||NL||||NL||");
     {Zung.State.Login.Intro, %{}}
   end

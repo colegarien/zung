@@ -45,13 +45,17 @@ defmodule Zung.IntegrationTest do
 
     # Navigate rooms
     assert send_and_recv(socket, "look") =~ "Brig"
-    send_and_recv(socket, "north")
+
+    assert send_and_recv(socket, "north") =~ "Lower Deck"
     assert send_and_recv(socket, "look") =~ "Lower Deck"
-    send_and_recv(socket, "up")
+
+    assert send_and_recv(socket, "up") =~ "Main Deck"
     assert send_and_recv(socket, "look") =~ "Main Deck"
-    send_and_recv(socket, "down")
+
+    assert send_and_recv(socket, "down") =~ "Lower Deck"
     assert send_and_recv(socket, "look") =~ "Lower Deck"
-    send_and_recv(socket, "south")
+
+    assert send_and_recv(socket, "south") =~ "Brig"
     assert send_and_recv(socket, "look") =~ "Brig"
 
     # Log out
