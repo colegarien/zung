@@ -8,7 +8,6 @@ defmodule Zung.DataStore do
     GenServer.start_link(__MODULE__, intial_state, name: DataStore)
   end
 
-  # TODO prolly wanna simplify this to just a simple CRUD operations with less logic!
   def account_exists?(account_name) do
     GenServer.call(DataStore, {:account_exists, account_name})
   end

@@ -27,7 +27,7 @@ If you can see the colors enter 'y' if you can't enter 'n'.
       Zung.Client.write_line(client, "Please enter either 'yes' or 'no'.")
       handle_color_check(client, data)
     else
-      {Zung.State.Login.Creation.Finalize, Map.put(data, :use_ansi?, yes?)}
+      {Zung.State.Login.Creation.Finalize, %Zung.Client{client | use_ansi?: yes?}, Map.put(data, :use_ansi?, yes?)}
     end
   end
 end

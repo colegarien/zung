@@ -11,7 +11,7 @@ defmodule Zung.State.Login.Creation.AccountName do
 
     case account_name_action do
       {:ok, account_name} ->
-        {Zung.State.Login.Creation.AccountPassword, Map.put(data, :account_name, account_name)}
+        {Zung.State.Login.Creation.AccountPassword, client, Map.put(data, :account_name, account_name)}
       {:error, message} ->
         Zung.Client.write_line(client, message)
         handle_account_name(client, data)

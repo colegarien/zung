@@ -4,11 +4,13 @@ defmodule Zung.State.Login.Creation.Finalize do
   @finalize_message ~S"""
 
 ||BOLD||||RED||-----------------------------------------------------------------------------||RESET||
-     ||GRN||Congratulations||RESET|| account_name, you have now completed character creation.
- You will be dropped in the newbie area.
- Describe newbie area benefits and such here.
+     ||GRN||Congratulations account_name||RESET||, you have now completed
+character creation. You will be dropped in the newbie area. Describe newbie
+area benefits and such here.
+
                 Enjoy your adventures, and welcome to Zung!
 ||BOLD||||RED||-----------------------------------------------------------------------------||RESET||
+
 [ Press enter to continue ]||RESET||
 """
 
@@ -21,7 +23,7 @@ defmodule Zung.State.Login.Creation.Finalize do
 
     # wait for user to hit Enter
     Zung.Client.read_line(client)
-    {Zung.State.Game.Main, %{account_name: data[:account_name]}}
+    {Zung.State.Game.Main, client, %{account_name: data[:account_name]}}
   end
 
   defp finalize_user(data) do

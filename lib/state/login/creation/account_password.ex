@@ -22,7 +22,7 @@ you will be plopped directly into the game after.
 
     case account_password_action do
       {:ok, account_password} ->
-        {Zung.State.Login.Creation.ColorCheck, Map.put(data, :account_password, account_password)} # TODO encrypt/salt/pepper that sucker!
+        {Zung.State.Login.Creation.ColorCheck, client, Map.put(data, :account_password, account_password)} # TODO encrypt/salt/pepper that sucker!
       {:error, message} ->
         Zung.Client.write_line(client, message)
         handle_account_password(client, data)

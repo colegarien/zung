@@ -16,7 +16,7 @@ defmodule Zung.Server do
 
   def serve_client(%Zung.Client{} = client) do
     try do
-      Zung.State.Manager.run({Zung.State.Login.Intro, %{}}, client)
+      Zung.State.Manager.run({Zung.State.Login.Intro, client, %{}})
     rescue
       Zung.Error.ConnectionClosed -> Logger.info("Client connection closed.")
       e in Zung.Error.SecurityConcern ->

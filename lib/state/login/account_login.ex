@@ -16,7 +16,9 @@ defmodule Zung.State.Login.AccountLogin do
     Zung.Client.write_data(client, "||ECHO_ON||||NL||")
 
     if Zung.DataStore.password_matches?(account_name, account_password) do
-      {Zung.State.Game.Main, %{account_name: account_name}}
+      # TODO load more account settings
+      use_ansi? = Zung.DataStore.account_uses_ansi?(account_name)
+      {Zung.State.Game.Main, %Zung.Client{client | use_ansi?: use_ansi?}, %{account_name: account_name}}
     else
       Zung.Client.write_line(client, "||RED||Incorrect Password.||RESET||")
       handle_login(client, account_name, attempt + 1, max_attempts)

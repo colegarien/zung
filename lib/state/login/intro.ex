@@ -33,9 +33,9 @@ __[  -- Welcome to Zung --  ]__________________[  -- Players Online: 000 --  ]__
 
     case login_action do
       {:ok, :new} ->
-        {Zung.State.Login.AccountCreation, %{}}
+        {Zung.State.Login.AccountCreation, client, %{}}
       {:ok, account_name} ->
-        {Zung.State.Login.AccountLogin, %{account_name: account_name}}
+        {Zung.State.Login.AccountLogin, client, %{account_name: account_name}}
       {:error, message} ->
         Zung.Client.write_line(client, message)
         handle_intro(client, data)

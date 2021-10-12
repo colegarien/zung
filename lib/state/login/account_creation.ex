@@ -9,10 +9,10 @@ Decribe rest of creation process here!
 """
 
   @impl Zung.State.State
-  def run(%Zung.Client{} = client, state_data) do
+  def run(%Zung.Client{} = client, data) do
     Zung.Client.clear_screen(client)
     Zung.Client.write_line(client, @new_player_welcome)
-    {Zung.State.Login.Creation.AccountName, state_data}
+    {Zung.State.Login.Creation.AccountName, client, data}
   end
 
 end
