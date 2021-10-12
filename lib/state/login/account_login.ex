@@ -11,12 +11,11 @@ defmodule Zung.State.Login.AccountLogin do
     raise Zung.Error.SecurityConcern, message: "Exceeded max attempts!", show_client: true
   end
   defp handle_login(%Zung.Client{} = client, account_name, attempt, max_attempts) do
-    Zung.Client.write_data(client, "||YEL||Enter Password (#{attempt + 1}/#{max_attempts})||RESET||: ||ECHO_OFF||")
+    Zung.Client.write_data(client, "||YEL||Password (#{attempt + 1}/#{max_attempts})||RESET||: ||ECHO_OFF||")
     account_password = Zung.Client.read_line(client)
     Zung.Client.write_data(client, "||ECHO_ON||||NL||")
 
     if Zung.DataStore.password_matches?(account_name, account_password) do
-      Zung.Client.write_line(client, "||YEL||Welcome #{String.trim(account_name)}! ||RESET||")
       {Zung.State.Game.Main, %{account_name: account_name}}
     else
       Zung.Client.write_line(client, "||RED||Incorrect Password.||RESET||")

@@ -18,7 +18,7 @@ defmodule Zung.IntegrationTest do
     assert send_and_recv(socket, "cool_name") =~ "does not exist"
 
     # Start user creation
-    assert send_and_recv(socket, "new") =~ "Welcome\ to\ Zung"
+    assert send_and_recv(socket, "new") =~ "Welcome to Zung"
 
     # Try invalid user names
     assert send_and_recv(socket, "new") =~ "cannot"
@@ -32,16 +32,15 @@ defmodule Zung.IntegrationTest do
 
     # Mis-match passwords entered
     send_and_recv(socket, "password123!")
-    assert send_and_recv(socket, "password") =~ "match"
+    assert send_and_recv(socket, "password") =~ "do not match"
 
-    # Enter matching passwords and finish user creation
+    # Enter matching passwords
     send_and_recv(socket, "password123!")
-    assert send_and_recv(socket, "password123!") =~ "Success"
+    send_and_recv(socket, "password123!")
 
-    # Log in as new user
-    send_and_recv(socket, "cool_name")
-    assert send_and_recv(socket, "bad_pass") =~ "Password"
-    assert send_and_recv(socket, "password123!") =~ "cool_name"
+    # No to ansi color and finish user creation
+    assert send_and_recv(socket, "n") =~ "Congratulations"
+    assert send_and_recv(socket, "") =~ "Welcome"
 
     # Navigate rooms
     assert send_and_recv(socket, "look") =~ "Brig"

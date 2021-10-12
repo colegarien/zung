@@ -10,6 +10,7 @@ defmodule Zung.Application do
           %{
             account_name: "ozzy",
             password: "pass123",
+            use_ansi?: true
           },
         ],
         locations: %{

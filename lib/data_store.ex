@@ -13,6 +13,10 @@ defmodule Zung.DataStore do
     GenServer.call(DataStore, {:account_exists, account_name})
   end
 
+  def account_uses_ansi?(account_name) do
+    GenServer.call(DataStore, {:account_uses_ansi, account_name})
+  end
+
   def password_matches?(account_name, password) do
     GenServer.call(DataStore, {:password_matches, account_name, password})
   end
@@ -40,6 +44,11 @@ defmodule Zung.DataStore do
   def handle_call({:account_exists, account_name}, _from, state) do
     exists? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:account_name] == account_name))
     {:reply, exists?, state}
+  end
+
+  def handle_call({:account_uses_ansi, account_name}, _from, state) do
+    use_ansi? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:account_name] == account_name && &1[:use_ansi?]))
+    {:reply, use_ansi?, state}
   end
 
   def handle_call({:password_matches, account_name, password}, _from, state) do

@@ -3,11 +3,15 @@ defmodule Zung.State.Game.Main do
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
+    # TODO this sucks, find a better way to store/organize the "client", push Client or User Settings into a genserver or agent per user?
+    client_with_user_settings = %Zung.Client{client | use_ansi?: Zung.DataStore.account_uses_ansi?(data[:account_name])}
+
     # TODO good place for intro MOTD or brief of past happenings while away
+    Zung.Client.write_line(client, "||NL||||YEL||Welcome #{String.trim(data[:account_name])}!||RESET||")
     current_room = Zung.DataStore.get_room(Zung.DataStore.get_current_room_id(data[:account_name]))
     Zung.Game.Room.describe(current_room)
 
-    game_loop(client, data[:account_name], current_room)
+    game_loop(client_with_user_settings, data[:account_name], current_room)
   end
 
   def game_loop(%Zung.Client{} = client, account_name, current_room) do

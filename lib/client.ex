@@ -1,9 +1,14 @@
 defmodule Zung.Client do
-  @enforce_keys [:socket]
-  defstruct [:socket]
+  @enforce_keys [:socket,:use_ansi?]
+  defstruct [:socket, use_ansi?: false]
 
   @templating_regex ~r/\|\|([A-Z_]+)?\|\|/ # ||TEMPLATE_WORD_HERE||
-  @templating_replacements %{
+  @primitive_templating_replacements %{
+    "NL" => "\r\n",
+    "ECHO_OFF" => <<255, 251, 1>>,
+    "ECHO_ON" => <<255, 252, 1>>,
+  }
+  @ansi_templating_replacements %{
     "NL" => "\r\n",
     "RESET" => "\e[0m",
     "BOLD" => "\e[1m",
@@ -38,13 +43,22 @@ defmodule Zung.Client do
     # Currently, this strips out Telnet Negotiations and Trims Whitespace
     msg = :gen_tcp.recv(client.socket, 0)
     case msg do
-      {:ok, data} -> data |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "") |> String.trim()
+      {:ok, data} -> data
+        |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "")
+        |> String.trim()
       _ -> raise Zung.Error.ConnectionClosed # TODO there might be some useful errors or something we could drop in here
     end
   end
 
+  def clear_screen(%Zung.Client{} = client) do
+    write_data(client, Enum.reduce(1..40, "", fn _e, acc -> "||NL||" <> acc end))
+  end
+
   def write_line(%Zung.Client{} = client, data), do: write_data(client, "#{data}||NL||")
   def write_data(%Zung.Client{} = client, data) do
-    :gen_tcp.send(client.socket, Regex.replace(@templating_regex, data, fn _, match -> @templating_replacements[match] end))
+    replacements = if client.use_ansi?, do: @ansi_templating_replacements, else: @primitive_templating_replacements
+    :gen_tcp.send(client.socket, Regex.replace(@templating_regex, data, fn _, match ->
+      if Map.has_key?(replacements, match), do: replacements[match], else: ""
+    end))
   end
 end

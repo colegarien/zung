@@ -6,6 +6,9 @@ defmodule Zung.Game.Room do
     exits: %{},
   ]
 
+  # TODO write a whole bunch of tests for ROOM and expand functionality like hidden exits and such!?
+  # TODO how for todo objects (might need to implement some kinda selector syntax?)
+
   def describe(%Zung.Game.Room{} = room) do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
     description_string = "||YEL||#{room.description}||RESET||"

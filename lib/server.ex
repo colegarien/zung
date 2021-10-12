@@ -9,7 +9,7 @@ defmodule Zung.Server do
 
   defp loop_accept(socket) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
-    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn -> serve_client(%Zung.Client{socket: client_socket}) end)
+    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn -> serve_client(%Zung.Client{socket: client_socket, use_ansi?: false}) end)
     :ok = :gen_tcp.controlling_process(client_socket, pid)
     loop_accept(socket)
   end
