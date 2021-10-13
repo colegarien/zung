@@ -1,4 +1,5 @@
 defmodule Zung.Game.Command do
+  require Logger
 
   # TODO ideas for commands -> https://github.com/sneezymud/dikumud/blob/master/lib/help_table
   # TODO cool alias section -> https://github.com/Yuffster/CircleMUD/blob/master/lib/text/help/commands.hlp
@@ -7,10 +8,22 @@ defmodule Zung.Game.Command do
 
 
   def parse(line) do
+    # TODO the split seems like non-sense, maybe need to completely separate the parser and "command" excecutor
     case String.split(line) do
       ["do", thing] -> {:ok, {:do, thing}}
       ["quit"] -> {:ok, :quit}
       ["look"] -> {:look, :room}
+      ["look" | targeting_words] ->
+        worthless_words = ["to", "the", "at", "in"]
+        target = targeting_words
+          |> Enum.filter(&(&1 not in worthless_words))
+          |> Enum.reduce("", &("#{&2} #{&1}"))
+          |> String.trim
+        if(target in ["north", "south", "east", "west", "northwest", "northeast", "southwest", "southeast", "up", "down"]) do
+          {:look, String.to_atom(target)}
+        else
+          {:look, target}
+        end
       ["north"] -> {:move, :north}
       ["south"] -> {:move, :south}
       ["east"] -> {:move, :east}
@@ -39,6 +52,10 @@ defmodule Zung.Game.Command do
 
   def run({:look, :room}) do
     {:look, :room}
+  end
+
+  def run({:look, target}) do
+    {:look, target}
   end
 
   def run(_command) do

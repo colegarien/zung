@@ -20,20 +20,26 @@ defmodule Zung.Application do
           "newbie/room_1" => %Zung.Game.Room{
             id: "newbie/room_1",
             title: "The Brig",
-            description: "A small, cramped room in the bottom of a ship",
-            exits: %{ north: "newbie/room_2" },
+            description: "A small, cramped room in the bottom of a ship.||NL||The walls are carved up with cryptic scratchings.",
+            flavor_texts: [
+              %{
+                keywords: ["cryptic scratchings", "scratchings", "carvings", "scratches"],
+                text: "You barely make out one of the scrathings, ||BOLD||||ITALIC||\"2021-01-08\"||RESET||"
+              },
+            ],
+            exits: [ %{ direction: :north, to: "newbie/room_2"} ],
           },
           "newbie/room_2" => %Zung.Game.Room{
             id: "newbie/room_2",
             title: "The Lower Deck",
             description: "The damp, musty underbelly of a ship.",
-            exits: %{up: "newbie/room_3", south: "newbie/room_1"},
+            exits: [ %{direction: :up, to: "newbie/room_3"}, %{direction: :south, to: "newbie/room_1"} ],
           },
           "newbie/room_3" => %Zung.Game.Room{
             id: "newbie/room_3",
             title: "The Main Deck",
             description: "The top deck of this vessel.||NL||The ship is docked and ready for disembarkment.",
-            exits: %{down: "newbie/room_2"},
+            exits: [ %{direction: :down, to: "newbie/room_2"} ],
           },
         },
       }},

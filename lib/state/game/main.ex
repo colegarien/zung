@@ -1,4 +1,5 @@
 defmodule Zung.State.Game.Main do
+  require Logger
   @behaviour Zung.State.State
 
   @impl Zung.State.State
@@ -6,7 +7,7 @@ defmodule Zung.State.Game.Main do
     # TODO good place for intro MOTD or brief of past happenings while away
     Zung.Client.write_line(client, "||NL||||YEL||Welcome #{String.trim(data[:account_name])}!||RESET||")
     current_room = Zung.DataStore.get_room(Zung.DataStore.get_current_room_id(data[:account_name]))
-    Zung.Game.Room.describe(current_room)
+    Zung.Client.write_data(client, Zung.Game.Room.describe(current_room))
 
     game_loop(client, data[:account_name], current_room)
   end
@@ -37,6 +38,7 @@ defmodule Zung.State.Game.Main do
       case {status, action} do
         {:ok, output} -> Zung.Client.write_line(client, output)
         {:look, :room} -> Zung.Client.write_data(client, Zung.Game.Room.describe(current_room))
+        {:look, target} -> Zung.Client.write_line(client, Zung.Game.Room.look(current_room, target))
         {:error, :unknown_command} -> Zung.Client.write_line(client, "||GRN||Wut?||RESET||")
       end
       game_loop(client, account_name, current_room)
