@@ -41,15 +41,14 @@ defmodule Zung.Client do
     # TODO consider actually handling the negotiations, might be able to wrestle puTTY to not act weird by default
     # For info on telnet negotiations check out https://www.iana.org/assignments/telnet-options/telnet-options.xhtml
     # Currently, this strips out Telnet Negotiations and Trims Whitespace
-
-    Zung.Session.refresh_session(client.session_id) # TODO wait for valid input before refreshing the session
     msg = :gen_tcp.recv(client.socket, 0)
     if Zung.Session.is_expired?(client.session_id), do: raise Zung.Error.Connection.SessionExpired
 
     case msg do
-      {:ok, data} -> data
-        |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "")
-        |> String.trim()
+      {:ok, data} ->
+        Zung.Session.refresh_session(client.session_id)
+        data |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "") |> String.trim()
+      {:error, :timeout} -> read_line(client)
       _ -> raise Zung.Error.Connection.Lost
     end
 
