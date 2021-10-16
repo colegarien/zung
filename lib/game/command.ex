@@ -43,7 +43,7 @@ defmodule Zung.Game.Command do
   end
 
   def run(:quit) do
-    raise Zung.Error.ConnectionClosed, message: "Player logged out."
+    raise Zung.Error.Connection.Closed
   end
 
   def run({:move, direction}) do

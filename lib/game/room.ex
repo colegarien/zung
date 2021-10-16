@@ -5,6 +5,8 @@ defmodule Zung.Game.Room do
     description: "The blank, never-ending void.",
     flavor_texts: [],
     exits: [],
+    # TODO custom_exits (non-standard direction exits, the syntax would be like "enter secret hatch" or whatever)
+    # TODO cool stuff on exits -> https://www.aardwolf.com/building/editing-exits.html
   ]
 
   # TODO write a whole bunch of tests for ROOM and expand functionality like hidden exits and such!?

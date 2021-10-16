@@ -1,5 +1,5 @@
 defmodule Zung.Game.RoomTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Zung.Game.Room, as: Room
 

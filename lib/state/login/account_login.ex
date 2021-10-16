@@ -17,6 +17,7 @@ defmodule Zung.State.Login.AccountLogin do
 
     if Zung.DataStore.password_matches?(account_name, account_password) do
       # TODO load more account settings
+      Zung.Session.authenticate_session(client.session_id, account_name) # TODO rename all this "account_name" stuff to simply username
       use_ansi? = Zung.DataStore.account_uses_ansi?(account_name)
       {Zung.State.Game.Main, %Zung.Client{client | use_ansi?: use_ansi?}, %{account_name: account_name}}
     else

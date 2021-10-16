@@ -18,6 +18,7 @@ area benefits and such here.
   def run(%Zung.Client{} = client, data) do
     Zung.Client.clear_screen(client)
     Zung.Client.write_data(client, String.replace(@finalize_message, "account_name", data[:account_name]));
+    Zung.Session.authenticate_session(client.session_id, data[:account_name])
 
     finalize_user(data)
 

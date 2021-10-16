@@ -20,7 +20,6 @@ defmodule Zung.State.Game.Main do
           do: Zung.Game.Command.run(command)
 
     # TODO this be weird, refactor command pattern above!
-    # TODO need to actually update DataStore with where the player is!
     if(status == :move) do
       move_action = Zung.Game.Room.move(current_room, action)
       case move_action do

@@ -25,8 +25,8 @@ __[                             ]______________[                             ]__
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    # TODO replace 000 with padded logged in player counts (do after separating a "session" store)
-    Zung.Client.write_data(client, @the_banner)
+    logged_in_count = String.pad_leading("#{Zung.Session.get_session_count}", 3, "0")
+    Zung.Client.write_data(client, String.replace(@the_banner, "000", logged_in_count))
     handle_intro(client, data)
   end
 

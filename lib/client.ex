@@ -1,6 +1,6 @@
 defmodule Zung.Client do
-  @enforce_keys [:socket,:use_ansi?]
-  defstruct [:socket, use_ansi?: false]
+  @enforce_keys [:socket, :session_id, :use_ansi?]
+  defstruct [:socket, :session_id, use_ansi?: false]
 
   @templating_regex ~r/\|\|([A-Z_]+)?\|\|/ # ||TEMPLATE_WORD_HERE||
   @primitive_templating_replacements %{
@@ -41,13 +41,18 @@ defmodule Zung.Client do
     # TODO consider actually handling the negotiations, might be able to wrestle puTTY to not act weird by default
     # For info on telnet negotiations check out https://www.iana.org/assignments/telnet-options/telnet-options.xhtml
     # Currently, this strips out Telnet Negotiations and Trims Whitespace
+
+    Zung.Session.refresh_session(client.session_id) # TODO wait for valid input before refreshing the session
     msg = :gen_tcp.recv(client.socket, 0)
+    if Zung.Session.is_expired?(client.session_id), do: raise Zung.Error.Connection.SessionExpired
+
     case msg do
       {:ok, data} -> data
         |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "")
         |> String.trim()
-      _ -> raise Zung.Error.ConnectionClosed # TODO there might be some useful errors or something we could drop in here
+      _ -> raise Zung.Error.Connection.Lost
     end
+
   end
 
   def clear_screen(%Zung.Client{} = client) do

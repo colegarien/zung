@@ -14,7 +14,7 @@ defmodule Zung.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Zung.Application, [:zung]}
+      mod: {Zung.Application, []}
     ]
   end
 
