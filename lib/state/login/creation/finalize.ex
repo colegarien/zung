@@ -28,13 +28,10 @@ area benefits and such here.
   end
 
   defp finalize_user(data) do
-    # TODO eventually add other things like, class, gender, subclasses, etc?
-    new_user = %{
-      username: data[:username],
-      password: data[:user_password],
+    Zung.Client.User.create_user(data[:username],data[:password], %{
       use_ansi?: data[:use_ansi?],
-    }
-    Zung.DataStore.add_user(new_user)
+    })
+    # TODO eventually add other things like, class, gender, subclasses, etc?
     Zung.DataStore.update_current_room_id(data[:username], "newbie/room_1")
   end
 end

@@ -12,12 +12,12 @@ defmodule Zung.State.Login.UserLogin do
   end
   defp handle_login(%Zung.Client{} = client, username, attempt, max_attempts) do
     Zung.Client.write_data(client, "||YEL||Password (#{attempt + 1}/#{max_attempts})||RESET||: ||ECHO_OFF||")
-    user_password = Zung.Client.read_line(client)
+    password = Zung.Client.User.hash_password(username, Zung.Client.read_line(client))
     Zung.Client.write_data(client, "||ECHO_ON||||NL||")
 
-    if Zung.DataStore.password_matches?(username, user_password) do
+    if Zung.Client.User.password_matches?(username, password) do
       Zung.Client.authenticate_as(client, username)
-      {Zung.State.Game.Main, client, %{username: username}} # TODO can probably switch back to not allowing "client" to be overridden by state for no reason
+      {Zung.State.Game.Main, client, %{username: username}} # TODO can probably switch back to not allowing "client" to be overridden by state for no reason?
     else
       Zung.Client.write_line(client, "||RED||Incorrect Password.||RESET||")
       handle_login(client, username, attempt + 1, max_attempts)

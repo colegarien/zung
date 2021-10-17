@@ -34,7 +34,7 @@ defmodule Zung.State.Login.Creation.Username do
     cond do
       trimmed_dirt == "new" -> {:error, "Username cannot be 'new'."}
       not String.match?(trimmed_dirt, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Username is invalid."}
-      Zung.DataStore.user_exists?(trimmed_dirt) -> {:error, "Username already taken."}
+      not Zung.Client.User.username_available?(trimmed_dirt) -> {:error, "Username already taken."}
       true -> {:ok, trimmed_dirt}
     end
   end

@@ -4,6 +4,7 @@ defmodule Zung.Client do
 
   alias Zung.Client.Connection
   alias Zung.Client.Session
+  alias Zung.Client.User
 
   def new(socket) do
     session_id = Session.new_session(socket)
@@ -16,9 +17,9 @@ defmodule Zung.Client do
   end
 
   def authenticate_as(%Zung.Client{} = client, username) do
-      # TODO make user settings more "genricy"
-      use_ansi? = Zung.DataStore.user_uses_ansi?(username)
+      use_ansi? = User.get_setting(username, :use_ansi?)
 
+      User.log_login(username)
       Session.authenticate_session(client.session_id, username)
       Connection.use_ansi(client.connection_id, use_ansi?)
   end

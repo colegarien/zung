@@ -1,7 +1,7 @@
 defmodule Zung.State.Login.Creation.Password do
   @behaviour Zung.State.State
 
-  @user_password_banner ~S"""
+  @password_banner ~S"""
 Welcome to Zung, username.
 Something something a few questions to create your character,
 you will be plopped directly into the game after.
@@ -11,41 +11,41 @@ you will be plopped directly into the game after.
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     Zung.Client.clear_screen(client)
-    Zung.Client.write_data(client, String.replace(@user_password_banner, "username", data[:username]));
-    handle_user_password(client, data)
+    Zung.Client.write_data(client, String.replace(@password_banner, "username", data[:username]));
+    handle_password(client, data)
   end
 
-  defp handle_user_password(%Zung.Client{} = client, data) do
+  defp handle_password(%Zung.Client{} = client, data) do
     Zung.Client.write_data(client, "||ECHO_OFF||");
-    user_password_action = prompt_user_password(client)
+    password_action = prompt_password(client)
     Zung.Client.write_data(client, "||ECHO_ON||||NL||");
 
-    case user_password_action do
-      {:ok, user_password} ->
-        {Zung.State.Login.Creation.ColorCheck, client, Map.put(data, :user_password, user_password)} # TODO encrypt/salt/pepper that sucker!
+    case password_action do
+      {:ok, password} ->
+        {Zung.State.Login.Creation.ColorCheck, client, Map.put(data, :password, Zung.Client.User.hash_password(data[:username], password))}
       {:error, message} ->
         Zung.Client.write_line(client, message)
-        handle_user_password(client, data)
+        handle_password(client, data)
     end
   end
 
-  defp prompt_user_password(client) do
+  defp prompt_password(client) do
     Zung.Client.write_data(client, "Enter password (\"a-z\", \"A-Z\", \"0-9\", \"!@#$%^&*()_\" allowed, 8-32 length): ")
     with data <- Zung.Client.read_line(client),
-          {:ok, user_password} <- validate_user_password(data),
-          {:ok, user_password} <- verify_with_reentry(client, user_password),
-          do: {:ok, user_password}
+          {:ok, password} <- validate_password(data),
+          {:ok, password} <- verify_with_reentry(client, password),
+          do: {:ok, password}
   end
 
-  defp verify_with_reentry(client, user_password) do
+  defp verify_with_reentry(client, password) do
     Zung.Client.write_data(client, "||NL||Please re-enter password: ")
     with data <- Zung.Client.read_line(client),
-          {:ok, other_user_password} <- validate_user_password(data),
-          do: if other_user_password === user_password, do: {:ok, user_password}, else: {:error, "Entries do not match."}
+          {:ok, other_password} <- validate_password(data),
+          do: if other_password === password, do: {:ok, password}, else: {:error, "Entries do not match."}
   end
 
-  defp validate_user_password(dirty_user_password) do # TODO this is identical-ish to the one in intro, should clean this uuuuuuup
-    trimmed_dirt = dirty_user_password
+  defp validate_password(dirty_password) do # TODO this is identical-ish to the one in intro, should clean this uuuuuuup
+    trimmed_dirt = dirty_password
       |> String.trim
 
     cond do
