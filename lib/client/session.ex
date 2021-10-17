@@ -1,4 +1,4 @@
-defmodule Zung.Session do
+defmodule Zung.Client.Session do
   defmodule State do
     defstruct [
       :id, :socket, :username,

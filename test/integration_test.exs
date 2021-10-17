@@ -13,20 +13,20 @@ defmodule Zung.IntegrationTest do
     %{socket: socket}
   end
 
-  test "new account and room navigation", %{socket: socket} do
+  test "new user and room navigation", %{socket: socket} do
     # User doesn't exist yet
     assert send_and_recv(socket, "cool_name") =~ "does not exist"
 
     # Start user creation
     assert send_and_recv(socket, "new") =~ "Welcome to Zung"
 
-    # Try invalid user names
+    # Try invalid usernames
     assert send_and_recv(socket, "new") =~ "cannot"
     assert send_and_recv(socket, "a") =~ "invalid"
     assert send_and_recv(socket, "_wad") =~ "invalid"
     assert send_and_recv(socket, "+!_@#)*WADsdaw") =~ "invalid"
 
-    # Give good user name a try a bad password
+    # Give good username a try a bad password
     send_and_recv(socket, "cool_name")
     assert send_and_recv(socket, "123") =~ "Password is invalid"
 

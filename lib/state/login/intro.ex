@@ -19,13 +19,13 @@ __[    -- Welcome to Zung --    ]______________[      More filler here,      ]__
 __[     Players Online: 000     ]______________[        and this too.        ]__
 __[                             ]______________[                             ]__
 --------------------------------------------------------------------------------
-  Enter 'new' to create a new account
+  Enter 'new' to create a new user
 --------------------------------------------------------------------------------
 """
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    logged_in_count = String.pad_leading("#{Zung.Session.get_session_count}", 3, "0")
+    logged_in_count = String.pad_leading("#{Zung.Client.Session.get_session_count}", 3, "0")
     Zung.Client.write_data(client, String.replace(@the_banner, "000", logged_in_count))
     handle_intro(client, data)
   end
@@ -35,9 +35,9 @@ __[                             ]______________[                             ]__
 
     case login_action do
       {:ok, :new} ->
-        {Zung.State.Login.AccountCreation, client, %{}}
-      {:ok, account_name} ->
-        {Zung.State.Login.AccountLogin, client, %{account_name: account_name}}
+        {Zung.State.Login.UserCreation, client, %{}}
+      {:ok, username} ->
+        {Zung.State.Login.UserLogin, client, %{username: username}}
       {:error, message} ->
         Zung.Client.write_line(client, message)
         handle_intro(client, data)
@@ -45,21 +45,21 @@ __[                             ]______________[                             ]__
   end
 
   defp prompt_login(%Zung.Client{} = client) do
-    Zung.Client.write_data(client, "Enter your account name: ")
+    Zung.Client.write_data(client, "Enter your username: ")
     with data <- Zung.Client.read_line(client),
-          {:ok, account_name} <- validate_account_name(data),
-          do: if account_name == "new", do: {:ok, :new}, else: {:ok, account_name}
+          {:ok, username} <- validate_username(data),
+          do: if username == "new", do: {:ok, :new}, else: {:ok, username}
   end
 
-  defp validate_account_name(dirty_account_name) do
-    trimmed_dirt = dirty_account_name
+  defp validate_username(dirty_username) do
+    trimmed_dirt = dirty_username
       |> String.downcase
       |> String.trim
 
     cond do
       trimmed_dirt === "new" -> {:ok, "new"} # new user request!
       not String.match?(trimmed_dirt, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Invalid username. Please try again."}
-      not Zung.DataStore.account_exists?(trimmed_dirt) -> {:error, "User does not exist. Please try again."}
+      not Zung.DataStore.user_exists?(trimmed_dirt) -> {:error, "User does not exist. Please try again."}
       true -> {:ok, trimmed_dirt}
     end
   end

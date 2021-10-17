@@ -13,7 +13,11 @@ If you can see the colors enter 'y' if you can't enter 'n'.
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     Zung.Client.clear_screen(client)
-    Zung.Client.write_data(%Zung.Client{client | use_ansi?: true}, @color_test_banner)
+
+    Zung.Client.force_ansi(client, true)
+    Zung.Client.write_data(client, @color_test_banner)
+    Zung.Client.force_ansi(client, false)
+
     handle_color_check(client, data)
   end
 
@@ -27,7 +31,8 @@ If you can see the colors enter 'y' if you can't enter 'n'.
       Zung.Client.write_line(client, "Please enter either 'yes' or 'no'.")
       handle_color_check(client, data)
     else
-      {Zung.State.Login.Creation.Finalize, %Zung.Client{client | use_ansi?: yes?}, Map.put(data, :use_ansi?, yes?)}
+      Zung.Client.force_ansi(client, yes?)
+      {Zung.State.Login.Creation.Finalize, client, Map.put(data, :use_ansi?, yes?)}
     end
   end
 end

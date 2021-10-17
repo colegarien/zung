@@ -2,17 +2,14 @@ defmodule Zung.Server do
   require Logger
 
   def accept(port) do
-    {:ok, socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+    {:ok, socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: true, reuseaddr: true])
     Logger.info "Accepting connections on port #{port}"
     loop_accept(socket)
   end
 
   defp loop_accept(socket) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
-    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn ->
-      session_id = Zung.Session.new_session(client_socket)
-      serve_client(%Zung.Client{socket: client_socket, session_id: session_id, use_ansi?: false})
-    end)
+    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn -> serve_client(Zung.Client.new(client_socket)) end)
     :ok = :gen_tcp.controlling_process(client_socket, pid)
     loop_accept(socket)
   end
@@ -32,8 +29,7 @@ defmodule Zung.Server do
     end
 
     # shutdown connections "gracefully"
-    Zung.Client.write_line(client, "||BOLD||||GRN||Bye bye!||RESET||")
-    Zung.Session.end_session(client.session_id)
+    Zung.Client.shutdown(client)
   end
 
 

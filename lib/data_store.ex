@@ -8,27 +8,27 @@ defmodule Zung.DataStore do
     GenServer.start_link(__MODULE__, intial_state, name: DataStore)
   end
 
-  def account_exists?(account_name) do
-    GenServer.call(DataStore, {:account_exists, account_name})
+  def user_exists?(username) do
+    GenServer.call(DataStore, {:user_exists, username})
   end
 
-  def account_uses_ansi?(account_name) do
-    GenServer.call(DataStore, {:account_uses_ansi, account_name})
+  def user_uses_ansi?(username) do
+    GenServer.call(DataStore, {:user_uses_ansi, username})
   end
 
-  def password_matches?(account_name, password) do
-    GenServer.call(DataStore, {:password_matches, account_name, password})
+  def password_matches?(username, password) do
+    GenServer.call(DataStore, {:password_matches, username, password})
   end
 
   def add_user(new_user) do
     GenServer.cast(DataStore, {:add_user, new_user})
   end
 
-  def get_current_room_id(account_name) do
-    GenServer.call(DataStore, {:get_current_room_id, account_name})
+  def get_current_room_id(username) do
+    GenServer.call(DataStore, {:get_current_room_id, username})
   end
-  def update_current_room_id(account_name, new_room_id) do
-    GenServer.cast(DataStore, {:update_current_room_id, {account_name, new_room_id}})
+  def update_current_room_id(username, new_room_id) do
+    GenServer.cast(DataStore, {:update_current_room_id, {username, new_room_id}})
   end
 
   def get_room(room_id) do
@@ -40,24 +40,24 @@ defmodule Zung.DataStore do
     {:ok, state}
   end
 
-  def handle_call({:account_exists, account_name}, _from, state) do
-    exists? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:account_name] == account_name))
+  def handle_call({:user_exists, username}, _from, state) do
+    exists? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:username] == username))
     {:reply, exists?, state}
   end
 
-  def handle_call({:account_uses_ansi, account_name}, _from, state) do
-    use_ansi? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:account_name] == account_name && &1[:use_ansi?]))
+  def handle_call({:user_uses_ansi, username}, _from, state) do
+    use_ansi? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:username] == username && &1[:use_ansi?]))
     {:reply, use_ansi?, state}
   end
 
-  def handle_call({:password_matches, account_name, password}, _from, state) do
-    matches? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:account_name] == account_name && &1[:password] == password))
+  def handle_call({:password_matches, username, password}, _from, state) do
+    matches? = Map.has_key?(state, :users) and Enum.any?(state[:users], &(&1[:username] == username && &1[:password] == password))
     {:reply, matches?, state}
   end
 
-  def handle_call({:get_current_room_id, account_name}, _from, state) do
+  def handle_call({:get_current_room_id, username}, _from, state) do
     room_id = Map.get(state, :locations, %{})
-      |> Map.get(account_name, "the_void")
+      |> Map.get(username, "the_void")
     {:reply, room_id, state}
   end
 
@@ -73,8 +73,8 @@ defmodule Zung.DataStore do
   def handle_cast({:add_user, new_user}, state) do
     {:noreply, Map.update(state, :users, [new_user], &([new_user | &1]))}
   end
-  def handle_cast({:update_current_room_id, {account_name, new_room_id}}, state) do
-    {:noreply, Map.update(state, :locations, %{account_name => new_room_id}, &Map.put(&1, account_name, new_room_id))}
+  def handle_cast({:update_current_room_id, {username, new_room_id}}, state) do
+    {:noreply, Map.update(state, :locations, %{username => new_room_id}, &Map.put(&1, username, new_room_id))}
   end
   def handle_cast(_request, state), do: {:noreply, state}
 end

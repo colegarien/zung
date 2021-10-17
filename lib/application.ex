@@ -5,11 +5,11 @@ defmodule Zung.Application do
     port = String.to_integer(System.get_env("PORT") || "4040")
 
     children = [
-      {Zung.Session, %{}},
+      {Zung.Client.Session, %{}},
       {Zung.DataStore, %{
         users: [
           %{
-            account_name: "ozzy",
+            username: "ozzy",
             password: "pass123",
             use_ansi?: true
           },

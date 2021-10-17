@@ -1,6 +1,6 @@
-defmodule Zung.SessionTest do
+defmodule Zung.Client.SessionTest do
   use ExUnit.Case, async: true
-  alias Zung.Session.State
+  alias Zung.Client.Session.State
 
   defp get_now(), do: :os.system_time(:millisecond)
 
@@ -88,7 +88,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    {_, actual, _} = Zung.Session.handle_call({:new, State.new}, nil, current_state)
+    {_, actual, _} = Zung.Client.Session.handle_call({:new, State.new}, nil, current_state)
 
     # Assert
     assert 3 === actual
@@ -102,7 +102,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    {_, actual, _} = Zung.Session.handle_call({:new, State.new}, nil, current_state)
+    {_, actual, _} = Zung.Client.Session.handle_call({:new, State.new}, nil, current_state)
 
     # Assert
     assert 6 === actual
@@ -116,7 +116,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    {_, actual, _} = Zung.Session.handle_call({:new, State.new}, nil, current_state)
+    {_, actual, _} = Zung.Client.Session.handle_call({:new, State.new}, nil, current_state)
 
     # Assert
     assert 6 === actual
@@ -128,7 +128,7 @@ defmodule Zung.SessionTest do
     current_state = %{}
 
     # Act
-    actual = Zung.Session.remove_inactive_sessions(current_state)
+    actual = Zung.Client.Session.remove_inactive_sessions(current_state)
 
     # Assert
     assert %{} === actual
@@ -141,7 +141,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    actual = Zung.Session.remove_inactive_sessions(current_state)
+    actual = Zung.Client.Session.remove_inactive_sessions(current_state)
 
     # Assert
     assert %{} === actual
@@ -156,7 +156,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    actual = Zung.Session.remove_inactive_sessions(current_state)
+    actual = Zung.Client.Session.remove_inactive_sessions(current_state)
 
     # Assert
     assert %{} === actual
@@ -172,7 +172,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    actual = Zung.Session.remove_inactive_sessions(current_state)
+    actual = Zung.Client.Session.remove_inactive_sessions(current_state)
 
     # Assert
     assert %{} === actual
@@ -184,7 +184,7 @@ defmodule Zung.SessionTest do
     current_state = %{}
 
     # Act
-    actual = Zung.Session.close_expired_sessions(current_state)
+    actual = Zung.Client.Session.close_expired_sessions(current_state)
 
     # Assert
     assert %{} === actual
@@ -202,7 +202,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    actual = Zung.Session.close_expired_sessions(current_state)
+    actual = Zung.Client.Session.close_expired_sessions(current_state)
 
     # Assert
     assert false === actual[1].is_authenticated
@@ -227,7 +227,7 @@ defmodule Zung.SessionTest do
     }
 
     # Act
-    actual = Zung.Session.close_expired_sessions(current_state)
+    actual = Zung.Client.Session.close_expired_sessions(current_state)
 
     # Assert
     assert false === actual[1].is_authenticated
