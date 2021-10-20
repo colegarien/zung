@@ -42,8 +42,7 @@ defmodule Zung.Client.User do
 
   # CLIENT SIDE
   def hash_password(username, password) do
-    # TODO would be nice to configure the salt...
-    salt = "_delicious_"
+    salt = Application.get_env(:zung, :secret_salt)
     :crypto.hash(:sha256, password <> username <> salt)
       |> Base.encode16()
       |> String.downcase()
