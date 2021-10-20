@@ -53,7 +53,6 @@ defmodule Zung.Client.Connection do
 
 
   def handle_info({:tcp, _, data}, %{queue: queue} = state) do
-    # TODO consider actually handling the negotiations, might be able to wrestle puTTY to not act weird by default
     # For info on telnet negotiations check out https://www.iana.org/assignments/telnet-options/telnet-options.xhtml
     # Currently, this strips out Telnet Negotiations and Trims Whitespace
     clean_data = data

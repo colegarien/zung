@@ -42,14 +42,13 @@ defmodule Zung.Client.User do
 
   # CLIENT SIDE
   def hash_password(username, password) do
-    # TODO would be nice to configure the salt...
-    salt = "_delicious_"
+    salt = Application.get_env(:zung, :secret_salt)
     :crypto.hash(:sha256, password <> username <> salt)
       |> Base.encode16()
       |> String.downcase()
   end
+
   def create_user(username, password, settings) do
-    # TODO see about only pulling settings actually available in the struct?
     GenServer.call(__MODULE__, {:new, %State{State.new | username: username, password: password, settings: settings }})
   end
 
