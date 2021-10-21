@@ -7,9 +7,11 @@ defmodule Zung.Client do
   alias Zung.Client.User
 
   def new(socket) do
-    session_id = Session.new_session(socket)
+    # TODO add simple 'say' command to start allowing players to interact (use gproc for a pubsub?)
     {:ok, connection_id} = Connection.start_link(socket)
     :ok = :gen_tcp.controlling_process(socket, connection_id)
+
+    session_id = Session.new_session(socket)
     %Zung.Client{
       session_id: session_id,
       connection_id: connection_id,
