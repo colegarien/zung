@@ -24,6 +24,18 @@ defmodule Zung.Client.Connection do
     GenServer.cast(pid, :end)
   end
 
+  def subscribe(pid, channel) do
+    GenServer.cast(pid, {:subscribe, channel})
+  end
+
+  def publish(pid, channel, message) do
+    GenServer.cast(pid, {:publish, channel, message})
+  end
+
+  def unsubscribe(pid, channel) do
+    GenServer.cast(pid, {:unsubscribe, channel})
+  end
+
   # SERVER SIDE
   def handle_call(:read, _from, %{queue: queue, is_closed: is_closed} = state) do
     cond do
@@ -47,6 +59,22 @@ defmodule Zung.Client.Connection do
     {:stop, :normal, %{state|is_closed: true}}
   end
 
+  def handle_cast({:subscribe, channel}, state) do
+    Zung.PubSub.subscribe(channel)
+    {:noreply, state}
+  end
+
+  def handle_cast({:publish, channel, message}, state) do
+    Zung.PubSub.publish(channel, message)
+    {:noreply, state}
+  end
+
+
+  def handle_cast({:unsubscribe, channel}, state) do
+    Zung.PubSub.unsubscribe(channel)
+    {:noreply, state}
+  end
+
   defp send_data(socket, data, use_ansi?) do
     :gen_tcp.send(socket, Zung.Game.Templater.template(data, use_ansi?))
   end
@@ -64,4 +92,14 @@ defmodule Zung.Client.Connection do
   def handle_info({:tcp_closed, _}, state), do: {:noreply, %{state|is_closed: true}}
   def handle_info({:tcp_error, _}, state), do: {:noreply, %{state|is_closed: true}}
 
+  def handle_info({publisher_pid, channel, {username, message}}, %{socket: socket, use_ansi?: use_ansi?} = state) do
+    from_user_text = if publisher_pid != self(), do: " #{username}", else: ""
+    send_data(socket, "||NL||||BOLD||||YEL||[||MAG||#{channel |> to_string |> String.upcase}||YEL||]#{from_user_text}: #{message}||RESET||||NL||", use_ansi?)
+    {:noreply, state}
+  end
+
+  def handle_info(msg, state) do
+    Logger.info "received message by #{inspect self()} > #{inspect msg}"
+    {:noreply, state}
+  end
 end

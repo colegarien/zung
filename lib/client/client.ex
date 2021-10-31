@@ -7,7 +7,6 @@ defmodule Zung.Client do
   alias Zung.Client.User
 
   def new(socket) do
-    # TODO add simple 'say' command to start allowing players to interact (use gproc for a pubsub?)
     {:ok, connection_id} = Connection.start_link(socket)
     :ok = :gen_tcp.controlling_process(socket, connection_id)
 
@@ -19,11 +18,18 @@ defmodule Zung.Client do
   end
 
   def authenticate_as(%Zung.Client{} = client, username) do
-      use_ansi? = User.get_setting(username, :use_ansi?)
+    use_ansi? = User.get_setting(username, :use_ansi?)
 
-      User.log_login(username)
-      Session.authenticate_session(client.session_id, username)
-      Connection.use_ansi(client.connection_id, use_ansi?)
+    User.log_login(username)
+    Session.authenticate_session(client.session_id, username)
+    Connection.use_ansi(client.connection_id, use_ansi?)
+
+    # TODO should this go somewhere else?
+    Connection.subscribe(client.connection_id, :ooc)
+  end
+
+  def publish(%Zung.Client{} = client, channel, message) do
+    Connection.publish(client.connection_id, channel, message)
   end
 
   def force_ansi(%Zung.Client{} = client, use_ansi?) do

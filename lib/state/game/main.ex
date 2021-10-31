@@ -16,7 +16,7 @@ defmodule Zung.State.Game.Main do
     Zung.Client.write_data(client, "||NL||||RESET||> ")
     {status, action} =
       with data <- Zung.Client.read_line(client),
-          {:ok, command} <- Zung.Game.Command.parse(data),
+          {:ok, command} <- Zung.Game.Command.parse(username, data),
           do: Zung.Game.Command.run(command)
 
     # TODO this be weird, refactor command pattern above!
@@ -38,6 +38,7 @@ defmodule Zung.State.Game.Main do
         {:ok, output} -> Zung.Client.write_line(client, output)
         {:look, :room} -> Zung.Client.write_data(client, Zung.Game.Room.describe(current_room))
         {:look, target} -> Zung.Client.write_line(client, Zung.Game.Room.look(current_room, target))
+        {:publish, {channel, message}} -> Zung.Client.publish(client, channel, message)
         {:error, :unknown_command} -> Zung.Client.write_line(client, "||GRN||Wut?||RESET||")
       end
       game_loop(client, username, current_room)

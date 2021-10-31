@@ -20,6 +20,7 @@ defmodule Zung.MixProject do
 
   defp deps do
     [
+      {:gproc, "~> 0.9.0"}
     ]
   end
 end

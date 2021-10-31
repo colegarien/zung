@@ -7,7 +7,7 @@ defmodule Zung.Game.Command do
   # TODO neat thing about room/area building -> http://www.forgottenkingdoms.org/builders/blessons.php
 
 
-  def parse(line) do
+  def parse(username, line) do
     # TODO the split seems like non-sense, maybe need to completely separate the parser and "command" excecutor
     case String.split(line) do
       ["do", thing] -> {:ok, {:do, thing}}
@@ -56,6 +56,9 @@ defmodule Zung.Game.Command do
       ["se"] -> {:move, :southeast}
       ["u"] -> {:move, :up}
       ["d"] -> {:move, :down}
+      ["ooc" | the_rest] ->
+        message = the_rest |> Enum.reduce("", &("#{&2} #{&1}")) |> String.trim
+        {:publish, {:ooc, {username, message}}}
       _ -> {:error, :unknown_command}
     end
   end
@@ -78,6 +81,10 @@ defmodule Zung.Game.Command do
 
   def run({:look, target}) do
     {:look, target}
+  end
+
+  def run({:publish, data}) do
+    {:publish, data}
   end
 
   def run(_command) do
