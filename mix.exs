@@ -20,7 +20,8 @@ defmodule Zung.MixProject do
 
   defp deps do
     [
-      {:gproc, "~> 0.9.0"}
+      {:gproc, "~> 0.9.0"},
+      {:mecks_unit, "~> 0.1.9", only: :test}
     ]
   end
 end
