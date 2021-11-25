@@ -7,7 +7,7 @@ defmodule Zung.Client do
   alias Zung.Client.User
 
   defmodule GameState do
-    defstruct [:username]
+    defstruct [:username, :room_id]
   end
 
 

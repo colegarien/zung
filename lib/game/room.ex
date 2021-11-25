@@ -12,6 +12,10 @@ defmodule Zung.Game.Room do
   # TODO write a whole bunch of tests for ROOM and expand functionality like hidden exits and such!?
   # TODO how for to do objects (might need to implement some kinda selector syntax?)
 
+  def get_room(room_id) do
+    Zung.DataStore.get_room(room_id)
+  end
+
   def describe(%Zung.Game.Room{} = room) do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
     description_string = "#{room.description}"
