@@ -102,4 +102,19 @@ defmodule Zung.Game.ParserTest do
     # Assert
     assert actual === {:move, {:direction, :west}}
   end
+
+  mocked_test "quit/0 test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+    }
+    input = "quit"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === :quit
+  end
 end

@@ -194,4 +194,19 @@ defmodule Zung.State.Game.GameTest do
     assert actual_client_north.game_state.room_id === "upper_left"
   end
 
+  mocked_test "quit the game" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "upper_left" },
+      input_buffer: :queue.in("quit\n" , :queue.new),
+    }
+
+    # Act
+    do_game = fn -> Game.do_game(client) end
+
+    # Assert
+    assert_raise(Zung.Error.Connection.Closed, do_game)
+  end
+
 end
