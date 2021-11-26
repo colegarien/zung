@@ -29,6 +29,7 @@ defmodule Zung.State.Game.Game do
             {:error, error_message} -> Zung.Client.push_output(new_client, error_message)
           end
         {:look, {:room, room_id}} -> Zung.Client.push_output(new_client, Zung.Game.Room.describe(Zung.Game.Room.get_room(room_id)))
+        :quit -> raise Zung.Error.Connection.Closed
         _ -> Zung.Client.push_output(new_client, "||GRN||Wut?||RESET||")
       end
     else

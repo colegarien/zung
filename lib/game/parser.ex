@@ -8,6 +8,7 @@ defmodule Zung.Game.Parser do
       "east" -> {:move, {:direction, :east}}
       "west" -> {:move, {:direction, :west}}
       "look" -> {:look, {:room, client.game_state.room_id}}
+      "quit" -> :quit
       _ -> :unknown_command
     end
   end
