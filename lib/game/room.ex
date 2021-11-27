@@ -12,9 +12,7 @@ defmodule Zung.Game.Room do
   # TODO write a whole bunch of tests for ROOM and expand functionality like hidden exits and such!?
   # TODO how for to do objects (might need to implement some kinda selector syntax?)
 
-  def get_room(room_id) do
-    Zung.DataStore.get_room(room_id)
-  end
+  def get_room(room_id), do: Zung.DataStore.get_room(room_id)
 
   def describe(%Zung.Game.Room{} = room) do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
@@ -34,7 +32,7 @@ defmodule Zung.Game.Room do
   def move(room, direction) do
     exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
     if Enum.count(exits_in_direction) > 0 do
-      {:ok, hd(exits_in_direction).to}
+      {:ok, hd(exits_in_direction).to |> get_room() }
     else
       {:error, "There is no where to go in that direction."}
     end

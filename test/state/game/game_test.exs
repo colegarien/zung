@@ -18,7 +18,7 @@ defmodule Zung.State.Game.GameTest do
     end
   end
 
-  defmock Zung.Game.Room, preserve: true do
+  defmock Zung.DataStore, preserve: true do
     def get_room(room_id) do
       case room_id do
         "test_room" -> %Zung.Game.Room{
@@ -84,7 +84,7 @@ defmodule Zung.State.Game.GameTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
     }
 
     # Act
@@ -100,7 +100,7 @@ defmodule Zung.State.Game.GameTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
       input_buffer: :queue.in("ladwijlaiwjd awkod awdj\n" , :queue.new),
     }
 
@@ -118,7 +118,7 @@ defmodule Zung.State.Game.GameTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
       input_buffer: :queue.in("look\n" , :queue.new),
     }
 
@@ -141,7 +141,7 @@ defmodule Zung.State.Game.GameTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
       input_buffer: :queue.in("north\n" , :queue.new),
     }
 
@@ -149,14 +149,14 @@ defmodule Zung.State.Game.GameTest do
     actual_client = Game.do_game(client)
 
     # Assert
-    assert actual_client.game_state.room_id === "test_room2"
+    assert actual_client.game_state.room.id === "test_room2"
   end
 
   mocked_test "move invalid direction" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room2" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room2") },
       input_buffer: :queue.in("north\n" , :queue.new),
     }
 
@@ -168,7 +168,7 @@ defmodule Zung.State.Game.GameTest do
     assert not :queue.is_empty(actual_client.output_buffer)
     {:value, actual_output } = :queue.peek(actual_client.output_buffer)
     assert actual_output === "There is no where to go in that direction."
-    assert actual_client.game_state.room_id === "test_room2"
+    assert actual_client.game_state.room.id === "test_room2"
   end
 
   mocked_test "walk the square" do
@@ -176,7 +176,7 @@ defmodule Zung.State.Game.GameTest do
     # client setup to walk east then south then west then north around the square
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "upper_left" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("upper_left") },
       input_buffer: :queue.in("north\n" ,:queue.in("west\n" ,:queue.in("south\n" ,:queue.in("east\n" , :queue.new)))),
     }
 
@@ -187,18 +187,18 @@ defmodule Zung.State.Game.GameTest do
     actual_client_north = Game.do_game(actual_client_west)
 
     # Assert
-    assert client.game_state.room_id === "upper_left"
-    assert actual_client_east.game_state.room_id === "upper_right"
-    assert actual_client_south.game_state.room_id === "lower_right"
-    assert actual_client_west.game_state.room_id === "lower_left"
-    assert actual_client_north.game_state.room_id === "upper_left"
+    assert client.game_state.room.id === "upper_left"
+    assert actual_client_east.game_state.room.id === "upper_right"
+    assert actual_client_south.game_state.room.id === "lower_right"
+    assert actual_client_west.game_state.room.id === "lower_left"
+    assert actual_client_north.game_state.room.id === "upper_left"
   end
 
   mocked_test "quit the game" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "upper_left" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("upper_left") },
       input_buffer: :queue.in("quit\n" , :queue.new),
     }
 

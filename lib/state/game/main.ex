@@ -23,8 +23,7 @@ defmodule Zung.State.Game.Main do
     if(status == :move) do
       move_action = Zung.Game.Room.move(current_room, action)
       case move_action do
-        {:ok, new_room_id} ->
-          new_room = Zung.DataStore.get_room(new_room_id)
+        {:ok, new_room} ->
           Zung.DataStore.update_current_room_id(username, new_room.id)
           Zung.Client.write_data(client, Zung.Game.Room.describe(new_room))
 

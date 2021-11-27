@@ -1,7 +1,22 @@
 defmodule Zung.Game.RoomTest do
   use ExUnit.Case, async: true
+  use MecksUnit.Case
 
   alias Zung.Game.Room, as: Room
+
+  defmock Zung.DataStore, preserve: true do
+    def get_room(room_id) do
+      case room_id do
+        "test_room" -> %Zung.Game.Room{
+          id: "test_room",
+          title: "The Test Room",
+          description: "A simple test room for testing units",
+          flavor_texts: [],
+          exits: [ %{ direction: :north, to: "test_room2" } ],
+        }
+      end
+    end
+  end
 
   # Features needing testing
   # ~~ - moving toward exits
@@ -17,10 +32,10 @@ defmodule Zung.Game.RoomTest do
   #  - add "exit flags" -> http://www.forgottenkingdoms.org/builders/rlesson3.php
   #  - add behaviors/programs to rooms/doors/objects/etc -> http://www.forgottenkingdoms.org/builders/rlesson5.php
   #                                                      -> http://www.forgottenkingdoms.org/builders/mobprogs.php
-  test "move in a direction without an exit" do
+  mocked_test "move in a direction without an exit" do
     # Arrange
     room = %Room{
-      exits: [%{ direction: :north, to: "some/room" }]
+      exits: [%{ direction: :north, to: "test_room" }]
     }
 
     # Act
@@ -30,21 +45,21 @@ defmodule Zung.Game.RoomTest do
     assert {:error, "There is no where to go in that direction."} = actual
   end
 
-  test "move in toward an open exit" do
+  mocked_test "move in toward an open exit" do
     # Arrange
     room = %Room{
-      exits: [%{ direction: :north, to: "some/room" }]
+      exits: [%{ direction: :north, to: "test_room" }]
     }
 
     # Act
     actual = Room.move(room, :north)
 
     # Assert
-    assert {:ok, "some/room"} = actual
+    assert {:ok, _} = actual
   end
 
 
-  test "look at nothing" do
+  mocked_test "look at nothing" do
     # Arrange
     room = %Room{}
 
@@ -55,7 +70,7 @@ defmodule Zung.Game.RoomTest do
     assert "You see nothing of interest." == actual
   end
 
-  test "look at a non exit horizontal direction" do
+  mocked_test "look at a non exit horizontal direction" do
     # Arrange
     room = %Room{}
 
@@ -72,7 +87,7 @@ defmodule Zung.Game.RoomTest do
     assert "There is nothing of interest to see to the west." == actual_west
   end
 
-  test "look at a non exit vertical direction" do
+  mocked_test "look at a non exit vertical direction" do
     # Arrange
     room = %Room{}
 
@@ -85,7 +100,7 @@ defmodule Zung.Game.RoomTest do
     assert "There is nothing of interest to see below." == actual_below
   end
 
-  test "look at a non-descript exit of the room" do
+  mocked_test "look at a non-descript exit of the room" do
     # Arrange
     room = %Room{
       exits: [
@@ -103,7 +118,7 @@ defmodule Zung.Game.RoomTest do
     assert "Nothing to see, just an exit above." == actual_above
   end
 
-  test "look at a named exit of the room" do
+  mocked_test "look at a named exit of the room" do
     # Arrange
     room = %Room{
       exits: [
@@ -129,7 +144,7 @@ defmodule Zung.Game.RoomTest do
     assert "Nothing to see, just a steel hatch above." == actual_above
   end
 
-  test "look at a customly describe exit of the room" do
+  mocked_test "look at a customly describe exit of the room" do
     # Arrange
     room = %Room{
       exits: [
@@ -156,7 +171,7 @@ defmodule Zung.Game.RoomTest do
     assert "Complete garbage truck nonsense" == actual_above
   end
 
-  test "look at flavor text" do
+  mocked_test "look at flavor text" do
     # Arrange
     room = %Room{
       flavor_texts: [

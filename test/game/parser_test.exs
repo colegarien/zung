@@ -13,11 +13,19 @@ defmodule Zung.Game.ParserTest do
     end
   end
 
+  @test_room %Zung.Game.Room{
+    id: "test_room",
+    title: "The Test Room",
+    description: "A simple test room for testing units",
+    flavor_texts: [],
+    exits: [ %{ direction: :north, to: "test_room2" } ],
+  }
+
   mocked_test "no input is an unknown command" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = ""
 
@@ -32,7 +40,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "look"
 
@@ -40,14 +48,14 @@ defmodule Zung.Game.ParserTest do
     actual = Parser.parse(client, input)
 
     # Assert
-    assert actual === {:look, {:room, "test_room"}}
+    assert actual === {:look, {:room, @test_room}}
   end
 
   mocked_test "north/0 test" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "north"
 
@@ -62,7 +70,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "south"
 
@@ -77,7 +85,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "east"
 
@@ -92,7 +100,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "west"
 
@@ -107,7 +115,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room_id: "test_room" },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
     input = "quit"
 
