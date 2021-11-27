@@ -7,6 +7,8 @@ defmodule Zung.Game.Parser do
       "south" -> {:move, {:direction, :south}}
       "east" -> {:move, {:direction, :east}}
       "west" -> {:move, {:direction, :west}}
+      "up" -> {:move, {:direction, :up}}
+      "down" -> {:move, {:direction, :down}}
       "look" -> parse_look(client, arguments)
       "quit" -> :quit
       _ -> :unknown_command
@@ -25,7 +27,7 @@ defmodule Zung.Game.Parser do
 
   defp parse_look_target(%Zung.Game.Room{} = room, arguments) do
     argument = join_arguments(arguments)
-    if(argument in ["north", "south", "east", "west"]) do
+    if(argument in ["north", "south", "east", "west", "up", "down"]) do
       {:direction, String.to_atom(argument)}
     else
       flavor = Enum.find(room.flavor_texts, %{id: "", text: ""}, &(argument === &1.id or argument in &1.keywords))

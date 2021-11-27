@@ -91,6 +91,26 @@ defmodule Zung.State.Game.GameTest do
             %{ direction: :north, to: "upper_right" },
           ],
         }
+        "infinite_shaft_1" -> %Zung.Game.Room{
+          id: "infinite_shaft_1",
+          title: "Dark Mineshaft",
+          description: "A deep dark and dirty mineshaft",
+          flavor_texts: [],
+          exits: [
+            %{ direction: :up, to: "infinite_shaft_2" },
+            %{ direction: :down, to: "infinite_shaft_2" },
+          ],
+        }
+        "infinite_shaft_2" -> %Zung.Game.Room{
+          id: "infinite_shaft_2",
+          title: "Dark Mineshaft",
+          description: "A deep dark and dirty mineshaft",
+          flavor_texts: [],
+          exits: [
+            %{ direction: :up, to: "infinite_shaft_1" },
+            %{ direction: :down, to: "infinite_shaft_1" },
+          ],
+        }
         _ -> %Zung.Game.Room{}
       end
     end
@@ -298,6 +318,25 @@ defmodule Zung.State.Game.GameTest do
     assert actual_client_south.game_state.room.id === "lower_right"
     assert actual_client_west.game_state.room.id === "lower_left"
     assert actual_client_north.game_state.room.id === "upper_left"
+  end
+
+  mocked_test "climb the square" do
+    # Arrange
+    # client setup to walk east then south then west then north around the square
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("infinite_shaft_1") },
+      input_buffer: :queue.in("down\n" ,:queue.in("up\n" , :queue.new)),
+    }
+
+    # Act
+    actual_client_up = Game.do_game(client)
+    actual_client_down = Game.do_game(actual_client_up)
+
+    # Assert
+    assert client.game_state.room.id === "infinite_shaft_1"
+    assert actual_client_up.game_state.room.id === "infinite_shaft_2"
+    assert actual_client_down.game_state.room.id === "infinite_shaft_1"
   end
 
   mocked_test "quit the game" do

@@ -161,18 +161,24 @@ defmodule Zung.Game.ParserTest do
     input_south = "look south"
     input_east = "look east"
     input_west = "look west"
+    input_up = "look up"
+    input_down = "look down"
 
     # Act
     actual_north = Parser.parse(client, input_north)
     actual_south = Parser.parse(client, input_south)
     actual_east = Parser.parse(client, input_east)
     actual_west = Parser.parse(client, input_west)
+    actual_up = Parser.parse(client, input_up)
+    actual_down = Parser.parse(client, input_down)
 
     # Assert
     assert actual_north === {:look, @test_room, {:direction, :north}}
     assert actual_south === {:look, @test_room, {:direction, :south}}
     assert actual_east === {:look, @test_room, {:direction, :east}}
     assert actual_west === {:look, @test_room, {:direction, :west}}
+    assert actual_up === {:look, @test_room, {:direction, :up}}
+    assert actual_down === {:look, @test_room, {:direction, :down}}
   end
 
   mocked_test "north/0 test" do
@@ -233,6 +239,36 @@ defmodule Zung.Game.ParserTest do
 
     # Assert
     assert actual === {:move, {:direction, :west}}
+  end
+
+  mocked_test "up/0 test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "up"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:direction, :up}}
+  end
+
+  mocked_test "down/0 test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "down"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:direction, :down}}
   end
 
   mocked_test "quit/0 test" do
