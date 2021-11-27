@@ -17,7 +17,23 @@ defmodule Zung.Game.ParserTest do
     id: "test_room",
     title: "The Test Room",
     description: "A simple test room for testing units",
-    flavor_texts: [],
+    flavor_texts: [
+      %{
+        id: "simple_flavor",
+        keywords: ["tasty"],
+        text: "You see something quite flavorful"
+      },
+      %{
+        id: "compound_flavor",
+        keywords: ["big time"],
+        text: "You see something the has some big time flavor"
+      },
+      %{
+        id: "complex_flavor",
+        keywords: ["this and that", "that and this", "this", "that"],
+        text: "You see a little bit of this and a little bit of that"
+      }
+    ],
     exits: [ %{ direction: :north, to: "test_room2" } ],
   }
 
@@ -48,7 +64,115 @@ defmodule Zung.Game.ParserTest do
     actual = Parser.parse(client, input)
 
     # Assert
-    assert actual === {:look, {:room, @test_room}}
+    assert actual === {:look, @test_room}
+  end
+
+  mocked_test "look/1 unknown flavor test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look some straight garbage"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:look, @test_room, {:flavor, ""}}
+  end
+
+  mocked_test "look/1 direct flavor reference test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look simple_flavor"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:look, @test_room, {:flavor, "simple_flavor"}}
+  end
+
+  mocked_test "look/1 simple flavor test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look tasty"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:look, @test_room, {:flavor, "simple_flavor"}}
+  end
+
+  mocked_test "look/1 compound flavor test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look big time"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:look, @test_room, {:flavor, "compound_flavor"}}
+  end
+
+  mocked_test "look/1 complex flavor test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input_a = "look this and that"
+    input_b = "look that and this"
+    input_c = "look this"
+    input_d = "look that"
+
+    # Act
+    actual_a = Parser.parse(client, input_a)
+    actual_b = Parser.parse(client, input_b)
+    actual_c = Parser.parse(client, input_c)
+    actual_d = Parser.parse(client, input_d)
+
+    # Assert
+    assert actual_a === {:look, @test_room, {:flavor, "complex_flavor"}}
+    assert actual_b === {:look, @test_room, {:flavor, "complex_flavor"}}
+    assert actual_c === {:look, @test_room, {:flavor, "complex_flavor"}}
+    assert actual_d === {:look, @test_room, {:flavor, "complex_flavor"}}
+  end
+
+  mocked_test "look/1 direction test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input_north = "look north"
+    input_south = "look south"
+    input_east = "look east"
+    input_west = "look west"
+
+    # Act
+    actual_north = Parser.parse(client, input_north)
+    actual_south = Parser.parse(client, input_south)
+    actual_east = Parser.parse(client, input_east)
+    actual_west = Parser.parse(client, input_west)
+
+    # Assert
+    assert actual_north === {:look, @test_room, {:direction, :north}}
+    assert actual_south === {:look, @test_room, {:direction, :south}}
+    assert actual_east === {:look, @test_room, {:direction, :east}}
+    assert actual_west === {:look, @test_room, {:direction, :west}}
   end
 
   mocked_test "north/0 test" do

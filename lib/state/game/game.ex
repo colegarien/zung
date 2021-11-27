@@ -28,7 +28,8 @@ defmodule Zung.State.Game.Game do
             {:ok, new_room} -> %Zung.Client{new_client | game_state: %Zung.Client.GameState{new_client.game_state | room: new_room}}
             {:error, error_message} -> Zung.Client.push_output(new_client, error_message)
           end
-        {:look, {:room, room}} -> Zung.Client.push_output(new_client, Zung.Game.Room.describe(room))
+        {:look, room} -> Zung.Client.push_output(new_client, Zung.Game.Room.describe(room))
+        {:look, room, target} -> Zung.Client.push_output(new_client, Zung.Game.Room.look_at(room, target))
         :quit -> raise Zung.Error.Connection.Closed
         _ -> Zung.Client.push_output(new_client, "||GRN||Wut?||RESET||")
       end

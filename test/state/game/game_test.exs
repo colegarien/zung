@@ -25,7 +25,23 @@ defmodule Zung.State.Game.GameTest do
           id: "test_room",
           title: "The Test Room",
           description: "A simple test room for testing units",
-          flavor_texts: [],
+          flavor_texts: [
+            %{
+              id: "simple_flavor",
+              keywords: ["tasty"],
+              text: "You see something quite flavorful"
+            },
+            %{
+              id: "compound_flavor",
+              keywords: ["big time"],
+              text: "You see something the has some big time flavor"
+            },
+            %{
+              id: "complex_flavor",
+              keywords: ["this and that", "that and this", "this", "that"],
+              text: "You see a little bit of this and a little bit of that"
+            }
+          ],
           exits: [ %{ direction: :north, to: "test_room2" } ],
         }
         "test_room2" -> %Zung.Game.Room{
@@ -33,7 +49,7 @@ defmodule Zung.State.Game.GameTest do
           title: "The Second Test Room",
           description: "Another simple test room for testing units",
           flavor_texts: [],
-          exits: [ %{ direction: :south, to: "test_room" } ],
+          exits: [ %{ direction: :south, to: "test_room", description: "You glance down a tight and southern-winding hallway." } ],
         }
         "upper_left" -> %Zung.Game.Room{
           id: "upper_left",
@@ -135,6 +151,96 @@ defmodule Zung.State.Game.GameTest do
 ||BOLD||||CYA||-{ Exits: north }-||RESET||
 
 """
+  end
+
+  mocked_test "look at flavor command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("look tasty\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "You see something quite flavorful"
+  end
+
+  mocked_test "look at missing flavor command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("look absolute garbage\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "You see nothing of interest."
+  end
+
+  mocked_test "look at a direction with no exit command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("look west\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "There is nothing of interest to see to the west."
+  end
+
+  mocked_test "look at uninteresting direction command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("look north\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "Nothing to see, just an exit to the north."
+  end
+
+  mocked_test "look at descriptive direction command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room2") },
+      input_buffer: :queue.in("look south\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "You glance down a tight and southern-winding hallway."
   end
 
   mocked_test "move north" do

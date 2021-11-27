@@ -29,6 +29,21 @@ defmodule Zung.Game.Room do
 """
   end
 
+  def look_at(room, {:flavor, flavor_text_id}) do
+    Enum.find(room.flavor_texts, %{text: "You see nothing of interest."}, &(flavor_text_id === &1.id)).text
+  end
+  def look_at(room, {:direction, direction}) do
+    exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
+    if Enum.count(exits_in_direction) > 0 do
+      exits_in_direction
+        |> hd
+        |> describe_exit
+    else
+      "There is nothing of interest to see #{direction_to_text(direction)}."
+    end
+  end
+  def look_at(_room, _target), do: "You see nothing of interest."
+
   def move(room, direction) do
     exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
     if Enum.count(exits_in_direction) > 0 do
