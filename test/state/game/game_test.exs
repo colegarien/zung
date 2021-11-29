@@ -16,6 +16,12 @@ defmodule Zung.State.Game.GameTest do
       # don't actually flush output so we can pick at it during testing
       client
     end
+
+    def publish(%Zung.Client{} = client, _channel, _message) do
+      # do nothing during testing
+      client
+    end
+
   end
 
   defmock Zung.DataStore, preserve: true do
@@ -354,4 +360,37 @@ defmodule Zung.State.Game.GameTest do
     assert_raise(Zung.Error.Connection.Closed, do_game)
   end
 
+  mocked_test "csay missing channel, test bad parse" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("csay\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert not :queue.is_empty(actual_client.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert actual_output === "||RED||You must specify a channel and message.||RESET||"
+  end
+
+  mocked_test "csay to ooc" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      input_buffer: :queue.in("csay ooc howdy y'all\n" , :queue.new),
+    }
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.input_buffer)
+    assert :queue.is_empty(actual_client.output_buffer)
+  end
 end

@@ -35,7 +35,9 @@ defmodule Zung.State.Game.Game do
           end
         {:look, room} -> Zung.Client.push_output(new_client, Zung.Game.Room.describe(room))
         {:look, room, target} -> Zung.Client.push_output(new_client, Zung.Game.Room.look_at(room, target))
+        {:csay, channel, message} -> Zung.Client.publish(new_client, channel, message)
         :quit -> raise Zung.Error.Connection.Closed
+        {:bad_parse, message} -> Zung.Client.push_output(new_client, "||RED||#{message}||RESET||")
         _ -> Zung.Client.push_output(new_client, "||GRN||Wut?||RESET||")
       end
     else

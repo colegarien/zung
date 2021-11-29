@@ -25,6 +25,9 @@ defmodule Zung.Client do
         "u" => "up",
         "d" => "down",
       },
+      subscribed_channels: [
+        "ooc",
+      ],
     ]
   end
 
@@ -84,7 +87,8 @@ defmodule Zung.Client do
   end
 
   def publish(%Zung.Client{} = client, channel, message) do
-    Connection.publish(client.connection_id, channel, message)
+    Connection.publish(client.connection_id, channel, {client.game_state.username, message})
+    client
   end
 
   def force_ansi(%Zung.Client{} = client, use_ansi?) do

@@ -16,6 +16,7 @@ defmodule Zung.Game.Parser do
       "up" -> {:move, {:direction, :up}}
       "down" -> {:move, {:direction, :down}}
       "look" -> parse_look(client, arguments)
+      "csay" -> parse_csay(client, arguments)
       "quit" -> :quit
       _ -> :unknown_command
     end
@@ -33,12 +34,25 @@ defmodule Zung.Game.Parser do
   end
 
   defp parse_look_target(%Zung.Game.Room{} = room, arguments) do
-    argument = join_arguments(arguments)
+    argument = join_arguments(arguments) |> String.downcase
     if(argument in ["north", "south", "east", "west", "up", "down"]) do
       {:direction, String.to_atom(argument)}
     else
       flavor = Enum.find(room.flavor_texts, %{id: "", text: ""}, &(argument === &1.id or argument in &1.keywords))
       {:flavor, flavor.id}
+    end
+  end
+
+  defp parse_csay(%Zung.Client{} = client, arguments) do
+    if Enum.count(arguments) < 2 do
+      {:bad_parse, "You must specify a channel and message."}
+    else
+      [channel | message_pieces] = arguments
+      if channel not in client.game_state.subscribed_channels do
+        {:bad_parse, "You are not part of the \"#{channel}\" channel."}
+      else
+        {:csay, String.to_atom(channel), join_arguments(message_pieces)}
+      end
     end
   end
 
@@ -67,7 +81,6 @@ defmodule Zung.Game.Parser do
   defp join_arguments(arguments) do
     arguments
       |> Enum.reduce("", &("#{&2} #{&1}"))
-      |> String.downcase
       |> String.trim
   end
 end

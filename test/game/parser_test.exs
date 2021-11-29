@@ -366,4 +366,49 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:look, @test_room, {:flavor, "simple_flavor"}}
   end
 
+  mocked_test "csay missing channel do bad_parse" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "csay"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:bad_parse, "You must specify a channel and message."}
+  end
+
+  mocked_test "csay non-subscribed channel do bad_parse" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "csay bad_channel hi all"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:bad_parse, "You are not part of the \"bad_channel\" channel."}
+  end
+
+  mocked_test "csay to a subscribed channel" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "csay ooc hi all"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:csay, :ooc, "hi all"}
+  end
+
 end
