@@ -350,4 +350,19 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:look, @test_room, {:flavor, "complex_flavor"}}
   end
 
+  mocked_test "look allow syntactic sugar words test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look at the tasty"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:look, @test_room, {:flavor, "simple_flavor"}}
+  end
+
 end

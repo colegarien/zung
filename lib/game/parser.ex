@@ -23,11 +23,12 @@ defmodule Zung.Game.Parser do
 
   defp parse_look(%Zung.Client{} = client, arguments) do
     current_room = client.game_state.room
-    case arguments do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["to", "the", "at", "in"]))
+    case valid_arguments do
       # look/0
       [] -> {:look, current_room}
       # look/1
-      _ -> {:look, current_room, parse_look_target(current_room, arguments)}
+      _ -> {:look, current_room, parse_look_target(current_room, valid_arguments)}
     end
   end
 
