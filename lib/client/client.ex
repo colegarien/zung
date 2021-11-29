@@ -1,6 +1,21 @@
 defmodule Zung.Client do
   @enforce_keys [:session_id, :connection_id]
-  defstruct [:session_id, :connection_id, :game_state, input_buffer: :queue.new, output_buffer: :queue.new]
+  defstruct [
+    :session_id,
+    :connection_id,
+    :game_state,
+    input_buffer: :queue.new,
+    output_buffer: :queue.new,
+    command_aliases: %{
+      "l" => "look",
+      "n" => "north",
+      "s" => "south",
+      "e" => "east",
+      "w" => "west",
+      "u" => "up",
+      "d" => "down",
+    }
+  ]
 
   alias Zung.Client.Connection
   alias Zung.Client.Session

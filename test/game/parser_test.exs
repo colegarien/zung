@@ -181,6 +181,36 @@ defmodule Zung.Game.ParserTest do
     assert actual_down === {:look, @test_room, {:direction, :down}}
   end
 
+  mocked_test "aliases - look and direction test" do
+      # Arrange
+      client = %Zung.Client{
+        Zung.Client.new(nil) |
+        game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      }
+      input_north = "l n"
+      input_south = "l s"
+      input_east = "l e"
+      input_west = "l w"
+      input_up = "l u"
+      input_down = "l d"
+
+      # Act
+      actual_north = Parser.parse(client, input_north)
+      actual_south = Parser.parse(client, input_south)
+      actual_east = Parser.parse(client, input_east)
+      actual_west = Parser.parse(client, input_west)
+      actual_up = Parser.parse(client, input_up)
+      actual_down = Parser.parse(client, input_down)
+
+      # Assert
+      assert actual_north === {:look, @test_room, {:direction, :north}}
+      assert actual_south === {:look, @test_room, {:direction, :south}}
+      assert actual_east === {:look, @test_room, {:direction, :east}}
+      assert actual_west === {:look, @test_room, {:direction, :west}}
+      assert actual_up === {:look, @test_room, {:direction, :up}}
+      assert actual_down === {:look, @test_room, {:direction, :down}}
+  end
+
   mocked_test "north/0 test" do
     # Arrange
     client = %Zung.Client{
@@ -269,6 +299,22 @@ defmodule Zung.Game.ParserTest do
 
     # Assert
     assert actual === {:move, {:direction, :down}}
+  end
+
+  mocked_test "no aliases do unknown command" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      command_aliases: %{},
+    }
+    input = "l"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === :unknown_command
   end
 
   mocked_test "quit/0 test" do

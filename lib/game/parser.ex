@@ -1,7 +1,13 @@
 defmodule Zung.Game.Parser do
+  require Logger
+
+  # TODO ideas for commands -> https://github.com/sneezymud/dikumud/blob/master/lib/help_table
+  # TODO cool alias section -> https://github.com/Yuffster/CircleMUD/blob/master/lib/text/help/commands.hlp
+  # TODO nice website -> https://dslmud.fandom.com/wiki/Commands
+  # TODO neat thing about room/area building -> http://www.forgottenkingdoms.org/builders/blessons.php
 
   def parse(%Zung.Client{} = client, input) do
-    {command, arguments} = input |> split
+    {command, arguments} = input |> apply_aliases(client) |> split
     case command do
       "north" -> {:move, {:direction, :north}}
       "south" -> {:move, {:direction, :south}}
@@ -33,6 +39,20 @@ defmodule Zung.Game.Parser do
       flavor = Enum.find(room.flavor_texts, %{id: "", text: ""}, &(argument === &1.id or argument in &1.keywords))
       {:flavor, flavor.id}
     end
+  end
+
+  defp apply_aliases("", _), do: ""
+  defp apply_aliases(input, %Zung.Client{} = client) when client.command_aliases === %{}, do: input
+  defp apply_aliases(input, %Zung.Client{} = client) do
+    {:ok, alias_regex} = Regex.compile(~S"\b(" <> Enum.reduce(Map.keys(client.command_aliases), "", fn cmd, acc ->
+      if acc === "" do
+        cmd
+      else
+         cmd <> "|" <> acc
+      end
+    end) <> ~S")\b")
+
+    Regex.replace(alias_regex, input, fn _, match -> client.command_aliases[match] end)
   end
 
   defp split(""), do: {nil, []}
