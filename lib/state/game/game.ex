@@ -2,14 +2,19 @@ defmodule Zung.State.Game.Game do
   require Logger
   @behaviour Zung.State.State
 
-  def run(%Zung.Client{game_state: %Zung.Client.GameState{}} = client, _) do
-    # TODO add a sleep here?
-    do_game(client) |> run(%{})
-  end
   def run(%Zung.Client{} = client, data) do
     # Convert simple state data into GameData struct
     game_state = %Zung.Client.GameState{ username: data[:username], room: Zung.Game.Room.get_room(data[:room_id]) }
+
+    # MOTD and welcome!
+    Zung.Client.push_output(client, "||NL||||YEL||Welcome #{game_state.username}!||RESET||")
+    Zung.Client.push_output(client, Zung.Game.Room.describe(game_state.room))
+
     run(%Zung.Client{client | game_state: game_state}, %{})
+  end
+  def run(%Zung.Client{game_state: %Zung.Client.GameState{}} = client, _) do
+    # TODO add a sleep here?
+    do_game(client) |> run(%{})
   end
 
 

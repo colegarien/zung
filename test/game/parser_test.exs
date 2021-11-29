@@ -320,8 +320,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
-      command_aliases: %{},
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, command_aliases: %{} }
     }
     input = "l"
 
@@ -336,9 +335,11 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
-      command_aliases: %{
-        "this is a big one" => "look"
+      game_state: %Zung.Client.GameState{
+        username: "tim_allen", room: @test_room,
+        command_aliases: %{
+          "this is a big one" => "look"
+        },
       },
     }
     input = "this is a big one this and that"

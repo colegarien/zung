@@ -5,16 +5,7 @@ defmodule Zung.Client do
     :connection_id,
     :game_state,
     input_buffer: :queue.new,
-    output_buffer: :queue.new,
-    command_aliases: %{
-      "l" => "look",
-      "n" => "north",
-      "s" => "south",
-      "e" => "east",
-      "w" => "west",
-      "u" => "up",
-      "d" => "down",
-    }
+    output_buffer: :queue.new
   ]
 
   alias Zung.Client.Connection
@@ -25,6 +16,15 @@ defmodule Zung.Client do
     defstruct [
       :username,
       room: %Zung.Game.Room{},
+      command_aliases: %{
+        "l" => "look",
+        "n" => "north",
+        "s" => "south",
+        "e" => "east",
+        "w" => "west",
+        "u" => "up",
+        "d" => "down",
+      },
     ]
   end
 

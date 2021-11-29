@@ -43,9 +43,9 @@ defmodule Zung.Game.Parser do
   end
 
   defp apply_aliases("", _), do: ""
-  defp apply_aliases(input, %Zung.Client{} = client) when client.command_aliases === %{}, do: input
+  defp apply_aliases(input, %Zung.Client{} = client) when client.game_state.command_aliases === %{}, do: input
   defp apply_aliases(input, %Zung.Client{} = client) do
-    {:ok, alias_regex} = Regex.compile(~S"\b(" <> Enum.reduce(Map.keys(client.command_aliases), "", fn cmd, acc ->
+    {:ok, alias_regex} = Regex.compile(~S"\b(" <> Enum.reduce(Map.keys(client.game_state.command_aliases), "", fn cmd, acc ->
       if acc === "" do
         cmd
       else
@@ -53,7 +53,7 @@ defmodule Zung.Game.Parser do
       end
     end) <> ~S")\b")
 
-    Regex.replace(alias_regex, input, fn _, match -> client.command_aliases[match] end)
+    Regex.replace(alias_regex, input, fn _, match -> client.game_state.command_aliases[match] end)
   end
 
   defp split(""), do: {nil, []}
