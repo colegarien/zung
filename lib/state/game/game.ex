@@ -21,6 +21,7 @@ defmodule Zung.State.Game.Game do
         {:move, {:direction, direction}} ->
           case Zung.Game.Room.move(new_client.game_state.room, direction) do
             {:ok, new_room} ->
+              Zung.DataStore.update_current_room_id(client.game_state.username, new_room.id)
               %Zung.Client{new_client | game_state: %Zung.Client.GameState{new_client.game_state | room: new_room}}
                 |> Zung.Client.push_output(Zung.Game.Room.describe(new_room))
             {:error, error_message} -> Zung.Client.push_output(new_client, error_message)

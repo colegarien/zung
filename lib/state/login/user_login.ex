@@ -16,8 +16,7 @@ defmodule Zung.State.Login.UserLogin do
     Zung.Client.raw_write(client, "||ECHO_ON||||NL||")
 
     if Zung.Client.User.password_matches?(username, password) do
-      Zung.Client.authenticate_as(client, username)
-      {Zung.State.Game.Init, client, %{username: username, room_id: Zung.DataStore.get_current_room_id(username)}}
+      {Zung.State.Game.Init, client, %{ username: username }}
     else
       Zung.Client.raw_write_line(client, "||RED||Incorrect Password.||RESET||")
       handle_login(client, username, attempt + 1, max_attempts)

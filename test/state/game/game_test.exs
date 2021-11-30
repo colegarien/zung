@@ -391,7 +391,7 @@ defmodule Zung.State.Game.GameTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room"), subscribed_channels: [ "ooc" ] },
       input_buffer: :queue.in("csay ooc howdy y'all\n" , :queue.new),
     }
 

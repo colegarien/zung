@@ -400,7 +400,7 @@ defmodule Zung.Game.ParserTest do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, subscribed_channels: [ "ooc" ] },
     }
     input = "csay ooc hi all"
 

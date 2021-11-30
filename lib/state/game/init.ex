@@ -2,17 +2,33 @@ defmodule Zung.State.Game.Init do
   require Logger
   @behaviour Zung.State.State
 
-  def run(%Zung.Client{} = client, data) do
-    # Convert simple state data into GameData struct
-    game_state = %Zung.Client.GameState{ username: data[:username], room: Zung.Game.Room.get_room(data[:room_id]) }
+  def run(%Zung.Client{} = client, %{username: username}) do
+    # auth, init game state, and welcome
+    new_client = Zung.Client.authenticate_as(client, username)
+      |> Map.put(:game_state, build_game_state(username))
+      |> subscribe_to_channels
+      |> output_welcome
 
-    # MOTD and welcome!
-    init_client = %Zung.Client{client | game_state: game_state}
-      |> Zung.Client.push_output("||NL||||YEL||Welcome #{game_state.username}!||RESET||")
-      |> Zung.Client.push_output(Zung.Game.Room.describe(game_state.room))
+    {Zung.State.Game.Game, new_client, %{}}
+  end
+
+  defp build_game_state(username) do
+    start_room = Zung.DataStore.get_current_room_id(username) |> Zung.Game.Room.get_room
+    %Zung.Client.GameState {
+      username: username,
+      room: start_room
+    }
+  end
+
+  defp subscribe_to_channels(client) do
+    client
+      |> Zung.Client.subscribe("ooc")
+  end
+
+  defp output_welcome(client) do
+    client
+      |> Zung.Client.push_output("||NL||||YEL||Welcome #{client.game_state.username}!||RESET||")
+      |> Zung.Client.push_output(Zung.Game.Room.describe(client.game_state.room))
       |> Zung.Client.flush_output
-
-    # Jump into the actual Game
-    {Zung.State.Game.Game, init_client, %{}}
   end
 end

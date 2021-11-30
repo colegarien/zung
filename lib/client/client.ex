@@ -25,9 +25,7 @@ defmodule Zung.Client do
         "u" => "up",
         "d" => "down",
       },
-      subscribed_channels: [
-        "ooc",
-      ],
+      subscribed_channels: [],
     ]
   end
 
@@ -83,8 +81,17 @@ defmodule Zung.Client do
     Session.authenticate_session(client.session_id, username)
     Connection.use_ansi(client.connection_id, use_ansi?)
 
-    # TODO should this go somewhere else?
-    Connection.subscribe(client.connection_id, :ooc)
+    client
+  end
+
+  def subscribe(%Zung.Client{} = client, channels=[]), do: Enum.reduce(channels, client, fn channel, new_client -> subscribe(new_client, channel) end)
+  def subscribe(%Zung.Client{} = client, channel) do
+    if(client.game_state !== nil and channel not in client.game_state.subscribed_channels) do
+      Connection.subscribe(client.connection_id, String.to_atom(channel))
+      Map.put(client, :game_state, Map.put(client.game_state, :subscribed_channels, [channel | client.game_state.subscribed_channels]))
+    else
+      client
+    end
   end
 
   def publish(%Zung.Client{} = client, channel, message) do
