@@ -12,6 +12,15 @@ defmodule Zung.State.Game.GameTest do
       }
     end
 
+    def pop_input(%Zung.Client{} = client) do
+      if :queue.is_empty(client.input_buffer) do
+        {client, nil}
+      else
+        {{:value, input}, new_queue} = :queue.out(client.input_buffer)
+        {%Zung.Client{client | input_buffer: new_queue}, input}
+      end
+    end
+
     def flush_output(%Zung.Client{} = client) do
       # don't actually flush output so we can pick at it during testing
       client

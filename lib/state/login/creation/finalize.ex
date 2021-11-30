@@ -16,15 +16,15 @@ area benefits and such here.
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    Zung.Client.clear_screen(client)
-    Zung.Client.write_data(client, String.replace(@finalize_message, "username", data[:username]));
+    Zung.Client.raw_clear_screen(client)
+    Zung.Client.raw_write(client, String.replace(@finalize_message, "username", data[:username]));
 
     finalize_user(data)
     Zung.Client.authenticate_as(client, data[:username])
 
     # wait for user to hit Enter
-    Zung.Client.read_line(client)
-    {Zung.State.Game.Main, client, %{username: data[:username]}}
+    Zung.Client.raw_read(client)
+    {Zung.State.Game.Init, client, %{username: data[:username], room_id: "newbie/room_1"}}
   end
 
   defp finalize_user(data) do

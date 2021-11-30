@@ -3,7 +3,7 @@ defmodule Zung.Client.Connection do
   use GenServer
 
   def start_link(socket) do
-    GenServer.start_link(__MODULE__, %{socket: socket, use_ansi?: false, queue: :queue.new, is_closed: false})
+    GenServer.start_link(__MODULE__, %{socket: socket, use_ansi?: false, input_buffer: :queue.new, is_closed: false})
   end
   def init(state), do: {:ok, state}
 
@@ -37,12 +37,12 @@ defmodule Zung.Client.Connection do
   end
 
   # SERVER SIDE
-  def handle_call(:read, _from, %{queue: queue, is_closed: is_closed} = state) do
+  def handle_call(:read, _from, %{input_buffer: input_buffer, is_closed: is_closed} = state) do
     cond do
       is_closed -> {:reply, {:error, :closed}, state}
-      :queue.len(queue) > 0 ->
-        {{:value, data}, new_queue} = :queue.out(queue)
-        {:reply, {:ok, data}, %{state | queue: new_queue}}
+      :queue.len(input_buffer) > 0 ->
+        {{:value, data}, new_buffer} = :queue.out(input_buffer)
+        {:reply, {:ok, data}, %{state | input_buffer: new_buffer}}
       true -> {:reply, {:none}, state}
     end
   end
@@ -80,14 +80,14 @@ defmodule Zung.Client.Connection do
   end
 
 
-  def handle_info({:tcp, _, data}, %{queue: queue} = state) do
+  def handle_info({:tcp, _, data}, %{input_buffer: input_buffer} = state) do
     # For info on telnet negotiations check out https://www.iana.org/assignments/telnet-options/telnet-options.xhtml
     # Currently, this strips out Telnet Negotiations and Trims Whitespace
     clean_data = data
       |> String.replace(~r/(\xFF[\xFE\xFD\xFC\xFB][\x01-\x31])*/, "")
       |> String.trim()
 
-    {:noreply, %{state | queue: :queue.in(clean_data, queue)}}
+    {:noreply, %{state | input_buffer: :queue.in(clean_data, input_buffer)}}
   end
   def handle_info({:tcp_closed, _}, state), do: {:noreply, %{state|is_closed: true}}
   def handle_info({:tcp_error, _}, state), do: {:noreply, %{state|is_closed: true}}

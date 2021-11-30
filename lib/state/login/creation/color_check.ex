@@ -12,23 +12,23 @@ If you can see the colors enter 'y' if you can't enter 'n'.
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    Zung.Client.clear_screen(client)
+    Zung.Client.raw_clear_screen(client)
 
     Zung.Client.force_ansi(client, true)
-    Zung.Client.write_data(client, @color_test_banner)
+    Zung.Client.raw_write(client, @color_test_banner)
     Zung.Client.force_ansi(client, false)
 
     handle_color_check(client, data)
   end
 
   def handle_color_check(%Zung.Client{} = client, data) do
-    Zung.Client.write_data(client, "Use Color? (Y/N): ")
-    response = Zung.Client.read_line(client) |> String.downcase
+    Zung.Client.raw_write(client, "Use Color? (Y/N): ")
+    response = Zung.Client.raw_read(client) |> String.downcase
 
     yes? = String.starts_with?(response, "y")
     no? = String.starts_with?(response, "n")
     if not yes? and not no? do
-      Zung.Client.write_line(client, "Please enter either 'yes' or 'no'.")
+      Zung.Client.raw_write_line(client, "Please enter either 'yes' or 'no'.")
       handle_color_check(client, data)
     else
       Zung.Client.force_ansi(client, yes?)

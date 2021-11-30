@@ -22,10 +22,10 @@ defmodule Zung.Server do
       e in Zung.Error.SecurityConcern ->
         Logger.info("Security Concern Raised: #{e.message}")
         msg = if e.show_client, do: e.message, else: "An error occurred."
-        Zung.Client.write_line(client, "||BOLD||||RED||#{msg}||RESET||")
+        Zung.Client.raw_write_line(client, "||BOLD||||RED||#{msg}||RESET||")
       e ->
         Logger.error(Exception.format(:error, e, __STACKTRACE__))
-        Zung.Client.write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
+        Zung.Client.raw_write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
     end
 
     # shutdown connections "gracefully"

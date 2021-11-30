@@ -44,11 +44,12 @@ defmodule Zung.Client do
   end
 
   def pop_input(%Zung.Client{} = client) do
-    if :queue.is_empty(client.input_buffer) do
-      {client, nil}
-    else
-      {{:value, input}, new_queue} = :queue.out(client.input_buffer)
-      {%Zung.Client{client | input_buffer: new_queue}, input}
+    msg = Connection.read(client.connection_id)
+    case msg do
+      {:none} -> {client, nil}
+      {:ok, data} ->
+        Session.refresh_session(client.session_id)
+        {client, data}
     end
   end
 
@@ -61,7 +62,7 @@ defmodule Zung.Client do
       client
     else
       {message, new_queue} = build_output({"", client.output_buffer})
-      Zung.Client.write_data(client, message)
+      Zung.Client.raw_write(client, message)
       %Zung.Client{client | output_buffer: new_queue}
     end
   end
@@ -100,23 +101,20 @@ defmodule Zung.Client do
     Connection.end_connection(client.connection_id)
   end
 
-  def read_line(%Zung.Client{} = client) do
+  # TODO deprecate "raw" function
+  def raw_read(%Zung.Client{} = client) do
     msg = Connection.read(client.connection_id)
     case msg do
-      {:none} -> read_line(%Zung.Client{} = client)
+      {:none} -> raw_read(%Zung.Client{} = client)
       {:ok, data} ->
         Session.refresh_session(client.session_id)
         data
       _ -> raise Zung.Error.Connection.Lost
     end
   end
-
-  def clear_screen(%Zung.Client{} = client) do
-    write_data(client, Enum.reduce(1..40, "", fn _e, acc -> "||NL||" <> acc end))
-  end
-
-  def write_line(%Zung.Client{} = client, data), do: write_data(client, "#{data}||NL||")
-  def write_data(%Zung.Client{} = client, data) do
+  def raw_clear_screen(%Zung.Client{} = client), do: raw_write(client, Enum.reduce(1..40, "", fn _e, acc -> "||NL||" <> acc end))
+  def raw_write_line(%Zung.Client{} = client, data), do: raw_write(client, "#{data}||NL||")
+  def raw_write(%Zung.Client{} = client, data) do
     Connection.write(client.connection_id, data)
   end
 end
