@@ -44,13 +44,9 @@ you will be plopped directly into the game after.
           do: if other_password === password, do: {:ok, password}, else: {:error, "Entries do not match."}
   end
 
-  defp validate_password(dirty_password) do # TODO this is identical-ish to the one in intro, should clean this uuuuuuup
-    trimmed_dirt = dirty_password
+  defp validate_password(dirty_password) do
+    dirty_password
       |> String.trim
-
-    cond do
-      not String.match?(trimmed_dirt, ~r/^[a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_]{8,32}$/) -> {:error, "Password is invalid."}
-      true -> {:ok, trimmed_dirt}
-    end
+      |> Zung.Client.User.validate_password_format
   end
 end

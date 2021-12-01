@@ -25,17 +25,10 @@ defmodule Zung.State.Login.Creation.Username do
           do: {:ok, username}
   end
 
-  defp validate_username(dirty_username) do # TODO this is identical-ish to the one in intro, should clean this uuuuuuup
-    trimmed_dirt = dirty_username
+  defp validate_username(dirty_username) do
+    dirty_username
       |> String.downcase
       |> String.trim
-
-    # TODO consider disallowing more 'reserverd' words like colors, formatting, keywords, etc...
-    cond do
-      trimmed_dirt == "new" -> {:error, "Username cannot be 'new'."}
-      not String.match?(trimmed_dirt, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Username is invalid."}
-      not Zung.Client.User.username_available?(trimmed_dirt) -> {:error, "Username already taken."}
-      true -> {:ok, trimmed_dirt}
-    end
+      |> Zung.Client.User.validate_username_format
   end
 end
