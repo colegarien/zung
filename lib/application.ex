@@ -26,6 +26,7 @@ defmodule Zung.Application do
             description: "A small, cramped room in the bottom of a ship.||NL||The walls are carved up with cryptic scratchings.",
             flavor_texts: [
               %{
+                id: "scracthings",
                 keywords: ["cryptic scratchings", "scratchings", "carvings", "scratches"],
                 text: "You barely make out one of the scrathings, ||BOLD||||ITALIC||\"2021-01-08\"||RESET||"
               },
