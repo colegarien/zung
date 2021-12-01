@@ -8,7 +8,7 @@ defmodule Zung.Game.ParserTest do
     def new(_socket) do
       %Zung.Client {
         session_id: 1234,
-        connection_id: 5678,
+        connection: %Zung.Client.Connection{id: 5678},
       }
     end
   end

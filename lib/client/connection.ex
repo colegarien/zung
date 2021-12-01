@@ -1,39 +1,53 @@
 defmodule Zung.Client.Connection do
+  @enforce_keys [:id]
+  defstruct [:id]
+
   require Logger
   use GenServer
 
+# TODO implement swappable "input" and "output" buffers
   def start_link(socket) do
-    GenServer.start_link(__MODULE__, %{socket: socket, use_ansi?: false, input_buffer: :queue.new, is_closed: false})
+    GenServer.start_link(__MODULE__, %{
+        socket: socket,
+        use_ansi?: false,
+        input_buffer: :queue.new,
+        output_buffer: :queue.new,
+        is_closed: false
+      })
   end
   def init(state), do: {:ok, state}
 
   # CLIENT SIDE
-  def read(pid) do
-    GenServer.call(pid, :read)
+  def read(connection) do
+    GenServer.call(connection.id, :read)
   end
 
-  def write(pid, data) do
-    GenServer.cast(pid, {:write, data})
+  def write(connection, data) do
+    GenServer.cast(connection.id, {:write, data})
   end
 
-  def use_ansi(pid, use_ansi?) do
-    GenServer.cast(pid, {:use_ansi, use_ansi?})
+  def flush_output(connection) do
+    GenServer.cast(connection.id, :flush_output)
   end
 
-  def end_connection(pid) do
-    GenServer.cast(pid, :end)
+  def use_ansi(connection, use_ansi?) do
+    GenServer.cast(connection.id, {:use_ansi, use_ansi?})
   end
 
-  def subscribe(pid, channel) do
-    GenServer.cast(pid, {:subscribe, channel})
+  def end_connection(connection) do
+    GenServer.cast(connection.id, :end)
   end
 
-  def publish(pid, channel, message) do
-    GenServer.cast(pid, {:publish, channel, message})
+  def subscribe(connection, channel) do
+    GenServer.cast(connection.id, {:subscribe, channel})
   end
 
-  def unsubscribe(pid, channel) do
-    GenServer.cast(pid, {:unsubscribe, channel})
+  def publish(connection, channel, message) do
+    GenServer.cast(connection.id, {:publish, channel, message})
+  end
+
+  def unsubscribe(connection, channel) do
+    GenServer.cast(connection.id, {:unsubscribe, channel})
   end
 
   # SERVER SIDE
@@ -47,9 +61,18 @@ defmodule Zung.Client.Connection do
     end
   end
 
-  def handle_cast({:write, data}, %{socket: socket, use_ansi?: use_ansi?} = state) do
-    send_data(socket, data, use_ansi?)
-    {:noreply, state}
+  def handle_cast({:write, data}, state) do
+    {:noreply, %{state | output_buffer: :queue.in(data, state.output_buffer)}}
+  end
+
+  def handle_cast(:flush_output, state) do
+    if :queue.is_empty(state.output_buffer) do
+      {:noreply, state}
+    else
+      {message, new_queue} = build_output({"", state.output_buffer})
+      send_data(state.socket, message, state.use_ansi?)
+      {:noreply, %{state |  output_buffer: new_queue}}
+    end
   end
 
   def handle_cast({:use_ansi, use_ansi?}, state), do: {:noreply, %{state | use_ansi?: use_ansi?}}
@@ -101,5 +124,16 @@ defmodule Zung.Client.Connection do
   def handle_info(msg, state) do
     Logger.info "received message by #{inspect self()} > #{inspect msg}"
     {:noreply, state}
+  end
+
+
+  # TODO move to "output buffer"
+  defp build_output({message, queue}) do
+    if :queue.is_empty(queue) do
+      {message <> "||NL||||RESET||> ", queue}
+    else
+      {{:value, value}, new_queue} = :queue.out(queue)
+      {message <> value <> "||NL||", new_queue} |> build_output
+    end
   end
 end

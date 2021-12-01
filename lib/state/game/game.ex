@@ -10,8 +10,13 @@ defmodule Zung.State.Game.Game do
 
   def do_game(%Zung.Client{} = client) do
     client
+      |> process_events
       |> process_input
       |> Zung.Client.flush_output
+  end
+
+  defp process_events(%Zung.Client{} = client) do
+    client
   end
 
   defp process_input(%Zung.Client{} = client) do

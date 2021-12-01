@@ -8,17 +8,25 @@ defmodule Zung.State.Game.GameTest do
     def new(_socket) do
       %Zung.Client {
         session_id: 1234,
-        connection_id: 5678,
+        connection: %{
+          id: 5678,
+          input_buffer: :queue.new,
+          output_buffer: :queue.new,
+        },
       }
     end
 
     def pop_input(%Zung.Client{} = client) do
-      if :queue.is_empty(client.input_buffer) do
+      if :queue.is_empty(client.connection.input_buffer) do
         {client, nil}
       else
-        {{:value, input}, new_queue} = :queue.out(client.input_buffer)
-        {%Zung.Client{client | input_buffer: new_queue}, input}
+        {{:value, input}, new_queue} = :queue.out(client.connection.input_buffer)
+        {%Zung.Client{client | connection: %{client.connection | input_buffer: new_queue}}, input}
       end
+    end
+
+    def push_output(%Zung.Client{} = client, output) do
+      %Zung.Client{client | connection: %{client.connection | output_buffer: :queue.in(output, client.connection.output_buffer)}}
     end
 
     def flush_output(%Zung.Client{} = client) do
@@ -131,55 +139,51 @@ defmodule Zung.State.Game.GameTest do
     end
   end
 
+  defp build_client(room_id, input_buffer \\ :queue.new) do
+    default_client = Zung.Client.new(nil)
+    default_client
+      |> Map.put(:game_state, %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room(room_id), subscribed_channels: [ "ooc" ]})
+      |> Map.put(:connection, %{default_client.connection | input_buffer: input_buffer})
+  end
+
   mocked_test "no input do nothing loop" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-    }
+    client = build_client("test_room")
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
     assert actual_client.session_id === 1234
-    assert actual_client.connection_id === 5678
+    assert actual_client.connection.id === 5678
     assert actual_client.game_state.username === "tim_allen"
   end
 
   mocked_test "garbage input" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("ladwijlaiwjd awkod awdj\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("ladwijlaiwjd awkod awdj\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "||GRN||Wut?||RESET||"
   end
 
   mocked_test "simple look command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("look\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("look\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === """
 ||BOLD||||GRN||The Test Room||RESET||
    A simple test room for testing units
@@ -190,101 +194,77 @@ defmodule Zung.State.Game.GameTest do
 
   mocked_test "look at flavor command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("look tasty\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("look tasty\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "You see something quite flavorful"
   end
 
   mocked_test "look at missing flavor command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("look absolute garbage\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("look absolute garbage\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "You see nothing of interest."
   end
 
   mocked_test "look at a direction with no exit command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("look west\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("look west\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "There is nothing of interest to see to the west."
   end
 
   mocked_test "look at uninteresting direction command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("look north\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("look north\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "Nothing to see, just an exit to the north."
   end
 
   mocked_test "look at descriptive direction command" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room2") },
-      input_buffer: :queue.in("look south\n" , :queue.new),
-    }
+    client = build_client("test_room2", :queue.in("look south\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "You glance down a tight and southern-winding hallway."
   end
 
   mocked_test "move north" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("north\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("north\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
@@ -295,19 +275,15 @@ defmodule Zung.State.Game.GameTest do
 
   mocked_test "move invalid direction" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room2") },
-      input_buffer: :queue.in("north\n" , :queue.new),
-    }
+    client = build_client("test_room2", :queue.in("north\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "There is no where to go in that direction."
     assert actual_client.game_state.room.id === "test_room2"
   end
@@ -315,11 +291,7 @@ defmodule Zung.State.Game.GameTest do
   mocked_test "walk the square" do
     # Arrange
     # client setup to walk east then south then west then north around the square
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("upper_left") },
-      input_buffer: :queue.in("north\n" ,:queue.in("west\n" ,:queue.in("south\n" ,:queue.in("east\n" , :queue.new)))),
-    }
+    client = build_client("upper_left", :queue.in("north\n" ,:queue.in("west\n" ,:queue.in("south\n" ,:queue.in("east\n" , :queue.new)))))
 
     # Act
     actual_client_east = Game.do_game(client)
@@ -338,11 +310,7 @@ defmodule Zung.State.Game.GameTest do
   mocked_test "climb the square" do
     # Arrange
     # client setup to walk east then south then west then north around the square
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("infinite_shaft_1") },
-      input_buffer: :queue.in("down\n" ,:queue.in("up\n" , :queue.new)),
-    }
+    client = build_client("infinite_shaft_1", :queue.in("down\n" ,:queue.in("up\n" , :queue.new)))
 
     # Act
     actual_client_up = Game.do_game(client)
@@ -356,11 +324,7 @@ defmodule Zung.State.Game.GameTest do
 
   mocked_test "quit the game" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("upper_left") },
-      input_buffer: :queue.in("quit\n" , :queue.new),
-    }
+    client = build_client("upper_left", :queue.in("quit\n" , :queue.new))
 
     # Act
     do_game = fn -> Game.do_game(client) end
@@ -371,35 +335,27 @@ defmodule Zung.State.Game.GameTest do
 
   mocked_test "csay missing channel, test bad parse" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room") },
-      input_buffer: :queue.in("csay\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("csay\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert not :queue.is_empty(actual_client.output_buffer)
-    {:value, actual_output } = :queue.peek(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
     assert actual_output === "||RED||You must specify a channel and message.||RESET||"
   end
 
   mocked_test "csay to ooc" do
     # Arrange
-    client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room("test_room"), subscribed_channels: [ "ooc" ] },
-      input_buffer: :queue.in("csay ooc howdy y'all\n" , :queue.new),
-    }
+    client = build_client("test_room", :queue.in("csay ooc howdy y'all\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)
 
     # Assert
-    assert :queue.is_empty(actual_client.input_buffer)
-    assert :queue.is_empty(actual_client.output_buffer)
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert :queue.is_empty(actual_client.connection.output_buffer)
   end
 end
