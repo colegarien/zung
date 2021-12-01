@@ -26,8 +26,8 @@ defmodule Zung.Client.Connection do
     GenServer.cast(connection.id, {:write, data})
   end
 
-  def flush_output(connection) do
-    GenServer.cast(connection.id, :flush_output)
+  def flush_output(connection, prompt?) do
+    GenServer.cast(connection.id, {:flush_output, prompt?})
   end
 
   def use_ansi(connection, use_ansi?) do
@@ -65,11 +65,11 @@ defmodule Zung.Client.Connection do
     {:noreply, %{state | output_buffer: :queue.in(data, state.output_buffer)}}
   end
 
-  def handle_cast(:flush_output, state) do
+  def handle_cast({:flush_output, prompt?}, state) do
     if :queue.is_empty(state.output_buffer) do
       {:noreply, state}
     else
-      {message, new_queue} = build_output({"", state.output_buffer})
+      {message, new_queue} = build_output({"", state.output_buffer}, prompt?)
       send_data(state.socket, message, state.use_ansi?)
       {:noreply, %{state |  output_buffer: new_queue}}
     end
@@ -115,10 +115,9 @@ defmodule Zung.Client.Connection do
   def handle_info({:tcp_closed, _}, state), do: {:noreply, %{state|is_closed: true}}
   def handle_info({:tcp_error, _}, state), do: {:noreply, %{state|is_closed: true}}
 
-  def handle_info({publisher_pid, channel, {username, message}}, %{socket: socket, use_ansi?: use_ansi?} = state) do
+  def handle_info({publisher_pid, channel, {username, message}}, state) do
     from_user_text = if publisher_pid != self(), do: " #{username}", else: ""
-    send_data(socket, "||NL||||BOLD||||YEL||[||MAG||#{channel |> to_string |> String.upcase}||YEL||]#{from_user_text}: #{message}||RESET||||NL||", use_ansi?)
-    {:noreply, state}
+    handle_cast({:write, "||NL||||BOLD||||YEL||[||MAG||#{channel |> to_string |> String.upcase}||YEL||]#{from_user_text}: #{message}||RESET||||NL||"}, state)
   end
 
   def handle_info(msg, state) do
@@ -128,12 +127,13 @@ defmodule Zung.Client.Connection do
 
 
   # TODO move to "output buffer"
-  defp build_output({message, queue}) do
+  defp build_output({message, queue}, prompt?) do
     if :queue.is_empty(queue) do
-      {message <> "||NL||||RESET||> ", queue}
+      prompt = if prompt?, do: "||NL||||RESET||> ", else: ""
+      {message <> prompt, queue}
     else
       {{:value, value}, new_queue} = :queue.out(queue)
-      {message <> value <> "||NL||", new_queue} |> build_output
+      {message <> value <> "||NL||", new_queue} |> build_output(prompt?)
     end
   end
 end

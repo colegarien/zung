@@ -55,8 +55,8 @@ defmodule Zung.Client do
     Connection.write(client.connection, output)
     client
   end
-  def flush_output(%Zung.Client{} = client) do
-    Connection.flush_output(client.connection)
+  def flush_output(%Zung.Client{} = client, prompt? \\ true) do
+    Connection.flush_output(client.connection, prompt?)
     client
   end
 
@@ -107,6 +107,6 @@ defmodule Zung.Client do
   def raw_write(%Zung.Client{} = client, data) do
     client
       |> push_output(data)
-      |> flush_output
+      |> flush_output(false)
   end
 end
