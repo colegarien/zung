@@ -22,6 +22,7 @@ defmodule Zung.Client do
         "w" => "west",
         "u" => "up",
         "d" => "down",
+        "ooc" => "csay ooc"
       },
       subscribed_channels: [],
     ]

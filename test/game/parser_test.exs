@@ -411,4 +411,19 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:csay, :ooc, "hi all"}
   end
 
+  mocked_test "ooc alias to a ooc channel" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, subscribed_channels: [ "ooc" ] },
+    }
+    input = "ooc hi all in ooc"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:csay, :ooc, "hi all in ooc"}
+  end
+
 end

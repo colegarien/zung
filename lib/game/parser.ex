@@ -34,7 +34,14 @@ defmodule Zung.Game.Parser do
   end
 
   defp parse_look_target(%Zung.Game.Room{} = room, arguments) do
-    argument = join_arguments(arguments) |> String.downcase
+    argument = join_arguments(arguments)
+      |> String.downcase
+      |> String.replace(~r/\bn\b/, "north")
+      |> String.replace(~r/\bs\b/, "south")
+      |> String.replace(~r/\be\b/, "east")
+      |> String.replace(~r/\bw\b/, "west")
+      |> String.replace(~r/\bu\b/, "up")
+      |> String.replace(~r/\bd\b/, "down")
     if(argument in ["north", "south", "east", "west", "up", "down"]) do
       {:direction, String.to_atom(argument)}
     else
@@ -59,7 +66,7 @@ defmodule Zung.Game.Parser do
   defp apply_aliases("", _), do: ""
   defp apply_aliases(input, %Zung.Client{} = client) when client.game_state.command_aliases === %{}, do: input
   defp apply_aliases(input, %Zung.Client{} = client) do
-    {:ok, alias_regex} = Regex.compile(~S"\b(" <> Enum.reduce(Map.keys(client.game_state.command_aliases), "", fn cmd, acc ->
+    {:ok, alias_regex} = Regex.compile(~S"^\b(" <> Enum.reduce(Map.keys(client.game_state.command_aliases), "", fn cmd, acc ->
       if acc === "" do
         cmd
       else
