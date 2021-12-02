@@ -1,7 +1,7 @@
 defmodule Zung.Client.Session do
   defmodule State do
     defstruct [
-      :id, :socket, :username,
+      :id, :connection, :username,
       :created, :last_activity,
       timeout: 30 * 60 * 1000, # 30 minutes by default
       is_authenticated: false,
@@ -26,9 +26,8 @@ defmodule Zung.Client.Session do
     end
 
     def close(session = %State{}, force \\ false) do
-      if force and session.socket != nil do
-        :gen_tcp.send(session.socket, "\r\n[ Disconnected due to Session Timeout ]\r\n")
-        :gen_tcp.close(session.socket)
+      if force and session.connection != nil do
+        Zung.Client.Connection.force_closed(session.connection, "||NL||[ Disconnected due to Session Timeout ]||NL||")
       end
       %State{session | is_authenticated: false, is_disconnected: true}
     end
@@ -80,8 +79,8 @@ defmodule Zung.Client.Session do
   end
 
   # CLIENT SIDE
-  def new_session(socket) do
-    GenServer.call(__MODULE__, {:new, %State{State.new | socket: socket, is_disconnected: false }})
+  def new_session(connection) do
+    GenServer.call(__MODULE__, {:new, %State{State.new | connection: connection, is_disconnected: false }})
   end
 
   def is_expired?(session_id) do

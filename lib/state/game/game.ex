@@ -3,7 +3,6 @@ defmodule Zung.State.Game.Game do
   @behaviour Zung.State.State
 
   def run(%Zung.Client{} = client, _) do
-    # TODO add a sleep here?
     do_game(client) |> run(%{})
   end
 

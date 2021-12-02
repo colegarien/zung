@@ -1,7 +1,6 @@
 defmodule Zung.DataStore do
   use GenServer
 
-  #TODO should split data-store into different pieces of mutable data (i.e. userstore vs character vs location etc stores?)
   def start_link(intial_state \\ %{}) do
     GenServer.start_link(__MODULE__, intial_state, name: DataStore)
   end

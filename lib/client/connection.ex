@@ -5,7 +5,22 @@ defmodule Zung.Client.Connection do
   require Logger
   use GenServer
 
-# TODO implement swappable "input" and "output" buffers
+  def new_connection(socket) do
+    {:ok, pid} = start_link(socket)
+    take_over_socket(socket, pid)
+    %Zung.Client.Connection{id: pid}
+  end
+
+  defp take_over_socket(socket, pid) do
+    case :gen_tcp.controlling_process(socket, pid) do
+      :ok -> true
+      _ ->
+        # wait for supervisor to transfer control
+        Process.sleep(30)
+        take_over_socket(socket, pid)
+    end
+  end
+
   def start_link(socket) do
     GenServer.start_link(__MODULE__, %{
         socket: socket,
@@ -36,6 +51,10 @@ defmodule Zung.Client.Connection do
 
   def end_connection(connection) do
     GenServer.cast(connection.id, :end)
+  end
+
+  def force_closed(connection, reason) do
+    GenServer.cast(connection.id, {:force_closed, reason})
   end
 
   def subscribe(connection, channel) do
@@ -82,6 +101,12 @@ defmodule Zung.Client.Connection do
     {:stop, :normal, %{state|is_closed: true}}
   end
 
+  def handle_cast({:force_closed, reason}, %{socket: socket, use_ansi?: use_ansi?} = state) do
+    send_data(socket, reason, use_ansi?)
+    :gen_tcp.close(socket)
+    {:stop, :normal, %{state|is_closed: true}}
+  end
+
   def handle_cast({:subscribe, channel}, state) do
     Zung.PubSub.subscribe(channel)
     {:noreply, state}
@@ -125,8 +150,6 @@ defmodule Zung.Client.Connection do
     {:noreply, state}
   end
 
-
-  # TODO move to "output buffer"
   defp build_output({message, queue}, prompt?) do
     if :queue.is_empty(queue) do
       prompt = if prompt?, do: "||NL||||RESET||> ", else: ""

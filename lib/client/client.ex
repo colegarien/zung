@@ -29,14 +29,11 @@ defmodule Zung.Client do
   end
 
 
-  def new(socket) do
-    {:ok, connection_id} = Connection.start_link(socket)
-    :ok = :gen_tcp.controlling_process(socket, connection_id)
-
-    session_id = Session.new_session(socket)
+  def new(connection) do
+    session_id = Session.new_session(connection)
     %Zung.Client{
       session_id: session_id,
-      connection: %Connection{id: connection_id},
+      connection: connection,
     }
   end
 
