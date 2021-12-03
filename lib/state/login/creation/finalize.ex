@@ -16,22 +16,18 @@ area benefits and such here.
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    Zung.Client.clear_screen(client)
-    Zung.Client.write_data(client, String.replace(@finalize_message, "username", data[:username]));
+    Zung.Client.raw_clear_screen(client)
+    Zung.Client.raw_write(client, String.replace(@finalize_message, "username", data[:username]));
 
+    # finalize and wait for user input
     finalize_user(data)
-    Zung.Client.authenticate_as(client, data[:username])
+    Zung.Client.raw_read(client)
 
-    # wait for user to hit Enter
-    Zung.Client.read_line(client)
-    {Zung.State.Game.Main, client, %{username: data[:username]}}
+    {Zung.State.Game.Init, client, %{username: data[:username]}}
   end
 
-  defp finalize_user(data) do
-    Zung.Client.User.create_user(data[:username],data[:password], %{
-      use_ansi?: data[:use_ansi?],
-    })
-    # TODO eventually add other things like, class, gender, subclasses, etc?
-    Zung.DataStore.update_current_room_id(data[:username], "newbie/room_1")
+  defp finalize_user(%{username: username, password: password, use_ansi?: use_ansi?}) do
+    Zung.Client.User.create_user(username, password, %{ use_ansi?: use_ansi?, })
+    Zung.DataStore.update_current_room_id(username, "newbie/room_1")
   end
 end

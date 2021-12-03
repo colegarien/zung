@@ -9,7 +9,12 @@ defmodule Zung.Server do
 
   defp loop_accept(socket) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
-    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn -> serve_client(Zung.Client.new(client_socket)) end)
+    {:ok, pid} = Task.Supervisor.start_child(Zung.Server.TaskSupervisor, fn ->
+      client_socket
+        |> Zung.Client.Connection.new_connection
+        |> Zung.Client.new
+        |> serve_client
+    end)
     :ok = :gen_tcp.controlling_process(client_socket, pid)
     loop_accept(socket)
   end
@@ -22,10 +27,10 @@ defmodule Zung.Server do
       e in Zung.Error.SecurityConcern ->
         Logger.info("Security Concern Raised: #{e.message}")
         msg = if e.show_client, do: e.message, else: "An error occurred."
-        Zung.Client.write_line(client, "||BOLD||||RED||#{msg}||RESET||")
+        Zung.Client.raw_write_line(client, "||BOLD||||RED||#{msg}||RESET||")
       e ->
         Logger.error(Exception.format(:error, e, __STACKTRACE__))
-        Zung.Client.write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
+        Zung.Client.raw_write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
     end
 
     # shutdown connections "gracefully"

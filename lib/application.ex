@@ -23,14 +23,18 @@ defmodule Zung.Application do
           "newbie/room_1" => %Zung.Game.Room{
             id: "newbie/room_1",
             title: "The Brig",
-            description: "A small, cramped room in the bottom of a ship.||NL||The walls are carved up with cryptic scratchings.",
+            description: "A small, cramped room in the bottom of a ship.||NL||The walls are carved up with cryptic scratchings.||NL||The water pipe in the corner of the room looks just big enough to enter.",
             flavor_texts: [
               %{
+                id: "scratchings",
                 keywords: ["cryptic scratchings", "scratchings", "carvings", "scratches"],
                 text: "You barely make out one of the scrathings, ||BOLD||||ITALIC||\"2021-01-08\"||RESET||"
               },
             ],
-            exits: [ %{ direction: :north, to: "newbie/room_2"} ],
+            exits: [
+              %{ direction: :north, to: "newbie/room_2"},
+              %{ name: "water pipe", to: "newbie/room_3"},
+            ],
           },
           "newbie/room_2" => %Zung.Game.Room{
             id: "newbie/room_2",

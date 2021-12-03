@@ -48,6 +48,23 @@ defmodule Zung.Client.User do
       |> String.downcase()
   end
 
+  def validate_username_format(username, is_adding? \\ true) do
+    cond do
+      username == "new" -> if is_adding?, do: {:error, "Username cannot be 'new'."}, else: {:ok, "new" }
+      not String.match?(username, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Username is invalid."}
+      is_adding? and not Zung.Client.User.username_available?(username) -> {:error, "Username already taken."}
+      not is_adding? and Zung.Client.User.username_available?(username) -> {:error, "User does not exist. Please try again."}
+      true -> {:ok, username}
+    end
+  end
+
+  def validate_password_format(password) do
+    cond do
+      not String.match?(password, ~r/^[a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_]{8,32}$/) -> {:error, "Password is invalid."}
+      true -> {:ok, password}
+    end
+  end
+
   def create_user(username, password, settings) do
     GenServer.call(__MODULE__, {:new, %State{State.new | username: username, password: password, settings: settings }})
   end

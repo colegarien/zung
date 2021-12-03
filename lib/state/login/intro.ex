@@ -26,7 +26,7 @@ __[                             ]______________[                             ]__
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     logged_in_count = String.pad_leading("#{Zung.Client.Session.get_session_count}", 3, "0")
-    Zung.Client.write_data(client, String.replace(@the_banner, "000", logged_in_count))
+    Zung.Client.raw_write(client, String.replace(@the_banner, "000", logged_in_count))
     handle_intro(client, data)
   end
 
@@ -39,28 +39,22 @@ __[                             ]______________[                             ]__
       {:ok, username} ->
         {Zung.State.Login.UserLogin, client, %{username: username}}
       {:error, message} ->
-        Zung.Client.write_line(client, message)
+        Zung.Client.raw_write_line(client, message)
         handle_intro(client, data)
     end
   end
 
   defp prompt_login(%Zung.Client{} = client) do
-    Zung.Client.write_data(client, "Enter your username: ")
-    with data <- Zung.Client.read_line(client),
+    Zung.Client.raw_write(client, "Enter your username: ")
+    with data <- Zung.Client.raw_read(client),
           {:ok, username} <- validate_username(data),
           do: if username == "new", do: {:ok, :new}, else: {:ok, username}
   end
 
   defp validate_username(dirty_username) do
-    trimmed_dirt = dirty_username
+    dirty_username
       |> String.downcase
       |> String.trim
-
-    cond do
-      trimmed_dirt === "new" -> {:ok, "new"} # new user request!
-      not String.match?(trimmed_dirt, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Invalid username. Please try again."}
-      Zung.Client.User.username_available?(trimmed_dirt) -> {:error, "User does not exist. Please try again."}
-      true -> {:ok, trimmed_dirt}
-    end
+      |> Zung.Client.User.validate_username_format(false)
   end
 end

@@ -1,3 +1,5 @@
 %{
   "gproc": {:hex, :gproc, "0.9.0", "853ccb7805e9ada25d227a157ba966f7b34508f386a3e7e21992b1b484230699", [:rebar3], [], "hexpm", "587e8af698ccd3504cf4ba8d90f893ede2b0f58cabb8a916e2bf9321de3cf10b"},
+  "meck": {:hex, :meck, "0.8.13", "ffedb39f99b0b99703b8601c6f17c7f76313ee12de6b646e671e3188401f7866", [:rebar3], [], "hexpm", "d34f013c156db51ad57cc556891b9720e6a1c1df5fe2e15af999c84d6cebeb1a"},
+  "mecks_unit": {:hex, :mecks_unit, "0.1.9", "78f9af3273389428f1e7c5ed69969dca79014ab95544091ffac504f016fab727", [:mix], [{:meck, "~> 0.8.8", [hex: :meck, repo: "hexpm", optional: false]}], "hexpm", "ae7ff8f30a36df9dfc2416290bae7d2c7e38e92412e89cb069aa0221d224ed04"},
 }
