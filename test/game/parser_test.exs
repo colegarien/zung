@@ -35,9 +35,9 @@ defmodule Zung.Game.ParserTest do
       }
     ],
     exits: [
-      %{ direction: :north, to: "test_room2" },
-      %{ direction: :south, name: "named door", to: "test_room3" },
-      %{ name: "custom exit door", to: "test_room3" },
+      %Zung.Game.Room.Exit{ direction: :north, to: "test_room2" },
+      %Zung.Game.Room.Exit{ direction: :south, name: "named door", to: "test_room3" },
+      %Zung.Game.Room.Exit{ name: "custom exit door", to: "test_room3" },
      ],
   }
 

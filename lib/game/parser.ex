@@ -68,10 +68,11 @@ defmodule Zung.Game.Parser do
   end
 
   defp parse_enter(%Zung.Client{} = client, arguments) do
-    if Enum.count(arguments) < 1 do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["to", "the", "at", "in", "into"]))
+    if Enum.count(valid_arguments) < 1 do
       {:bad_parse, "You must specify an exit."}
     else
-      argument = join_arguments(arguments)
+      argument = join_arguments(valid_arguments)
         |> String.downcase
         |> String.replace(~r/\bn\b/, "north")
         |> String.replace(~r/\bs\b/, "south")

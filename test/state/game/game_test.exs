@@ -65,14 +65,14 @@ defmodule Zung.State.Game.GameTest do
               text: "You see a little bit of this and a little bit of that"
             }
           ],
-          exits: [ %{ direction: :north, to: "test_room2" } ],
+          exits: [ %Zung.Game.Room.Exit{ direction: :north, to: "test_room2" } ],
         }
         "test_room2" -> %Zung.Game.Room{
           id: "test_room2",
           title: "The Second Test Room",
           description: "Another simple test room for testing units",
           flavor_texts: [],
-          exits: [ %{ direction: :south, to: "test_room", description: "You glance down a tight and southern-winding hallway." } ],
+          exits: [ %Zung.Game.Room.Exit{ direction: :south, to: "test_room", description: "You glance down a tight and southern-winding hallway." } ],
         }
         "upper_left" -> %Zung.Game.Room{
           id: "upper_left",
@@ -80,8 +80,8 @@ defmodule Zung.State.Game.GameTest do
           description: "The northwestern corner of a big square room",
           flavor_texts: [],
           exits: [
-            %{ direction: :east, to: "upper_right" },
-            %{ direction: :south, to: "lower_left" },
+            %Zung.Game.Room.Exit{ direction: :east, to: "upper_right" },
+            %Zung.Game.Room.Exit{ direction: :south, to: "lower_left" },
           ],
         }
         "upper_right" -> %Zung.Game.Room{
@@ -90,8 +90,8 @@ defmodule Zung.State.Game.GameTest do
           description: "The northeastern corner of a big square room",
           flavor_texts: [],
           exits: [
-            %{ direction: :west, to: "upper_left" },
-            %{ direction: :south, to: "lower_right" },
+            %Zung.Game.Room.Exit{ direction: :west, to: "upper_left" },
+            %Zung.Game.Room.Exit{ direction: :south, to: "lower_right" },
           ],
         }
         "lower_left" -> %Zung.Game.Room{
@@ -100,8 +100,8 @@ defmodule Zung.State.Game.GameTest do
           description: "The southwestern corner of a big square room",
           flavor_texts: [],
           exits: [
-            %{ direction: :east, to: "lower_right" },
-            %{ direction: :north, to: "upper_left" },
+            %Zung.Game.Room.Exit{ direction: :east, to: "lower_right" },
+            %Zung.Game.Room.Exit{ direction: :north, to: "upper_left" },
           ],
         }
         "lower_right" -> %Zung.Game.Room{
@@ -110,8 +110,8 @@ defmodule Zung.State.Game.GameTest do
           description: "The southeastern corner of a big square room",
           flavor_texts: [],
           exits: [
-            %{ direction: :west, to: "lower_left" },
-            %{ direction: :north, to: "upper_right" },
+            %Zung.Game.Room.Exit{ direction: :west, to: "lower_left" },
+            %Zung.Game.Room.Exit{ direction: :north, to: "upper_right" },
           ],
         }
         "infinite_shaft_1" -> %Zung.Game.Room{
@@ -120,8 +120,8 @@ defmodule Zung.State.Game.GameTest do
           description: "A deep dark and dirty mineshaft",
           flavor_texts: [],
           exits: [
-            %{ direction: :up, to: "infinite_shaft_2" },
-            %{ direction: :down, to: "infinite_shaft_2" },
+            %Zung.Game.Room.Exit{ direction: :up, to: "infinite_shaft_2" },
+            %Zung.Game.Room.Exit{ direction: :down, to: "infinite_shaft_2" },
           ],
         }
         "infinite_shaft_2" -> %Zung.Game.Room{
@@ -130,8 +130,8 @@ defmodule Zung.State.Game.GameTest do
           description: "A deep dark and dirty mineshaft",
           flavor_texts: [],
           exits: [
-            %{ direction: :up, to: "infinite_shaft_1" },
-            %{ direction: :down, to: "infinite_shaft_1" },
+            %Zung.Game.Room.Exit{ direction: :up, to: "infinite_shaft_1" },
+            %Zung.Game.Room.Exit{ direction: :down, to: "infinite_shaft_1" },
           ],
         }
         _ -> %Zung.Game.Room{}

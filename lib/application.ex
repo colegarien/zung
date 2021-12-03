@@ -32,21 +32,24 @@ defmodule Zung.Application do
               },
             ],
             exits: [
-              %{ direction: :north, to: "newbie/room_2"},
-              %{ name: "water pipe", to: "newbie/room_3"},
+              %Zung.Game.Room.Exit{ direction: :north, to: "newbie/room_2"},
+              %Zung.Game.Room.Exit{ name: "water pipe", to: "newbie/room_3"},
             ],
           },
           "newbie/room_2" => %Zung.Game.Room{
             id: "newbie/room_2",
             title: "The Lower Deck",
             description: "The damp, musty underbelly of a ship.",
-            exits: [ %{direction: :up, to: "newbie/room_3"}, %{direction: :south, to: "newbie/room_1"} ],
+            exits: [
+              %Zung.Game.Room.Exit{direction: :up, to: "newbie/room_3"},
+              %Zung.Game.Room.Exit{direction: :south, to: "newbie/room_1"}
+            ],
           },
           "newbie/room_3" => %Zung.Game.Room{
             id: "newbie/room_3",
             title: "The Main Deck",
             description: "The top deck of this vessel.||NL||The ship is docked and ready for disembarkment.",
-            exits: [ %{direction: :down, to: "newbie/room_2"} ],
+            exits: [ %Zung.Game.Room.Exit{direction: :down, to: "newbie/room_2"} ],
           },
         },
       }},
