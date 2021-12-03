@@ -17,6 +17,7 @@ defmodule Zung.Game.Parser do
       "down" -> {:move, {:direction, :down}}
       "look" -> parse_look(client, arguments)
       "csay" -> parse_csay(client, arguments)
+      "enter" -> parse_enter(client, arguments)
       "quit" -> :quit
       _ -> :unknown_command
     end
@@ -42,11 +43,14 @@ defmodule Zung.Game.Parser do
       |> String.replace(~r/\bw\b/, "west")
       |> String.replace(~r/\bu\b/, "up")
       |> String.replace(~r/\bd\b/, "down")
-    if(argument in ["north", "south", "east", "west", "up", "down"]) do
-      {:direction, String.to_atom(argument)}
-    else
-      flavor = Enum.find(room.flavor_texts, %{id: "", text: ""}, &(argument === &1.id or argument in &1.keywords))
-      {:flavor, flavor.id}
+
+    matching_exit = Enum.find(room.exits, nil, &(Map.has_key?(&1, :name) and argument === &1.name))
+    matching_flavor = Enum.find(room.flavor_texts, nil, &(argument === &1.id or argument in &1.keywords))
+    cond do
+      argument in ["north", "south", "east", "west", "up", "down"] -> {:direction, String.to_atom(argument)}
+      matching_exit !== nil -> {:exit, matching_exit.name}
+      matching_flavor !== nil -> {:flavor, matching_flavor.id}
+      true -> {:flavor, ""}
     end
   end
 
@@ -60,6 +64,30 @@ defmodule Zung.Game.Parser do
       else
         {:csay, String.to_atom(channel), join_arguments(message_pieces)}
       end
+    end
+  end
+
+  defp parse_enter(%Zung.Client{} = client, arguments) do
+    if Enum.count(arguments) < 1 do
+      {:bad_parse, "You must specify an exit."}
+    else
+      argument = join_arguments(arguments)
+        |> String.downcase
+        |> String.replace(~r/\bn\b/, "north")
+        |> String.replace(~r/\bs\b/, "south")
+        |> String.replace(~r/\be\b/, "east")
+        |> String.replace(~r/\bw\b/, "west")
+        |> String.replace(~r/\bu\b/, "up")
+        |> String.replace(~r/\bd\b/, "down")
+
+      room = client.game_state.room
+      matching_exit = Enum.find(room.exits, nil, &(Map.has_key?(&1, :name) and argument === &1.name))
+      cond do
+        argument in ["north", "south", "east", "west", "up", "down"] -> {:move, {:direction, String.to_atom(argument)}}
+        matching_exit !== nil -> {:move, {:exit, matching_exit.name}}
+        true -> {:move, {:exit, ""}}
+      end
+
     end
   end
 

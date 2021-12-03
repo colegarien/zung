@@ -22,8 +22,8 @@ defmodule Zung.State.Game.Game do
     {new_client, input} = Zung.Client.pop_input(client)
     if input !== nil do
       case Zung.Game.Parser.parse(new_client, input) do
-        {:move, {:direction, direction}} ->
-          case Zung.Game.Room.move(new_client.game_state.room, direction) do
+        {:move, target} ->
+          case Zung.Game.Room.move(new_client.game_state.room, target) do
             {:ok, new_room} ->
               Zung.DataStore.update_current_room_id(client.game_state.username, new_room.id)
               %Zung.Client{new_client | game_state: %Zung.Client.GameState{new_client.game_state | room: new_room}}

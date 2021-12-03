@@ -5,12 +5,7 @@ defmodule Zung.Game.Room do
     description: "The blank, never-ending void.",
     flavor_texts: [],
     exits: [],
-    # TODO custom_exits (non-standard direction exits, the syntax would be like "enter secret hatch" or whatever)
-    # TODO cool stuff on exits -> https://www.aardwolf.com/building/editing-exits.html
   ]
-
-  # TODO write a whole bunch of tests for ROOM and expand functionality like hidden exits and such!?
-  # TODO how for to do objects (might need to implement some kinda selector syntax?)
 
   def get_room(room_id), do: Zung.DataStore.get_room(room_id)
 
@@ -18,7 +13,14 @@ defmodule Zung.Game.Room do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
     description_string = "#{room.description}"
     exits_string = "||BOLD||||CYA||-{ Exits:"
-      <> Enum.reduce(room.exits, "", fn room_exit, acc -> "#{acc} #{room_exit.direction}" end)
+      <> Enum.reduce(room.exits, "", fn room_exit, acc ->
+        if Map.has_key?(room_exit, :direction) do
+          "#{acc} #{room_exit.direction}"
+        else
+          acc
+        end
+      end)
+      # TODO consider doing the following to add "other" for non-directional exits: <> if Enum.any?(room.exits, &(not Map.has_key?(&1, :direction))), do: " other"
       <> " }-||RESET||"
 
     """
@@ -33,7 +35,7 @@ defmodule Zung.Game.Room do
     Enum.find(room.flavor_texts, %{text: "You see nothing of interest."}, &(flavor_text_id === &1.id)).text
   end
   def look_at(room, {:direction, direction}) do
-    exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
+    exits_in_direction = Enum.filter(room.exits, &(Map.has_key?(&1, :direction) and &1.direction == direction))
     if Enum.count(exits_in_direction) > 0 do
       exits_in_direction
         |> hd
@@ -42,44 +44,47 @@ defmodule Zung.Game.Room do
       "There is nothing of interest to see #{direction_to_text(direction)}."
     end
   end
+  def look_at(room, {:exit, name}) do
+    exits_with_name = Enum.filter(room.exits,  &(Map.has_key?(&1, :name) and &1.name == name))
+    if Enum.count(exits_with_name) > 0 do
+      exits_with_name
+        |> hd
+        |> describe_exit
+    else
+      "There is nothing of interest to see."
+    end
+  end
   def look_at(_room, _target), do: "You see nothing of interest."
 
-  def move(room, direction) do
-    exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
+  def move(room, {:direction, direction}) do
+    exits_in_direction = Enum.filter(room.exits, &(Map.has_key?(&1, :direction) and &1.direction === direction))
     if Enum.count(exits_in_direction) > 0 do
       {:ok, hd(exits_in_direction).to |> get_room() }
     else
       {:error, "There is no where to go in that direction."}
     end
   end
-
-  def look(room, target) do
-    cond do
-      is_atom(target) -> look_direction(room, target)
-      is_flavor_text(room, target) -> look_flavor_text(room, target)
-      true -> "You see nothing of interest."
-    end
-  end
-
-  # Stuff for looking directions (make an Exit module?)
-  defp look_direction(room, direction) do
-    exits_in_direction = Enum.filter(room.exits, &(&1.direction == direction))
-    if Enum.count(exits_in_direction) > 0 do
-      exits_in_direction
-        |> hd
-        |> describe_exit
+  def move(room, {:exit, name}) do
+    exits_with_name = Enum.filter(room.exits, &(Map.has_key?(&1, :name) and &1.name === name))
+    if Enum.count(exits_with_name) > 0 do
+      {:ok, hd(exits_with_name).to |> get_room() }
     else
-      "There is nothing of interest to see #{direction_to_text(direction)}."
+      {:error, "There is no exit there."}
     end
   end
+  def move(_room, _target), do: {:error, "There is no where to go."}
 
   defp describe_exit(room_exit) do
     case room_exit do
       %{description: description} -> description
+      %{name: name, direction: direction} ->
+        an_or_a = if name =~ ~r"^[aeiouAEIOU]", do: "an", else: "a"
+        "Nothing to see, just #{an_or_a} #{name} #{direction_to_text(direction)}."
       %{name: name} ->
         an_or_a = if name =~ ~r"^[aeiouAEIOU]", do: "an", else: "a"
-        "Nothing to see, just #{an_or_a} #{name} #{direction_to_text(room_exit.direction)}."
-      _ -> "Nothing to see, just an exit #{direction_to_text(room_exit.direction)}."
+        "Nothing to see, just #{an_or_a} #{name}."
+      %{direction: direction} -> "Nothing to see, just an exit #{direction_to_text(direction)}."
+      _ -> "Nothing to see, just an exit."
     end
   end
 
@@ -91,14 +96,4 @@ defmodule Zung.Game.Room do
     end
   end
 
-  # Stuff for looking at flavor text
-  defp is_flavor_text(room, target) do
-    room.flavor_texts
-      |> Enum.any?(&(target in &1.keywords))
-  end
-
-  defp look_flavor_text(room, target) do
-    flavor_text = Enum.find(room.flavor_texts, %{text: ""}, &(target in &1.keywords))
-    flavor_text.text
-  end
 end

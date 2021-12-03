@@ -34,7 +34,11 @@ defmodule Zung.Game.ParserTest do
         text: "You see a little bit of this and a little bit of that"
       }
     ],
-    exits: [ %{ direction: :north, to: "test_room2" } ],
+    exits: [
+      %{ direction: :north, to: "test_room2" },
+      %{ direction: :south, name: "named door", to: "test_room3" },
+      %{ name: "custom exit door", to: "test_room3" },
+     ],
   }
 
   mocked_test "no input is an unknown command" do
@@ -426,4 +430,111 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:csay, :ooc, "hi all in ooc"}
   end
 
+  mocked_test "look/1 at named exits" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input_directional = "look at named door"
+    input_custom = "look at the custom exit door"
+
+    # Act
+    actual_directional = Parser.parse(client, input_directional)
+    actual_custom = Parser.parse(client, input_custom)
+
+    # Assert
+    assert actual_directional === {:look, @test_room, {:exit, "named door"}}
+    assert actual_custom === {:look, @test_room, {:exit, "custom exit door"}}
+  end
+
+  mocked_test "enter/1 missing exit name error" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:bad_parse, "You must specify an exit."}
+  end
+
+  mocked_test "enter/1 but exit name doesnt exist" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter fake door"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:exit, ""}}
+  end
+
+  mocked_test "enter/1 specify a directional named exit" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter named door"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:exit, "named door"}}
+  end
+
+  mocked_test "enter/1 specify a custom named exit" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter custom exit door"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:exit, "custom exit door"}}
+  end
+
+  mocked_test "enter/1 specify a direction" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter north"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:direction, :north}}
+  end
+
+  mocked_test "enter/1 specify a direction alias" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "enter n"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:move, {:direction, :north}}
+  end
 end
