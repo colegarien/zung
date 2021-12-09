@@ -4,6 +4,18 @@ defmodule Zung.State.Game.GameTest do
 
   alias Zung.State.Game.Game
 
+  defmock Zung.Client.Connection, preserve: true do
+    def unsubscribe(_, _) do
+      # don't actually do anything during testing
+    end
+    def subscribe(_, _) do
+      # don't actually do anything during testing
+    end
+    def publish(_, _, _) do
+      # don't actually do anything during testing
+    end
+  end
+
   defmock Zung.Client, preserve: true do
     def new(_socket) do
       %Zung.Client {
@@ -34,14 +46,11 @@ defmodule Zung.State.Game.GameTest do
       client
     end
 
-    def publish(%Zung.Client{} = client, _channel, _message) do
-      # do nothing during testing
-      client
-    end
-
   end
 
   defmock Zung.DataStore, preserve: true do
+    def update_current_room_id(_,_) do
+    end
     def get_room(room_id) do
       case room_id do
         "test_room" -> %Zung.Game.Room{
@@ -142,7 +151,7 @@ defmodule Zung.State.Game.GameTest do
   defp build_client(room_id, input_buffer \\ :queue.new) do
     default_client = Zung.Client.new(nil)
     default_client
-      |> Map.put(:game_state, %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room(room_id), subscribed_channels: [ "ooc" ]})
+      |> Map.put(:game_state, %Zung.Client.GameState{ username: "tim_allen", room: Zung.Game.Room.get_room(room_id), joined_chat_rooms: [ "ooc" ]})
       |> Map.put(:connection, %{default_client.connection | input_buffer: input_buffer})
   end
 
@@ -333,7 +342,7 @@ defmodule Zung.State.Game.GameTest do
     assert_raise(Zung.Error.Connection.Closed, do_game)
   end
 
-  mocked_test "csay missing channel, test bad parse" do
+  mocked_test "csay missing chat_room, test bad parse" do
     # Arrange
     client = build_client("test_room", :queue.in("csay\n" , :queue.new))
 
@@ -344,12 +353,38 @@ defmodule Zung.State.Game.GameTest do
     assert :queue.is_empty(actual_client.connection.input_buffer)
     assert not :queue.is_empty(actual_client.connection.output_buffer)
     {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
-    assert actual_output === "||RED||You must specify a channel and message.||RESET||"
+    assert actual_output === "||RED||You must specify a chat and message.||RESET||"
   end
 
   mocked_test "csay to ooc" do
     # Arrange
     client = build_client("test_room", :queue.in("csay ooc howdy y'all\n" , :queue.new))
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert :queue.is_empty(actual_client.connection.output_buffer)
+  end
+
+  mocked_test "say with no message, test bad parse" do
+    # Arrange
+    client = build_client("test_room", :queue.in("say\n" , :queue.new))
+
+    # Act
+    actual_client = Game.do_game(client)
+
+    # Assert
+    assert :queue.is_empty(actual_client.connection.input_buffer)
+    assert not :queue.is_empty(actual_client.connection.output_buffer)
+    {:value, actual_output } = :queue.peek(actual_client.connection.output_buffer)
+    assert actual_output === "||RED||You must specify a message.||RESET||"
+  end
+
+  mocked_test "say to room" do
+    # Arrange
+    client = build_client("test_room", :queue.in("say hello people!!\n" , :queue.new))
 
     # Act
     actual_client = Game.do_game(client)

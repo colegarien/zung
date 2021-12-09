@@ -370,7 +370,7 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:look, @test_room, {:flavor, "simple_flavor"}}
   end
 
-  mocked_test "csay missing channel do bad_parse" do
+  mocked_test "csay missing chat_room do bad_parse" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
@@ -382,29 +382,29 @@ defmodule Zung.Game.ParserTest do
     actual = Parser.parse(client, input)
 
     # Assert
-    assert actual === {:bad_parse, "You must specify a channel and message."}
+    assert actual === {:bad_parse, "You must specify a chat and message."}
   end
 
-  mocked_test "csay non-subscribed channel do bad_parse" do
+  mocked_test "csay non-subscribed chat_room do bad_parse" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
       game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
     }
-    input = "csay bad_channel hi all"
+    input = "csay bad_chat_room hi all"
 
     # Act
     actual = Parser.parse(client, input)
 
     # Assert
-    assert actual === {:bad_parse, "You are not part of the \"bad_channel\" channel."}
+    assert actual === {:bad_parse, "You are not part of the \"bad_chat_room\" chat."}
   end
 
-  mocked_test "csay to a subscribed channel" do
+  mocked_test "csay to a subscribed chat_room" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, subscribed_channels: [ "ooc" ] },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, joined_chat_rooms: [ "ooc" ] },
     }
     input = "csay ooc hi all"
 
@@ -415,11 +415,11 @@ defmodule Zung.Game.ParserTest do
     assert actual === {:csay, :ooc, "hi all"}
   end
 
-  mocked_test "ooc alias to a ooc channel" do
+  mocked_test "ooc alias to a ooc chat_room" do
     # Arrange
     client = %Zung.Client{
       Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, subscribed_channels: [ "ooc" ] },
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, joined_chat_rooms: [ "ooc" ] },
     }
     input = "ooc hi all in ooc"
 
@@ -536,5 +536,35 @@ defmodule Zung.Game.ParserTest do
 
     # Assert
     assert actual === {:move, {:direction, :north}}
+  end
+
+  mocked_test "say/1 no message bad parse" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "say"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:bad_parse, "You must specify a message."}
+  end
+
+  mocked_test "say/1 to room" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "say hi all!"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    assert actual === {:say, @test_room, "hi all!"}
   end
 end

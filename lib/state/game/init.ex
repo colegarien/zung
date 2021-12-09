@@ -6,8 +6,8 @@ defmodule Zung.State.Game.Init do
     # auth, init game state, and welcome
     new_client = Zung.Client.authenticate_as(client, username)
       |> Map.put(:game_state, build_game_state(username))
-      |> subscribe_to_channels
-      |> output_welcome
+      |> join_default_chat_rooms
+      |> place_in_world
 
     {Zung.State.Game.Game, new_client, %{}}
   end
@@ -20,15 +20,15 @@ defmodule Zung.State.Game.Init do
     }
   end
 
-  defp subscribe_to_channels(client) do
+  defp join_default_chat_rooms(client) do
     client
-      |> Zung.Client.subscribe("ooc")
+      |> Zung.Client.join_chat("ooc")
   end
 
-  defp output_welcome(client) do
+  defp place_in_world(client) do
     client
       |> Zung.Client.push_output("||NL||||YEL||Welcome #{client.game_state.username}!||RESET||")
-      |> Zung.Client.push_output(Zung.Game.Room.describe(client.game_state.room))
+      |> Zung.Client.enter_room(client.game_state.room)
       |> Zung.Client.flush_output
   end
 end

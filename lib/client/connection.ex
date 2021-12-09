@@ -88,7 +88,7 @@ defmodule Zung.Client.Connection do
     if :queue.is_empty(state.output_buffer) do
       {:noreply, state}
     else
-      {message, new_queue} = build_output({"", state.output_buffer}, prompt?)
+      {message, new_queue} = build_output({"||NL||", state.output_buffer}, prompt?)
       send_data(state.socket, message, state.use_ansi?)
       {:noreply, %{state |  output_buffer: new_queue}}
     end
@@ -140,9 +140,14 @@ defmodule Zung.Client.Connection do
   def handle_info({:tcp_closed, _}, state), do: {:noreply, %{state|is_closed: true}}
   def handle_info({:tcp_error, _}, state), do: {:noreply, %{state|is_closed: true}}
 
-  def handle_info({publisher_pid, channel, {username, message}}, state) do
+  def handle_info({publisher_pid, {:chat, chat_room}, {username, message}}, state) do
     from_user_text = if publisher_pid != self(), do: " #{username}", else: ""
-    handle_cast({:write, "||NL||||BOLD||||YEL||[||MAG||#{channel |> to_string |> String.upcase}||YEL||]#{from_user_text}: #{message}||RESET||||NL||"}, state)
+    handle_cast({:write, "||BOLD||||YEL||[||MAG||#{chat_room |> to_string |> String.upcase}||YEL||]#{from_user_text}: #{message}||RESET||"}, state)
+  end
+
+  def handle_info({publisher_pid, {:room, _room_id}, {:say, username, message}}, state) do
+    from_user_text = if publisher_pid != self(), do: "#{username} says: ", else: "You say: "
+    handle_cast({:write, "||CYA||#{from_user_text}#{message}||RESET||"}, state)
   end
 
   def handle_info(msg, state) do

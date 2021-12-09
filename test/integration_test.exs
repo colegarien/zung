@@ -42,6 +42,10 @@ defmodule Zung.IntegrationTest do
     assert send_and_recv(socket, "n") =~ "Congratulations"
     assert send_and_recv(socket, "") =~ "Welcome"
 
+    # Have a chat
+    assert send_and_recv(socket, "ooc howdy y'all") =~ ": howdy y'all"
+    assert send_and_recv(socket, "say hi hey") =~ "You say\: hi hey"
+
     # Navigate rooms
     assert send_and_recv(socket, "look") =~ "Brig"
 

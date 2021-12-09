@@ -25,14 +25,15 @@ defmodule Zung.State.Game.Game do
         {:move, target} ->
           case Zung.Game.Room.move(new_client.game_state.room, target) do
             {:ok, new_room} ->
-              Zung.DataStore.update_current_room_id(client.game_state.username, new_room.id)
-              %Zung.Client{new_client | game_state: %Zung.Client.GameState{new_client.game_state | room: new_room}}
-                |> Zung.Client.push_output(Zung.Game.Room.describe(new_room))
+              new_client
+                |> Zung.Client.leave_room(client.game_state.room)
+                |> Zung.Client.enter_room(new_room)
             {:error, error_message} -> Zung.Client.push_output(new_client, error_message)
           end
         {:look, room} -> Zung.Client.push_output(new_client, Zung.Game.Room.describe(room))
         {:look, room, target} -> Zung.Client.push_output(new_client, Zung.Game.Room.look_at(room, target))
-        {:csay, channel, message} -> Zung.Client.publish(new_client, channel, message)
+        {:say, room, message} -> Zung.Client.say_to_room(new_client, room.id, message)
+        {:csay, chat_room, message} -> Zung.Client.publish_to_chat(new_client, chat_room, message)
         :quit -> raise Zung.Error.Connection.Closed
         {:bad_parse, message} -> Zung.Client.push_output(new_client, "||RED||#{message}||RESET||")
         _ -> Zung.Client.push_output(new_client, "||GRN||Wut?||RESET||")

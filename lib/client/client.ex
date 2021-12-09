@@ -24,7 +24,7 @@ defmodule Zung.Client do
         "d" => "down",
         "ooc" => "csay ooc"
       },
-      subscribed_channels: [],
+      joined_chat_rooms: [],
     ]
   end
 
@@ -67,18 +67,43 @@ defmodule Zung.Client do
     client
   end
 
-  def subscribe(%Zung.Client{} = client, channels=[]), do: Enum.reduce(channels, client, fn channel, new_client -> subscribe(new_client, channel) end)
-  def subscribe(%Zung.Client{} = client, channel) do
-    if(client.game_state !== nil and channel not in client.game_state.subscribed_channels) do
-      Connection.subscribe(client.connection, String.to_atom(channel))
-      Map.put(client, :game_state, Map.put(client.game_state, :subscribed_channels, [channel | client.game_state.subscribed_channels]))
+  def leave_room(%Zung.Client{} = client, old_room) do
+    if(client.game_state !== nil) do
+      Connection.unsubscribe(client.connection, { :room, old_room.id })
+      client
     else
       client
     end
   end
 
-  def publish(%Zung.Client{} = client, channel, message) do
-    Connection.publish(client.connection, channel, {client.game_state.username, message})
+  def enter_room(%Zung.Client{} = client, new_room) do
+    if(client.game_state !== nil) do
+      Zung.DataStore.update_current_room_id(client.game_state.username, new_room.id)
+      Connection.subscribe(client.connection, { :room, new_room.id })
+      %Zung.Client{client | game_state: %Zung.Client.GameState{client.game_state | room: new_room}}
+        |> Zung.Client.push_output(Zung.Game.Room.describe(new_room))
+    else
+      client
+    end
+  end
+
+  def join_chat(%Zung.Client{} = client, chat_rooms=[]), do: Enum.reduce(chat_rooms, client, fn chat_room, new_client -> join_chat(new_client, chat_room) end)
+  def join_chat(%Zung.Client{} = client, chat_room) do
+    if(client.game_state !== nil and chat_room not in client.game_state.joined_chat_rooms) do
+      Connection.subscribe(client.connection, {:chat, String.to_atom(chat_room)})
+      Map.put(client, :game_state, Map.put(client.game_state, :joined_chat_rooms, [chat_room | client.game_state.joined_chat_rooms]))
+    else
+      client
+    end
+  end
+
+  def say_to_room(%Zung.Client{} = client, room_id, message) do
+    Connection.publish(client.connection, {:room, room_id}, {:say, client.game_state.username, message})
+    client
+  end
+
+  def publish_to_chat(%Zung.Client{} = client, chat_room, message) do
+    Connection.publish(client.connection, {:chat, chat_room}, {client.game_state.username, message})
     client
   end
 

@@ -16,6 +16,7 @@ defmodule Zung.Game.Parser do
       "up" -> {:move, {:direction, :up}}
       "down" -> {:move, {:direction, :down}}
       "look" -> parse_look(client, arguments)
+      "say" -> parse_say(client, arguments)
       "csay" -> parse_csay(client, arguments)
       "enter" -> parse_enter(client, arguments)
       "quit" -> :quit
@@ -54,15 +55,24 @@ defmodule Zung.Game.Parser do
     end
   end
 
+  defp parse_say(%Zung.Client{} = client, arguments) do
+    message = join_arguments(arguments)
+    if message === "" do
+      {:bad_parse, "You must specify a message."}
+    else
+      {:say, client.game_state.room, message}
+    end
+  end
+
   defp parse_csay(%Zung.Client{} = client, arguments) do
     if Enum.count(arguments) < 2 do
-      {:bad_parse, "You must specify a channel and message."}
+      {:bad_parse, "You must specify a chat and message."}
     else
-      [channel | message_pieces] = arguments
-      if channel not in client.game_state.subscribed_channels do
-        {:bad_parse, "You are not part of the \"#{channel}\" channel."}
+      [chat_room | message_pieces] = arguments
+      if chat_room not in client.game_state.joined_chat_rooms do
+        {:bad_parse, "You are not part of the \"#{chat_room}\" chat."}
       else
-        {:csay, String.to_atom(channel), join_arguments(message_pieces)}
+        {:csay, String.to_atom(chat_room), join_arguments(message_pieces)}
       end
     end
   end
