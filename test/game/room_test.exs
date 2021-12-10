@@ -4,6 +4,7 @@ defmodule Zung.Game.RoomTest do
 
   alias Zung.Game.Room, as: Room
   alias Zung.Game.Room.Exit, as: Exit
+  alias Zung.Game.Object, as: Object
 
   defmock Zung.DataStore, preserve: true do
     def get_room(room_id) do
@@ -33,6 +34,8 @@ defmodule Zung.Game.RoomTest do
   #  - add "exit flags" -> http://www.forgottenkingdoms.org/builders/rlesson3.php (and other stuff -> https://www.aardwolf.com/building/editing-exits.html )
   #  - add behaviors/programs to rooms/doors/objects/etc -> http://www.forgottenkingdoms.org/builders/rlesson5.php
   #                                                      -> http://www.forgottenkingdoms.org/builders/mobprogs.php
+  #                                                      -> https://wiki.dikumud.net/wiki/DikuMUD
+  #                                                      -> https://github.com/oestrich/kalevala/blob/main/example/data/world/sammatti.ucl
   mocked_test "move in a direction without an exit" do
     # Arrange
     room = %Room{
@@ -285,5 +288,45 @@ defmodule Zung.Game.RoomTest do
     # Assert
     assert "You see a bright meadow just over the horizon to the north." == actual_meadow
     assert "Complete garbage truck nonsense" == actual_hatch
+  end
+
+  mocked_test "look at a non-existant object in the room" do
+    # Arrange
+    room = %Room{
+      objects: [
+        %Object{
+          id: "large_fountain",
+          name: "a large fountain",
+          description: "A large, glorious fountain is protuding from the ground here.",
+          keywords: ["glorious fountain", "large fountain", "fountain"]
+        }
+      ]
+    }
+
+    # Arrange
+    actual = Room.look_at(room, {:object, "not_real_object"})
+
+    # Assert
+    assert "You see nothing of interest." == actual
+  end
+
+  mocked_test "look at an object in the room" do
+    # Arrange
+    room = %Room{
+      objects: [
+        %Object{
+          id: "large_fountain",
+          name: "a large fountain",
+          description: "A large, glorious fountain is protuding from the ground here.",
+          keywords: ["glorious fountain", "large fountain", "fountain"]
+        }
+      ]
+    }
+
+    # Arrange
+    actual = Room.look_at(room, {:object, "large_fountain"})
+
+    # Assert
+    assert "A large, glorious fountain is protuding from the ground here." == actual
   end
 end

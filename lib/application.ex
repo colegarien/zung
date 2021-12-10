@@ -44,6 +44,20 @@ defmodule Zung.Application do
               %Zung.Game.Room.Exit{direction: :up, to: "newbie/room_3"},
               %Zung.Game.Room.Exit{direction: :south, to: "newbie/room_1"}
             ],
+            objects: [
+              %Zung.Game.Object{
+                id: "stack_of_planks",
+                name: "a stack of planks",
+                description: "A big stack of old wooden planks lies here.",
+                keywords: ["stack of old wooden planks", "stack of planks", "old wooden planks", "wooden planks", "planks"],
+              },
+              %Zung.Game.Object{
+                id: "another_stack_of_planks",
+                name: "another stack of planks",
+                description: "Another big stack of old wooden planks lies here.",
+                keywords: ["another stack of planks"],
+              },
+            ]
           },
           "newbie/room_3" => %Zung.Game.Room{
             id: "newbie/room_3",

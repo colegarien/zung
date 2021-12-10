@@ -47,10 +47,12 @@ defmodule Zung.Game.Parser do
 
     matching_exit = Enum.find(room.exits, nil, &(Map.has_key?(&1, :name) and argument === &1.name))
     matching_flavor = Enum.find(room.flavor_texts, nil, &(argument === &1.id or argument in &1.keywords))
+    matching_object = Enum.find(room.objects, nil, &(argument === &1.id or argument in &1.keywords))
     cond do
       argument in ["north", "south", "east", "west", "up", "down"] -> {:direction, String.to_atom(argument)}
       matching_exit !== nil -> {:exit, matching_exit.name}
       matching_flavor !== nil -> {:flavor, matching_flavor.id}
+      matching_object !== nil -> {:object, matching_object.id}
       true -> {:flavor, ""}
     end
   end

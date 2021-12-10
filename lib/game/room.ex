@@ -5,6 +5,7 @@ defmodule Zung.Game.Room do
     description: "The blank, never-ending void.",
     flavor_texts: [],
     exits: [],
+    objects: [],
   ]
 
   def get_room(room_id), do: Zung.DataStore.get_room(room_id)
@@ -13,12 +14,13 @@ defmodule Zung.Game.Room do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
     description_string = "#{room.description}"
     exits_string = Zung.Game.Room.Exit.describe(room.exits)
+    objects_string = Zung.Game.Object.describe(room.objects)
 
     """
 #{title_string}
    #{description_string}
 #{exits_string}
-
+#{objects_string}
 """
   end
 
@@ -27,6 +29,7 @@ defmodule Zung.Game.Room do
   end
   def look_at(room, {:direction, direction}), do: Zung.Game.Room.Exit.describe_target(room.exits, direction)
   def look_at(room, {:exit, name}), do: Zung.Game.Room.Exit.describe_target(room.exits, name)
+  def look_at(room, {:object, object_id}), do: Zung.Game.Object.describe_target(room.objects, object_id)
   def look_at(_room, _target), do: "You see nothing of interest."
 
   def move(room, {:direction, direction}), do: do_move(room, direction, "There is no where to go in that direction.")
@@ -48,17 +51,16 @@ defmodule Zung.Game.Room.Exit do
   defstruct [:to, :direction, :name, :description]
 
   def describe(exits) when is_list(exits) do
-      # TODO consider adding "other" for non-directional exits:
-      #     <> if Enum.any?(room.exits, &(&1.direction === nil)), do: " other"
-    "||BOLD||||CYA||-{ Exits:"
-      <> Enum.reduce(exits, "", fn room_exit, acc ->
-        if room_exit.direction !== nil do
-          "#{acc} #{room_exit.direction}"
-        else
-          acc
-        end
-      end)
-      <> " }-||RESET||"
+     "||BOLD||||CYA||-{ Exits:"
+        <> Enum.reduce(exits, "", fn room_exit, acc ->
+          if room_exit.direction !== nil do
+            "#{acc} #{room_exit.direction}"
+          else
+            acc
+          end
+        end)
+        <> (if Enum.any?(exits, &(&1.direction === nil)), do: " other", else: "")
+        <> " }-||RESET||"
   end
 
   def describe(%Zung.Game.Room.Exit{name: name, direction: direction, description: description}) do

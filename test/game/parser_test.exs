@@ -39,6 +39,14 @@ defmodule Zung.Game.ParserTest do
       %Zung.Game.Room.Exit{ direction: :south, name: "named door", to: "test_room3" },
       %Zung.Game.Room.Exit{ name: "custom exit door", to: "test_room3" },
      ],
+     objects: [
+       %Zung.Game.Object{
+         id: "large_fountain",
+         name: "a large fountain",
+         description: "A large, glorious fountain is protuding from the ground here.",
+         keywords: ["glorious fountain", "large fountain", "fountain"]
+       }
+     ],
   }
 
   mocked_test "no input is an unknown command" do
@@ -183,6 +191,43 @@ defmodule Zung.Game.ParserTest do
     assert actual_west === {:look, @test_room, {:direction, :west}}
     assert actual_up === {:look, @test_room, {:direction, :up}}
     assert actual_down === {:look, @test_room, {:direction, :down}}
+  end
+
+  mocked_test "look/1 object id test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input = "look large_fountain"
+
+    # Act
+    actual = Parser.parse(client, input)
+
+    # Assert
+    #keywords: ["glorious fountain", "large fountain", "fountain"]
+    assert actual === {:look, @test_room, {:object, "large_fountain"}}
+  end
+
+  mocked_test "look/1 object keywords test" do
+    # Arrange
+    client = %Zung.Client{
+      Zung.Client.new(nil) |
+      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+    }
+    input_a = "look glorious fountain"
+    input_b = "look large fountain"
+    input_c = "look fountain"
+
+    # Act
+    actual_a = Parser.parse(client, input_a)
+    actual_b = Parser.parse(client, input_b)
+    actual_c = Parser.parse(client, input_c)
+
+    # Assert
+    assert actual_a === {:look, @test_room, {:object, "large_fountain"}}
+    assert actual_b === {:look, @test_room, {:object, "large_fountain"}}
+    assert actual_c === {:look, @test_room, {:object, "large_fountain"}}
   end
 
   mocked_test "north/0 test" do
