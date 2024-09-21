@@ -1,11 +1,15 @@
 defmodule Zung.Client.Session do
   defmodule State do
     defstruct [
-      :id, :connection, :username,
-      :created, :last_activity,
-      timeout: 30 * 60 * 1000, # 30 minutes by default
+      :id,
+      :connection,
+      :username,
+      :created,
+      :last_activity,
+      # 30 minutes by default
+      timeout: 30 * 60 * 1000,
       is_authenticated: false,
-      is_disconnected: true,
+      is_disconnected: true
     ]
 
     defp get_now(), do: :os.system_time(:millisecond)
@@ -27,8 +31,12 @@ defmodule Zung.Client.Session do
 
     def close(session = %State{}, force \\ false) do
       if force and session.connection != nil do
-        Zung.Client.Connection.force_closed(session.connection, "||NL||[ Disconnected due to Session Timeout ]||NL||")
+        Zung.Client.Connection.force_closed(
+          session.connection,
+          "||NL||[ Disconnected due to Session Timeout ]||NL||"
+        )
       end
+
       %State{session | is_authenticated: false, is_disconnected: true}
     end
 
@@ -48,17 +56,23 @@ defmodule Zung.Client.Session do
     schedule_timeout(trunc(expiration_frequency * 60 * 1000))
     {:ok, initial_state}
   end
+
   def start_link(intial_state \\ %{}) do
     GenServer.start_link(__MODULE__, intial_state, name: __MODULE__)
   end
 
   # HEART BEATS
-  def schedule_cleanup(frequency), do: Process.send_after(self(), {:cleanup, frequency}, frequency)
-  def schedule_timeout(frequency), do: Process.send_after(self(), {:expire_sessions, frequency}, frequency)
+  def schedule_cleanup(frequency),
+    do: Process.send_after(self(), {:cleanup, frequency}, frequency)
+
+  def schedule_timeout(frequency),
+    do: Process.send_after(self(), {:expire_sessions, frequency}, frequency)
+
   def handle_info({:cleanup, frequency}, state) do
     schedule_timeout(frequency)
     {:noreply, remove_inactive_sessions(state)}
   end
+
   def handle_info({:expire_sessions, frequency}, state) do
     schedule_timeout(frequency)
     {:noreply, close_expired_sessions(state)}
@@ -80,7 +94,10 @@ defmodule Zung.Client.Session do
 
   # CLIENT SIDE
   def new_session(connection) do
-    GenServer.call(__MODULE__, {:new, %State{State.new | connection: connection, is_disconnected: false }})
+    GenServer.call(
+      __MODULE__,
+      {:new, %State{State.new() | connection: connection, is_disconnected: false}}
+    )
   end
 
   def is_expired?(session_id) do
@@ -92,15 +109,15 @@ defmodule Zung.Client.Session do
   end
 
   def refresh_session(session_id) do
-    GenServer.cast(__MODULE__, { :refresh, session_id })
+    GenServer.cast(__MODULE__, {:refresh, session_id})
   end
 
   def authenticate_session(session_id, username) do
-    GenServer.cast(__MODULE__, {:authenticate, session_id, username })
+    GenServer.cast(__MODULE__, {:authenticate, session_id, username})
   end
 
   def end_session(session_id) do
-    GenServer.cast(__MODULE__, {:end, session_id })
+    GenServer.cast(__MODULE__, {:end, session_id})
   end
 
   def end_all() do
@@ -118,31 +135,35 @@ defmodule Zung.Client.Session do
   end
 
   def handle_call(:active_session_count, _from, state) do
-    {:reply, Enum.reduce(state, 0, fn {_k, session}, acc -> if State.is_active?(session) and session.is_authenticated, do: acc+1, else: acc end), state}
+    {:reply,
+     Enum.reduce(state, 0, fn {_k, session}, acc ->
+       if State.is_active?(session) and session.is_authenticated, do: acc + 1, else: acc
+     end), state}
   end
 
   def handle_cast({:refresh, session_id}, state) do
-    {:noreply, Map.update(state, session_id, %State{}, &(State.refresh(&1)))}
+    {:noreply, Map.update(state, session_id, %State{}, &State.refresh(&1))}
   end
 
-  def handle_cast({:authenticate, session_id, username }, state) do
-    {:noreply, Map.update(state, session_id, %State{}, &(State.authenticate(&1, username)))}
+  def handle_cast({:authenticate, session_id, username}, state) do
+    {:noreply, Map.update(state, session_id, %State{}, &State.authenticate(&1, username))}
   end
 
-  def handle_cast({:end, session_id }, state) do
-    {:noreply, Map.update(state, session_id, %State{}, &(State.close(&1)))}
+  def handle_cast({:end, session_id}, state) do
+    {:noreply, Map.update(state, session_id, %State{}, &State.close(&1))}
   end
 
   def handle_cast(:endall, state) do
-    {:noreply, Enum.map(state, fn ({id, session}) -> {id, State.close(session, true)} end)}
+    {:noreply, Enum.map(state, fn {id, session} -> {id, State.close(session, true)} end)}
   end
-
 
   # UTILITY
   defp get_next_available_id(state) do
-    max_id = state
-      |> Map.keys
+    max_id =
+      state
+      |> Map.keys()
       |> Enum.max(fn -> 0 end)
+
     max_id + 1
   end
 end

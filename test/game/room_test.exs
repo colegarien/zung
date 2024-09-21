@@ -9,13 +9,14 @@ defmodule Zung.Game.RoomTest do
   defmock Zung.DataStore, preserve: true do
     def get_room(room_id) do
       case room_id do
-        "test_room" -> %Zung.Game.Room{
-          id: "test_room",
-          title: "The Test Room",
-          description: "A simple test room for testing units",
-          flavor_texts: [],
-          exits: [ %Zung.Game.Room.Exit{ direction: :north, to: "test_room2" } ],
-        }
+        "test_room" ->
+          %Zung.Game.Room{
+            id: "test_room",
+            title: "The Test Room",
+            description: "A simple test room for testing units",
+            flavor_texts: [],
+            exits: [%Zung.Game.Room.Exit{direction: :north, to: "test_room2"}]
+          }
       end
     end
   end
@@ -39,7 +40,7 @@ defmodule Zung.Game.RoomTest do
   mocked_test "move in a direction without an exit" do
     # Arrange
     room = %Room{
-      exits: [%Exit{ direction: :north, to: "test_room" }]
+      exits: [%Exit{direction: :north, to: "test_room"}]
     }
 
     # Act
@@ -52,7 +53,7 @@ defmodule Zung.Game.RoomTest do
   mocked_test "move in toward an open exit" do
     # Arrange
     room = %Room{
-      exits: [%Exit{ direction: :north, to: "test_room" }]
+      exits: [%Exit{direction: :north, to: "test_room"}]
     }
 
     # Act
@@ -65,7 +66,7 @@ defmodule Zung.Game.RoomTest do
   mocked_test "move into a named exit that doesnt exist" do
     # Arrange
     room = %Room{
-      exits: [%Exit{ name: "iron door", to: "test_room" }]
+      exits: [%Exit{name: "iron door", to: "test_room"}]
     }
 
     # Act
@@ -78,7 +79,7 @@ defmodule Zung.Game.RoomTest do
   mocked_test "move into an open named exit" do
     # Arrange
     room = %Room{
-      exits: [%Exit{ name: "iron door", to: "test_room" }]
+      exits: [%Exit{name: "iron door", to: "test_room"}]
     }
 
     # Act
@@ -87,7 +88,6 @@ defmodule Zung.Game.RoomTest do
     # Assert
     assert {:ok, _} = actual
   end
-
 
   mocked_test "look at nothing" do
     # Arrange
@@ -134,8 +134,8 @@ defmodule Zung.Game.RoomTest do
     # Arrange
     room = %Room{
       exits: [
-        %Exit{ direction: :north, to: "some/room" },
-        %Exit{ direction: :up, to: "some/room" },
+        %Exit{direction: :north, to: "some/room"},
+        %Exit{direction: :up, to: "some/room"}
       ]
     }
 
@@ -161,7 +161,7 @@ defmodule Zung.Game.RoomTest do
           direction: :up,
           name: "steel hatch",
           to: "some/room"
-        },
+        }
       ]
     }
 
@@ -188,7 +188,7 @@ defmodule Zung.Game.RoomTest do
           name: "steel hatch",
           description: "Complete garbage truck nonsense",
           to: "some/room"
-        },
+        }
       ]
     }
 
@@ -277,7 +277,7 @@ defmodule Zung.Game.RoomTest do
           name: "steel hatch",
           description: "Complete garbage truck nonsense",
           to: "some/room"
-        },
+        }
       ]
     }
 

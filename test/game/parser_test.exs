@@ -6,9 +6,9 @@ defmodule Zung.Game.ParserTest do
 
   defmock Zung.Client, preserve: true do
     def new(_socket) do
-      %Zung.Client {
+      %Zung.Client{
         session_id: 1234,
-        connection: %Zung.Client.Connection{id: 5678},
+        connection: %Zung.Client.Connection{id: 5678}
       }
     end
   end
@@ -35,26 +35,27 @@ defmodule Zung.Game.ParserTest do
       }
     ],
     exits: [
-      %Zung.Game.Room.Exit{ direction: :north, to: "test_room2" },
-      %Zung.Game.Room.Exit{ direction: :south, name: "named door", to: "test_room3" },
-      %Zung.Game.Room.Exit{ name: "custom exit door", to: "test_room3" },
-     ],
-     objects: [
-       %Zung.Game.Object{
-         id: "large_fountain",
-         name: "a large fountain",
-         description: "A large, glorious fountain is protuding from the ground here.",
-         keywords: ["glorious fountain", "large fountain", "fountain"]
-       }
-     ],
+      %Zung.Game.Room.Exit{direction: :north, to: "test_room2"},
+      %Zung.Game.Room.Exit{direction: :south, name: "named door", to: "test_room3"},
+      %Zung.Game.Room.Exit{name: "custom exit door", to: "test_room3"}
+    ],
+    objects: [
+      %Zung.Game.Object{
+        id: "large_fountain",
+        name: "a large fountain",
+        description: "A large, glorious fountain is protuding from the ground here.",
+        keywords: ["glorious fountain", "large fountain", "fountain"]
+      }
+    ]
   }
 
   mocked_test "no input is an unknown command" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = ""
 
     # Act
@@ -67,9 +68,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look"
 
     # Act
@@ -82,9 +84,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 unknown flavor test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look some straight garbage"
 
     # Act
@@ -97,9 +100,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 direct flavor reference test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look simple_flavor"
 
     # Act
@@ -112,9 +116,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 simple flavor test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look tasty"
 
     # Act
@@ -127,9 +132,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 compound flavor test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look big time"
 
     # Act
@@ -142,9 +148,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 complex flavor test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input_a = "look this and that"
     input_b = "look that and this"
     input_c = "look this"
@@ -166,9 +173,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 direction test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input_north = "look north"
     input_south = "look south"
     input_east = "look east"
@@ -196,25 +204,27 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 object id test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look large_fountain"
 
     # Act
     actual = Parser.parse(client, input)
 
     # Assert
-    #keywords: ["glorious fountain", "large fountain", "fountain"]
+    # keywords: ["glorious fountain", "large fountain", "fountain"]
     assert actual === {:look, @test_room, {:object, "large_fountain"}}
   end
 
   mocked_test "look/1 object keywords test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input_a = "look glorious fountain"
     input_b = "look large fountain"
     input_c = "look fountain"
@@ -233,9 +243,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "north/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "north"
 
     # Act
@@ -248,9 +259,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "south/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "south"
 
     # Act
@@ -263,9 +275,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "east/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "east"
 
     # Act
@@ -278,9 +291,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "west/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "west"
 
     # Act
@@ -293,9 +307,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "up/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "up"
 
     # Act
@@ -308,9 +323,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "down/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "down"
 
     # Act
@@ -323,9 +339,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "quit/0 test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "quit"
 
     # Act
@@ -338,9 +355,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "aliases - look and direction test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input_north = "l n"
     input_south = "l s"
     input_east = "l e"
@@ -368,9 +386,14 @@ defmodule Zung.Game.ParserTest do
   mocked_test "no aliases do unknown command" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, command_aliases: %{} }
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          command_aliases: %{}
+        }
     }
+
     input = "l"
 
     # Act
@@ -383,14 +406,16 @@ defmodule Zung.Game.ParserTest do
   mocked_test "multi-word aliases work" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{
-        username: "tim_allen", room: @test_room,
-        command_aliases: %{
-          "this is a big one" => "look"
-        },
-      },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          command_aliases: %{
+            "this is a big one" => "look"
+          }
+        }
     }
+
     input = "this is a big one this and that"
 
     # Act
@@ -403,9 +428,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look allow syntactic sugar words test" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "look at the tasty"
 
     # Act
@@ -418,9 +444,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "csay missing chat_room do bad_parse" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "csay"
 
     # Act
@@ -433,9 +460,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "csay non-subscribed chat_room do bad_parse" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "csay bad_chat_room hi all"
 
     # Act
@@ -448,9 +476,14 @@ defmodule Zung.Game.ParserTest do
   mocked_test "csay to a subscribed chat_room" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, joined_chat_rooms: [ "ooc" ] },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          joined_chat_rooms: ["ooc"]
+        }
     }
+
     input = "csay ooc hi all"
 
     # Act
@@ -463,9 +496,14 @@ defmodule Zung.Game.ParserTest do
   mocked_test "ooc alias to a ooc chat_room" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room, joined_chat_rooms: [ "ooc" ] },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          joined_chat_rooms: ["ooc"]
+        }
     }
+
     input = "ooc hi all in ooc"
 
     # Act
@@ -478,9 +516,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "look/1 at named exits" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input_directional = "look at named door"
     input_custom = "look at the custom exit door"
 
@@ -496,9 +535,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 missing exit name error" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter"
 
     # Act
@@ -511,9 +551,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 but exit name doesnt exist" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter fake door"
 
     # Act
@@ -526,9 +567,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 specify a directional named exit" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter named door"
 
     # Act
@@ -541,9 +583,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 specify a custom named exit" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter custom exit door"
 
     # Act
@@ -556,9 +599,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 specify a direction" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter north"
 
     # Act
@@ -571,9 +615,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "enter/1 specify a direction alias" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "enter n"
 
     # Act
@@ -586,9 +631,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "say/1 no message bad parse" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "say"
 
     # Act
@@ -601,9 +647,10 @@ defmodule Zung.Game.ParserTest do
   mocked_test "say/1 to room" do
     # Arrange
     client = %Zung.Client{
-      Zung.Client.new(nil) |
-      game_state: %Zung.Client.GameState{ username: "tim_allen", room: @test_room },
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
     }
+
     input = "say hi all!"
 
     # Act

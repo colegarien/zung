@@ -1,11 +1,13 @@
 defmodule Zung.Client.User do
   defmodule State do
     defstruct [
-      :username, :password,
-      :created, :last_login,
+      :username,
+      :password,
+      :created,
+      :last_login,
       settings: %{
-        use_ansi?: false,
-      },
+        use_ansi?: false
+      }
     ]
 
     defp get_now(), do: :os.system_time(:millisecond)
@@ -35,38 +37,56 @@ defmodule Zung.Client.User do
   end
 
   use GenServer
+
   def start_link(intial_state \\ %{}) do
     GenServer.start_link(__MODULE__, intial_state, name: __MODULE__)
   end
+
   def init(state), do: {:ok, state}
 
   # CLIENT SIDE
   def hash_password(username, password) do
     salt = Application.get_env(:zung, :secret_salt)
+
     :crypto.hash(:sha256, password <> username <> salt)
-      |> Base.encode16()
-      |> String.downcase()
+    |> Base.encode16()
+    |> String.downcase()
   end
 
   def validate_username_format(username, is_adding? \\ true) do
     cond do
-      username == "new" -> if is_adding?, do: {:error, "Username cannot be 'new'."}, else: {:ok, "new" }
-      not String.match?(username, ~r/^[a-z][a-z0-9\_]{2,11}$/) -> {:error, "Username is invalid."}
-      is_adding? and not Zung.Client.User.username_available?(username) -> {:error, "Username already taken."}
-      not is_adding? and Zung.Client.User.username_available?(username) -> {:error, "User does not exist. Please try again."}
-      true -> {:ok, username}
+      username == "new" ->
+        if is_adding?, do: {:error, "Username cannot be 'new'."}, else: {:ok, "new"}
+
+      not String.match?(username, ~r/^[a-z][a-z0-9\_]{2,11}$/) ->
+        {:error, "Username is invalid."}
+
+      is_adding? and not Zung.Client.User.username_available?(username) ->
+        {:error, "Username already taken."}
+
+      not is_adding? and Zung.Client.User.username_available?(username) ->
+        {:error, "User does not exist. Please try again."}
+
+      true ->
+        {:ok, username}
     end
   end
 
   def validate_password_format(password) do
     cond do
-      not String.match?(password, ~r/^[a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_]{8,32}$/) -> {:error, "Password is invalid."}
-      true -> {:ok, password}
+      not String.match?(password, ~r/^[a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_]{8,32}$/) ->
+        {:error, "Password is invalid."}
+
+      true ->
+        {:ok, password}
     end
   end
 
   def create_user(username, password, settings) do
-    GenServer.call(__MODULE__, {:new, %State{State.new | username: username, password: password, settings: settings }})
+    GenServer.call(
+      __MODULE__,
+      {:new, %State{State.new() | username: username, password: password, settings: settings}}
+    )
   end
 
   def username_available?(username) do
@@ -107,10 +127,10 @@ defmodule Zung.Client.User do
   end
 
   def handle_cast({:set_setting, username, setting, value}, state) do
-    {:noreply, Map.update(state, username, %State{}, &(State.set_setting(&1, setting, value)))}
+    {:noreply, Map.update(state, username, %State{}, &State.set_setting(&1, setting, value))}
   end
 
   def handle_cast({:log_login, username}, state) do
-    {:noreply, Map.update(state, username, %State{}, &(State.log_login(&1)))}
+    {:noreply, Map.update(state, username, %State{}, &State.log_login(&1))}
   end
 end

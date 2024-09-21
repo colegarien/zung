@@ -4,12 +4,9 @@ defmodule Zung.Client.UserTest do
 
   defp get_now(), do: :os.system_time(:millisecond)
 
-
   test "user - log login updates the last_login" do
     # Arrange
-    user = %State{State.new |
-      last_login: get_now() - 5000
-    }
+    user = %State{State.new() | last_login: get_now() - 5000}
 
     # Act
     actual = State.log_login(user)
@@ -20,7 +17,7 @@ defmodule Zung.Client.UserTest do
 
   test "user - dont set fake settings" do
     # Arrange
-    user = State.new
+    user = State.new()
 
     # Act
     actual = State.set_setting(user, :some_nonsense, "no go")
@@ -31,10 +28,11 @@ defmodule Zung.Client.UserTest do
 
   test "user - do set real settings" do
     # Arrange
-    user = %State{State.new |
-      settings: %{
-        use_ansi?: false
-      }
+    user = %State{
+      State.new()
+      | settings: %{
+          use_ansi?: false
+        }
     }
 
     # Act
@@ -46,7 +44,7 @@ defmodule Zung.Client.UserTest do
 
   test "user - return nil for fake settings" do
     # Arrange
-    user = State.new
+    user = State.new()
 
     # Act
     actual = State.get_setting(user, :some_nonsense)
@@ -57,10 +55,11 @@ defmodule Zung.Client.UserTest do
 
   test "user - return value for settings" do
     # Arrange
-    user = %State{State.new |
-      settings: %{
-        use_ansi?: true
-      }
+    user = %State{
+      State.new()
+      | settings: %{
+          use_ansi?: true
+        }
     }
 
     # Act
@@ -69,5 +68,4 @@ defmodule Zung.Client.UserTest do
     # Assert
     assert actual === true
   end
-
 end

@@ -1,9 +1,10 @@
 defmodule Zung.Game.Templater do
-  @templating_regex ~r/\|\|([A-Z_]+)?\|\|/ # ||TEMPLATE_WORD_HERE||
+  # ||TEMPLATE_WORD_HERE||
+  @templating_regex ~r/\|\|([A-Z_]+)?\|\|/
   @primitive_templating_replacements %{
     "NL" => "\r\n",
     "ECHO_OFF" => <<255, 251, 1>>,
-    "ECHO_ON" => <<255, 252, 1>>,
+    "ECHO_ON" => <<255, 252, 1>>
   }
   @ansi_templating_replacements %{
     "NL" => "\r\n",
@@ -31,11 +32,13 @@ defmodule Zung.Game.Templater do
     "CYA_BK" => "\e[46m",
     "WHT_BK" => "\e[47m",
     "ECHO_OFF" => <<255, 251, 1>>,
-    "ECHO_ON" => <<255, 252, 1>>,
+    "ECHO_ON" => <<255, 252, 1>>
   }
 
   def template(text, use_ansi?) do
-    replacements = if use_ansi?, do: @ansi_templating_replacements, else: @primitive_templating_replacements
+    replacements =
+      if use_ansi?, do: @ansi_templating_replacements, else: @primitive_templating_replacements
+
     Regex.replace(@templating_regex, text, fn _, match ->
       if Map.has_key?(replacements, match), do: replacements[match], else: ""
     end)

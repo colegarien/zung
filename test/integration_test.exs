@@ -65,7 +65,6 @@ defmodule Zung.IntegrationTest do
     assert send_and_recv(socket, "quit") =~ "Bye"
   end
 
-
   defp send_and_recv(socket, command) do
     :ok = :gen_tcp.send(socket, command <> "\r\n")
     recv_all(socket, "")
