@@ -238,12 +238,11 @@ defmodule Zung.State.Game.GameTest do
     assert not :queue.is_empty(actual_client.connection.output_buffer)
     {:value, actual_output} = :queue.peek(actual_client.connection.output_buffer)
 
-    assert actual_output === """
-           ||BOLD||||GRN||The Test Room||RESET||
-              A simple test room for testing units
-           ||BOLD||||CYA||-{ Exits: north }-||RESET||
-           ||YEL||    a large fountain||NL||||RESET||
-           """
+    assert actual_output ===
+             "||BOLD||||GRN||The Test Room||RESET||||NL||" <>
+               "   A simple test room for testing units||NL||" <>
+               "||BOLD||||CYA||-{ Exits: north }-||RESET||||NL||" <>
+               "||YEL||    a large fountain||NL||||RESET||||NL||"
   end
 
   mocked_test "look at flavor command" do

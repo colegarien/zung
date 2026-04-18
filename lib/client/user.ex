@@ -10,6 +10,14 @@ defmodule Zung.Client.User do
       }
     ]
 
+    @type t :: %__MODULE__{
+            username: String.t() | nil,
+            password: String.t() | nil,
+            created: non_neg_integer() | nil,
+            last_login: non_neg_integer() | nil,
+            settings: %{atom() => term()}
+          }
+
     defp get_now(), do: :os.system_time(:millisecond)
 
     def new() do
@@ -36,15 +44,20 @@ defmodule Zung.Client.User do
     end
   end
 
+  @type t :: State.t()
+  @type setting :: atom()
+
   use GenServer
 
-  def start_link(intial_state \\ %{}) do
-    GenServer.start_link(__MODULE__, intial_state, name: __MODULE__)
+  @spec start_link(map()) :: GenServer.on_start()
+  def start_link(initial_state \\ %{}) do
+    GenServer.start_link(__MODULE__, initial_state, name: __MODULE__)
   end
 
   def init(state), do: {:ok, state}
 
   # CLIENT SIDE
+  @spec hash_password(String.t(), String.t()) :: String.t()
   def hash_password(username, password) do
     salt = Application.get_env(:zung, :secret_salt)
 
@@ -53,6 +66,8 @@ defmodule Zung.Client.User do
     |> String.downcase()
   end
 
+  @spec validate_username_format(String.t(), boolean()) ::
+          {:ok, String.t()} | {:error, String.t()}
   def validate_username_format(username, is_adding? \\ true) do
     cond do
       username == "new" ->
@@ -72,6 +87,7 @@ defmodule Zung.Client.User do
     end
   end
 
+  @spec validate_password_format(String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def validate_password_format(password) do
     cond do
       not String.match?(password, ~r/^[a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_]{8,32}$/) ->
@@ -82,6 +98,7 @@ defmodule Zung.Client.User do
     end
   end
 
+  @spec create_user(String.t(), String.t(), %{atom() => term()}) :: State.t()
   def create_user(username, password, settings) do
     GenServer.call(
       __MODULE__,
@@ -89,22 +106,27 @@ defmodule Zung.Client.User do
     )
   end
 
+  @spec username_available?(String.t()) :: boolean()
   def username_available?(username) do
     GenServer.call(__MODULE__, {:username_available?, username})
   end
 
+  @spec password_matches?(String.t(), String.t()) :: boolean()
   def password_matches?(username, password) do
     GenServer.call(__MODULE__, {:password_matches?, username, password})
   end
 
+  @spec get_setting(String.t(), setting()) :: term()
   def get_setting(username, setting) do
     GenServer.call(__MODULE__, {:get_setting, username, setting})
   end
 
+  @spec set_setting(String.t(), setting(), term()) :: :ok
   def set_setting(username, setting, value) do
     GenServer.cast(__MODULE__, {:set_setting, username, setting, value})
   end
 
+  @spec log_login(String.t()) :: :ok
   def log_login(username) do
     GenServer.cast(__MODULE__, {:log_login, username})
   end

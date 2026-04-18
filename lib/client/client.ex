@@ -6,11 +6,18 @@ defmodule Zung.Client do
     :game_state
   ]
 
+  @type t :: %__MODULE__{
+          session_id: pos_integer() | nil,
+          connection: pid(),
+          game_state: GameState.t() | nil
+        }
+
   alias Zung.Client.Connection
   alias Zung.Client.Session
   alias Zung.Client.User
 
   defmodule GameState do
+    @enforce_keys [:username]
     defstruct [
       :username,
       room: %Zung.Game.Room{},
@@ -26,8 +33,16 @@ defmodule Zung.Client do
       },
       joined_chat_rooms: []
     ]
+
+    @type t :: %__MODULE__{
+            username: String.t(),
+            room: Zung.Game.Room.t(),
+            command_aliases: %{String.t() => String.t()},
+            joined_chat_rooms: [String.t()]
+          }
   end
 
+  @spec new(pid()) :: t()
   def new(connection) do
     session_id = Session.new_session(connection)
 
@@ -37,6 +52,7 @@ defmodule Zung.Client do
     }
   end
 
+  @spec pop_input(t()) :: {t(), String.t() | nil}
   def pop_input(%Zung.Client{} = client) do
     msg = Connection.read(client.connection)
 
@@ -53,16 +69,19 @@ defmodule Zung.Client do
     end
   end
 
+  @spec push_output(t(), String.t()) :: t()
   def push_output(%Zung.Client{} = client, output) do
     Connection.write(client.connection, output)
     client
   end
 
+  @spec flush_output(t(), boolean()) :: t()
   def flush_output(%Zung.Client{} = client, prompt? \\ true) do
     Connection.flush_output(client.connection, prompt?)
     client
   end
 
+  @spec authenticate_as(t(), String.t()) :: t()
   def authenticate_as(%Zung.Client{} = client, username) do
     use_ansi? = User.get_setting(username, :use_ansi?)
 
@@ -73,6 +92,7 @@ defmodule Zung.Client do
     client
   end
 
+  @spec leave_room(t(), Zung.Game.Room.t()) :: t()
   def leave_room(%Zung.Client{} = client, old_room) do
     if(client.game_state !== nil) do
       Connection.unsubscribe(client.connection, {:room, old_room.id})
@@ -82,14 +102,17 @@ defmodule Zung.Client do
     end
   end
 
+  @spec enter_room(t(), Zung.Game.Room.t()) :: t()
   def enter_room(%Zung.Client{} = client, new_room) do
     if(client.game_state !== nil) do
       Zung.DataStore.update_current_room_id(client.game_state.username, new_room.id)
       Connection.subscribe(client.connection, {:room, new_room.id})
 
+      %Zung.Client.GameState{} = game_state = client.game_state
+
       %Zung.Client{
         client
-        | game_state: %Zung.Client.GameState{client.game_state | room: new_room}
+        | game_state: %Zung.Client.GameState{game_state | room: new_room}
       }
       |> Zung.Client.push_output(Zung.Game.Room.describe(new_room))
     else
@@ -97,6 +120,7 @@ defmodule Zung.Client do
     end
   end
 
+  @spec join_chat(t(), [String.t()] | String.t()) :: t()
   def join_chat(%Zung.Client{} = client, chat_rooms = []),
     do:
       Enum.reduce(chat_rooms, client, fn chat_room, new_client ->
@@ -119,6 +143,7 @@ defmodule Zung.Client do
     end
   end
 
+  @spec say_to_room(t(), String.t(), String.t()) :: t()
   def say_to_room(%Zung.Client{} = client, room_id, message) do
     Connection.publish(
       client.connection,
@@ -129,6 +154,7 @@ defmodule Zung.Client do
     client
   end
 
+  @spec publish_to_chat(t(), atom(), String.t()) :: t()
   def publish_to_chat(%Zung.Client{} = client, chat_room, message) do
     Connection.publish(
       client.connection,
@@ -143,6 +169,7 @@ defmodule Zung.Client do
     Connection.use_ansi(client.connection, use_ansi?)
   end
 
+  @spec shutdown(t()) :: :ok
   def shutdown(%Zung.Client{} = client) do
     Session.end_session(client.session_id)
     Connection.end_connection(client.connection)

@@ -5,9 +5,13 @@ defmodule Zung.MixProject do
     [
       app: :zung,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: [
+        plt_file: {:no_warnings, "priv/plts/dialyzer.plt"},
+        flags: [:error_handling, :unknown, :unmatched_returns, :extra_return, :missing_return]
+      ]
     ]
   end
 
@@ -21,7 +25,9 @@ defmodule Zung.MixProject do
   defp deps do
     [
       {:gproc, "~> 0.9.0"},
-      {:mecks_unit, "~> 0.1.9", only: :test}
+      {:mecks_unit, "~> 0.1.9", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(elixir *)",
+      "Bash(mix compile *)",
+      "Bash(mix format *)",
+      "Bash(mix test *)",
+      "Bash(mix credo *)",
+      "Bash(mix hex.info mecks_unit)"
+    ]
+  }
+}

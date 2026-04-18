@@ -2,15 +2,15 @@ defmodule Zung.State.Login.Creation.Finalize do
   @behaviour Zung.State.State
 
   @finalize_message ~S"""
-  
+
   ||BOLD||||RED||-----------------------------------------------------------------------------||RESET||
        ||GRN||Congratulations username||RESET||, you have now completed
   character creation. You will be dropped in the newbie area. Describe newbie
   area benefits and such here.
-  
+
                   Enjoy your adventures, and welcome to Zung!
   ||BOLD||||RED||-----------------------------------------------------------------------------||RESET||
-  
+
   [ Press enter to continue ]||RESET||
   """
 

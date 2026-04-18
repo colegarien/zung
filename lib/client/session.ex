@@ -12,6 +12,17 @@ defmodule Zung.Client.Session do
       is_disconnected: true
     ]
 
+    @type t :: %__MODULE__{
+            id: pos_integer() | nil,
+            connection: pid() | nil,
+            username: String.t() | nil,
+            created: non_neg_integer(),
+            last_activity: non_neg_integer(),
+            timeout: non_neg_integer(),
+            is_authenticated: boolean(),
+            is_disconnected: boolean()
+          }
+
     defp get_now(), do: :os.system_time(:millisecond)
 
     def new() do
@@ -57,8 +68,9 @@ defmodule Zung.Client.Session do
     {:ok, initial_state}
   end
 
-  def start_link(intial_state \\ %{}) do
-    GenServer.start_link(__MODULE__, intial_state, name: __MODULE__)
+  @spec start_link(map()) :: GenServer.on_start()
+  def start_link(initial_state \\ %{}) do
+    GenServer.start_link(__MODULE__, initial_state, name: __MODULE__)
   end
 
   # HEART BEATS
@@ -93,6 +105,7 @@ defmodule Zung.Client.Session do
   end
 
   # CLIENT SIDE
+  @spec new_session(pid()) :: pos_integer()
   def new_session(connection) do
     GenServer.call(
       __MODULE__,
@@ -100,32 +113,38 @@ defmodule Zung.Client.Session do
     )
   end
 
+  @spec is_expired?(pos_integer()) :: boolean()
   def is_expired?(session_id) do
     GenServer.call(__MODULE__, {:is_expired, session_id})
   end
 
+  @spec get_session_count() :: non_neg_integer()
   def get_session_count() do
     GenServer.call(__MODULE__, :active_session_count)
   end
 
+  @spec refresh_session(pos_integer()) :: :ok
   def refresh_session(session_id) do
     GenServer.cast(__MODULE__, {:refresh, session_id})
   end
 
+  @spec authenticate_session(pos_integer(), String.t()) :: :ok
   def authenticate_session(session_id, username) do
     GenServer.cast(__MODULE__, {:authenticate, session_id, username})
   end
 
+  @spec end_session(pos_integer()) :: :ok
   def end_session(session_id) do
     GenServer.cast(__MODULE__, {:end, session_id})
   end
 
+  @spec end_all() :: :ok
   def end_all() do
     GenServer.cast(__MODULE__, :end_all)
   end
 
   # SERVER SIDE
-  def handle_call({:new, session}, _from, state) do
+  def handle_call({:new, %State{} = session}, _from, state) do
     session_with_id = %State{session | id: get_next_available_id(state)}
     {:reply, session_with_id.id, Map.put(state, session_with_id.id, session_with_id)}
   end
@@ -153,8 +172,8 @@ defmodule Zung.Client.Session do
     {:noreply, Map.update(state, session_id, %State{}, &State.close(&1))}
   end
 
-  def handle_cast(:endall, state) do
-    {:noreply, Enum.map(state, fn {id, session} -> {id, State.close(session, true)} end)}
+  def handle_cast(:end_all, state) do
+    {:noreply, for({id, session} <- state, into: %{}, do: {id, State.close(session, true)})}
   end
 
   # UTILITY

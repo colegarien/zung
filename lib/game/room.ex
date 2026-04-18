@@ -6,22 +6,34 @@ defmodule Zung.Game.Room do
             exits: [],
             objects: []
 
+  @type t :: %__MODULE__{
+          id: String.t(),
+          title: String.t(),
+          description: String.t(),
+          flavor_texts: [map()],
+          exits: [Zung.Game.Room.Exit.t()],
+          objects: [Zung.Game.Object.t()]
+        }
+
+  @type look_target ::
+          {:direction, atom()}
+          | {:exit, String.t()}
+          | {:flavor, String.t()}
+          | {:object, String.t()}
+
   def get_room(room_id), do: Zung.DataStore.get_room(room_id)
 
+  @spec describe(t()) :: String.t()
   def describe(%Zung.Game.Room{} = room) do
     title_string = "||BOLD||||GRN||#{room.title}||RESET||"
-    description_string = "#{room.description}"
+    description_string = "   #{room.description}"
     exits_string = Zung.Game.Room.Exit.describe(room.exits)
     objects_string = Zung.Game.Object.describe(room.objects)
 
-    """
-    #{title_string}
-       #{description_string}
-    #{exits_string}
-    #{objects_string}
-    """
+    "#{title_string}||NL||#{description_string}||NL||#{exits_string}||NL||#{objects_string}||NL||"
   end
 
+  @spec look_at(t(), look_target() | term()) :: String.t()
   def look_at(room, {:flavor, flavor_text_id}) do
     Enum.find(
       room.flavor_texts,
@@ -40,6 +52,8 @@ defmodule Zung.Game.Room do
 
   def look_at(_room, _target), do: "You see nothing of interest."
 
+  @spec move(t(), {:direction, atom()} | {:exit, String.t()} | term()) ::
+          {:ok, t()} | {:error, String.t()}
   def move(room, {:direction, direction}),
     do: do_move(room, direction, "There is no where to go in that direction.")
 
@@ -61,6 +75,14 @@ defmodule Zung.Game.Room.Exit do
   @enforce_keys [:to]
   defstruct [:to, :direction, :name, :description]
 
+  @type t :: %__MODULE__{
+          to: String.t(),
+          direction: atom() | nil,
+          name: String.t() | nil,
+          description: String.t() | nil
+        }
+
+  @spec describe([t()] | t()) :: String.t()
   def describe(exits) when is_list(exits) do
     "||BOLD||||CYA||-{ Exits:" <>
       Enum.reduce(exits, "", fn room_exit, acc ->
@@ -95,10 +117,12 @@ defmodule Zung.Game.Room.Exit do
     end
   end
 
+  @spec match([t()], atom() | String.t()) :: [t()]
   def match(exits, target) do
     Enum.filter(exits, &(&1.direction === target or &1.name === target))
   end
 
+  @spec describe_target([t()], atom() | String.t()) :: String.t()
   def describe_target(exits, target) do
     matching_exits = match(exits, target)
 

@@ -7,7 +7,7 @@ defmodule Zung.State.Login.Creation.ColorCheck do
   If you can see the colors enter 'y' if you can't enter 'n'.
   --------------------------------------------------------------------------------
         Color Test:     ||RED||Red ||GRN||Green ||YEL||Yellow ||BLU||Blue ||MAG||Magenta ||CYA||Cyan ||WHT||White||RESET||
-  
+
   """
 
   @impl Zung.State.State

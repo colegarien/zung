@@ -2,12 +2,12 @@ defmodule Zung.Game.Templater do
   # ||TEMPLATE_WORD_HERE||
   @templating_regex ~r/\|\|([A-Z_]+)?\|\|/
   @primitive_templating_replacements %{
-    "NL" => "\r\n",
+    "NL" => "\n",
     "ECHO_OFF" => <<255, 251, 1>>,
     "ECHO_ON" => <<255, 252, 1>>
   }
   @ansi_templating_replacements %{
-    "NL" => "\r\n",
+    "NL" => "\n",
     "RESET" => "\e[0m",
     "BOLD" => "\e[1m",
     "ITALIC" => "\e[3m",
@@ -42,5 +42,6 @@ defmodule Zung.Game.Templater do
     Regex.replace(@templating_regex, text, fn _, match ->
       if Map.has_key?(replacements, match), do: replacements[match], else: ""
     end)
+    |> String.replace("\n", "\r\n")
   end
 end

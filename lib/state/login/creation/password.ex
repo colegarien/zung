@@ -5,7 +5,7 @@ defmodule Zung.State.Login.Creation.Password do
   Welcome to Zung, username.
   Something something a few questions to create your character,
   you will be plopped directly into the game after.
-  
+
   """
 
   @impl Zung.State.State

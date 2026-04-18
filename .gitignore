@@ -35,3 +35,6 @@ zung-*.tar
 
 # Local History for Visual Studio Code
 .history/
+
+# Dialyzer PLT cache
+/priv/plts/

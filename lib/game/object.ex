@@ -6,6 +6,14 @@ defmodule Zung.Game.Object do
     keywords: []
   ]
 
+  @type t :: %__MODULE__{
+          id: String.t() | nil,
+          name: String.t(),
+          description: String.t(),
+          keywords: [String.t()]
+        }
+
+  @spec describe([t()] | t()) :: String.t()
   def describe(objects) when is_list(objects) do
     if Enum.empty?(objects) do
       ""
@@ -18,6 +26,7 @@ defmodule Zung.Game.Object do
     end
   end
 
+  @spec describe_target([t()], String.t()) :: String.t()
   def describe_target(objects, id) do
     Enum.find(objects, %{description: "You see nothing of interest."}, &(id === &1.id)).description
   end

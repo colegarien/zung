@@ -6,6 +6,18 @@ defmodule Zung.Game.Parser do
   # TODO nice website -> https://dslmud.fandom.com/wiki/Commands
   # TODO neat thing about room/area building -> http://www.forgottenkingdoms.org/builders/blessons.php
 
+  @type command ::
+          {:move, {:direction, atom()}}
+          | {:move, {:exit, String.t()}}
+          | {:look, Zung.Game.Room.t()}
+          | {:look, Zung.Game.Room.t(), Zung.Game.Room.look_target()}
+          | {:say, Zung.Game.Room.t(), String.t()}
+          | {:csay, atom(), String.t()}
+          | :quit
+          | :unknown_command
+          | {:bad_parse, String.t()}
+
+  @spec parse(Zung.Client.t(), String.t()) :: command()
   def parse(%Zung.Client{} = client, input) do
     {command, arguments} = input |> apply_aliases(client) |> split
 
