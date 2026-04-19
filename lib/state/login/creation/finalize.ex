@@ -17,7 +17,12 @@ defmodule Zung.State.Login.Creation.Finalize do
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     _ = Zung.Client.raw_clear_screen(client)
-    _ = Zung.Client.raw_write(client, String.replace(@finalize_message, "username", data[:username]))
+
+    _ =
+      Zung.Client.raw_write(
+        client,
+        String.replace(@finalize_message, "username", data[:username])
+      )
 
     # finalize and wait for user input
     finalize_user(data)

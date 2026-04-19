@@ -13,10 +13,11 @@ defmodule Zung.State.Login.UserLogin do
   end
 
   defp handle_login(%Zung.Client{} = client, username, attempt, max_attempts) do
-    _ = Zung.Client.raw_write(
-      client,
-      "||YEL||Password (#{attempt + 1}/#{max_attempts})||RESET||: ||ECHO_OFF||"
-    )
+    _ =
+      Zung.Client.raw_write(
+        client,
+        "||YEL||Password (#{attempt + 1}/#{max_attempts})||RESET||: ||ECHO_OFF||"
+      )
 
     password = Zung.Client.User.hash_password(username, Zung.Client.raw_read(client))
     _ = Zung.Client.raw_write(client, "||ECHO_ON||||NL||")

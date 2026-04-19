@@ -11,7 +11,10 @@ defmodule Zung.State.Login.Creation.Password do
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     _ = Zung.Client.raw_clear_screen(client)
-    _ = Zung.Client.raw_write(client, String.replace(@password_banner, "username", data[:username]))
+
+    _ =
+      Zung.Client.raw_write(client, String.replace(@password_banner, "username", data[:username]))
+
     handle_password(client, data)
   end
 
@@ -32,10 +35,11 @@ defmodule Zung.State.Login.Creation.Password do
   end
 
   defp prompt_password(client) do
-    _ = Zung.Client.raw_write(
-      client,
-      "Enter password (\"a-z\", \"A-Z\", \"0-9\", \"!@#$%^&*()_\" allowed, 8-32 length): "
-    )
+    _ =
+      Zung.Client.raw_write(
+        client,
+        "Enter password (\"a-z\", \"A-Z\", \"0-9\", \"!@#$%^&*()_\" allowed, 8-32 length): "
+      )
 
     with data <- Zung.Client.raw_read(client),
          {:ok, password} <- validate_password(data),

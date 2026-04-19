@@ -23,25 +23,26 @@ defmodule Zung.Server do
   end
 
   def serve_client(%Zung.Client{} = client) do
-    _ = try do
-      _ = Zung.State.Manager.run({Zung.State.Login.Intro, client, %{}})
-    rescue
-      e in [
-        Zung.Error.Connection.Closed,
-        Zung.Error.Connection.Lost,
-        Zung.Error.Connection.SessionExpired
-      ] ->
-        Logger.info(e.message)
+    _ =
+      try do
+        _ = Zung.State.Manager.run({Zung.State.Login.Intro, client, %{}})
+      rescue
+        e in [
+          Zung.Error.Connection.Closed,
+          Zung.Error.Connection.Lost,
+          Zung.Error.Connection.SessionExpired
+        ] ->
+          Logger.info(e.message)
 
-      e in Zung.Error.SecurityConcern ->
-        Logger.info("Security Concern Raised: #{e.message}")
-        msg = if e.show_client, do: e.message, else: "An error occurred."
-        Zung.Client.raw_write_line(client, "||BOLD||||RED||#{msg}||RESET||")
+        e in Zung.Error.SecurityConcern ->
+          Logger.info("Security Concern Raised: #{e.message}")
+          msg = if e.show_client, do: e.message, else: "An error occurred."
+          Zung.Client.raw_write_line(client, "||BOLD||||RED||#{msg}||RESET||")
 
-      e ->
-        Logger.error(Exception.format(:error, e, __STACKTRACE__))
-        Zung.Client.raw_write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
-    end
+        e ->
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          Zung.Client.raw_write_line(client, "||BOLD||||RED||An error occurred.||RESET||")
+      end
 
     # shutdown connections "gracefully"
     Zung.Client.shutdown(client)

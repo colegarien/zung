@@ -20,10 +20,11 @@ defmodule Zung.State.Login.Creation.Username do
   end
 
   defp prompt_username(client) do
-    _ = Zung.Client.raw_write(
-      client,
-      "Enter your new username (\"a-z\" and \"_\" allowed, 3-12 length): "
-    )
+    _ =
+      Zung.Client.raw_write(
+        client,
+        "Enter your new username (\"a-z\" and \"_\" allowed, 3-12 length): "
+      )
 
     with data <- Zung.Client.raw_read(client),
          {:ok, username} <- validate_username(data),
