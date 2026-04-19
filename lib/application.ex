@@ -78,1004 +78,1083 @@ defmodule Zung.Application do
              exits: [
                %Zung.Game.Room.Exit{direction: :down, to: "newbie/room_2"},
                %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/dockside_quay/abandoned_ships_wharf"
+                 direction: :north,
+                 to: "kralovice_mor/skalni_kraj/dolu_pristup"
                }
              ]
            },
-           # region: kraakenhavn
-           "kraakenhavn/dockside_quay/abandoned_ships_wharf" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/abandoned_ships_wharf",
-             title: "Abandoned Ships Wharf",
+           # region: kralovice_mor
+           "kralovice_mor/skalni_kraj/dolu_pristup" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/dolu_pristup",
+             title: "Lower Quarry Level",
              description:
-               "Weathered wooden docks creak beneath heavy loads, old hulls and abandoned cargo lie scattered about.",
+               "A vast underground cavern filled with mining equipment and rows of ore-filled crates, casting long shadows across the rough stone floor.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :up,
+                 direction: :west,
+                 to: "kralovice_mor/skalni_kraj/pristupna_cesta",
+                 description:
+                   "A narrow entrance leads back to the Quarry Entrance, where the sounds of the outside world are muffled by thick stone walls."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/skalni_kraj/smyczny_tunnel",
+                 description:
+                   "A broken and twisted tunnel stretches into darkness, promising secrets of the Old Mine."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/skalni_kraj/vysoke_cesta",
+                 description:
+                   "A steep staircase leads upward to the Upper Quarry Level, where the air is fresher and the noise of mining grows louder."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :south,
                  to: "newbie/room_3",
-                 description: "A narrow gang-plank to board the SS Rockwell"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/dockside_quay/midnight_market",
-                 description: "A narrow alleyway leads north"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/dockside_quay/smuggler_s_alley",
-                 description: "The dock stretches out to the south"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/dockside_quay/docks_master_office",
-                 description: "A large office building looms east"
-               },
+                 description: "A narrow gang-plank back to the deck of the ship."
+               }
+             ]
+           },
+           "kralovice_mor/dokonalulice/east_gateway_bridgeway" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/east_gateway_bridgeway",
+             title: "East Gateway Bridgeway",
+             description:
+               "The wide, straight bridge spans a narrow canal, lined with intricately carved stone statues that once proudly guarded the gateway to Upper Town.",
+             exits: [
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/dockside_quay/lighthouse_keeper_quarters",
-                 description: "The setting sun casts a golden glow on the western horizon"
-               }
-             ]
-           },
-           "kraakenhavn/the_spire/balcony_over_the_ruin" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/balcony_over_the_ruin",
-             title: "The Balcony of the Ancients",
-             description:
-               "Crumbing stone walls, overgrown with vines and moss.||NL||Flickering torches cast eerie shadows on the ground below.",
-             exits: [
+                 to: "kralovice_mor/dokonalulice/north_gate_entrance",
+                 description:
+                   "A grand entrance with ornate arches, guarded by two imposing stone statues that seem to watch all who pass through."
+               },
                %Zung.Game.Room.Exit{
                  direction: :north,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description: "A narrow corridor stretches into the darkness of the spire."
+                 to: "kralovice_mor/dokonalulice/east_town_hall",
+                 description:
+                   "A short staircase leads up to the heavy wooden doors of the East Town Hall, where the town's leaders convene in secret."
                },
                %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
+                 to: "kralovice_mor/pohorenie_klasy/pristav_na_doke",
                  description:
-                   "The ruin's ancient passageways seem to stretch on forever in this direction."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :west,
-                 to: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
-                 description: "A door leads into a dimly lit chamber filled with forbidden texts."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :down,
-                 to: "kraakenhavn/the_spire/treasury_of_relics",
-                 description:
-                   "The air grows thick with the scent of gold and treasure as you descend deeper."
-               }
-             ]
-           },
-           "kraakenhavn/dockside_quay/cargo_crane_pit" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/cargo_crane_pit",
-             title: "Cargo Crane Pit",
-             description: "A large, dimly lit area with wooden crates and nets scattered about.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/dockside_quay",
-                 description: "A narrow passageway leads south"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/dockside_quay/abandoned_ships_wharf",
-                 description: "A rickety crane stretches northward"
-               }
-             ]
-           },
-           "kraakenhavn/the_spire/corridors_of_the_ruin" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/corridors_of_the_ruin",
-             title: "Corridors of the Ancients",
-             description:
-               "Dusty shelves line the narrow passageways, containing ancient texts and artifacts that seem to hold forgotten knowledge.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
-                 description:
-                   "The narrow corridor leads deeper into the Spire, towards forbidden knowledge."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_spire/treasury_of_relics",
-                 description:
-                   "A section of wall slides open, revealing a chamber filled with ancient treasures."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description:
-                   "The corridor continues eastward, leading back to the Spire's entrance."
+                   "The canal widens out into a small lake, reflecting the fading light of day and casting an eerie glow over the surrounding buildings."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "dusty_tome_with_yellowed_pages",
-                 name: "A dusty tome with yellowed pages",
-                 description: "Dusty tome with yellowed pages lies here.",
-                 keywords: ["dusty tome with yellowed pages", "pages", "yellowed pages"]
-               },
-               %Zung.Game.Object{
-                 id: "ancient_artifact_adorned_with_mysterious_runes",
-                 name: "An ancient artifact adorned with mysterious runes",
-                 description: "Ancient artifact adorned with mysterious runes lies here.",
+                 id: "worn_stone_bench_sits_at_the_midpoint_of_the_bridge",
+                 name: "A worn stone bench sits at the midpoint of the bridge",
+                 description: "Worn stone bench sits at the midpoint of the bridge lies here.",
                  keywords: [
-                   "ancient artifact adorned with mysterious runes",
-                   "runes",
-                   "mysterious runes"
+                   "worn stone bench sits at the midpoint of the bridge",
+                   "bridge",
+                   "the bridge"
                  ]
                }
              ]
            },
-           "kraakenhavn/dockside_quay/docks_master_office" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/docks_master_office",
-             title: "Docks Master Office",
+           "kralovice_mor/dokonalulice/east_town_hall" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/east_town_hall",
+             title: "East Town Hall",
              description:
-               "A cramped, dimly lit office with dusty files and papers scattered on a worn wooden desk.||NL||Shelves line the walls, filled with old nautical charts and faded maps.||NL||A single, flickering candle casts eerie shadows.",
+               "A grand, high-ceilinged chamber filled with dusty records and flickering candles casts a warm, yet dim glow over the room.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/dockside_quay/abandoned_ships_wharf",
-                 description: "A narrow corridor stretches north, into darkness."
-               },
-               %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/dockside_quay/midnight_market",
+                 to: "kralovice_mor/dokonalulice/east_gateway_bridgeway",
                  description:
-                   "The bustling market of the Docks continues south, a cacophony of sound and color."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "docks_master_s_journal",
-                 name: "Docks Master's Journal",
-                 description: "Docks Master's Journal lies here.",
-                 keywords: ["Docks Master's Journal", "Journal", "Master's Journal"]
-               },
-               %Zung.Game.Object{
-                 id: "old_nautical_chart",
-                 name: "Old Nautical Chart",
-                 description: "Old Nautical Chart lies here.",
-                 keywords: ["Old Nautical Chart", "Chart", "Nautical Chart"]
-               }
-             ]
-           },
-           "kraakenhavn/the_red_harbor/duke_mansion" => %Zung.Game.Room{
-             id: "kraakenhavn/the_red_harbor/duke_mansion",
-             title: "Duke Masters' Mansion",
-             description:
-               "A grandiose mansion with lavish decor, surrounded by heavily armed guards and a high wall.||NL||The interior is opulent, with expensive tapestries and polished marble floors.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_red_harbor/the_drowned_tavern",
-                 description: "A narrow doorway leads to a dimly lit hallway."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_red_harbor/red_viper_hive",
-                 description: "A heavily guarded corridor stretches out into the darkness."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_red_harbor/luna_s_apartment",
-                 description: "A grand staircase curves upward, disappearing into the shadows."
+                   "A large, ornate gate made of dark wood and iron stands at the southern exit, adorned with symbols of power and protection."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_red_harbor/stealthing_alley",
-                 description: "A narrow alleyway cuts through the mansion's exterior wall."
+                 to: "kralovice_mor/dokonalulice/west_garden_path",
+                 description:
+                   "A narrow passageway lined with cobweb-covered portraits leads out to the West Garden Path."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/dokonalulice/north_mansion_entrance",
+                 description:
+                   "A grand staircase curves upward, vanishing into the shadows of the North Mansion Entrance."
                }
              ]
            },
-           "kraakenhavn/the_spire/entrance_to_the_spire" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/entrance_to_the_spire",
-             title: "Entrance Chamber",
+           "kralovice_mor/moravian_walls/eastern_wall_crossing" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/eastern_wall_crossing",
+             title: "Eastern Wall Crossing",
              description:
-               "Flickering torches cast eerie shadows on crumbling stone walls.||NL||Ancient runes adorn the entrance door.",
+               "The narrow tunnel stretches out before you, its rough stone walls lined with old cobwebs and dimly lit by flickering torches.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
-                 description: "A narrow corridor stretches into darkness."
+                 direction: :west,
+                 to: "kralovice_mor/moravian_walls/south_gate_entrance",
+                 description:
+                   "A large stone gate looms in the distance, adorned with rusty iron hinges and a heavy-looking iron knocker in the shape of a snarling lion's head."
                },
                %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
-                 description: "Shelves of ancient tomes seem to lean in, as if listening."
-               },
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/inner_gate_entrance",
+                 description:
+                   "A smaller, more ornate gate comes into view, its intricate carvings depicting scenes of battles long past."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "small_rusty_key",
+                 name: "a small, rusty key",
+                 description: "Small, rusty key lies here.",
+                 keywords: ["small, rusty key", "key", "rusty key"]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/inner_gate_entrance" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/inner_gate_entrance",
+             title: "Inner Gate Entrance",
+             description:
+               "Weathered stone walls, a small iron gate with rusty hinges and a heavy-looking wooden door that appears to be locked.",
+             exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/the_spire/treasury_of_relics",
-                 description: "A vaulted ceiling disappears into shadowy darkness."
+                 to: "kralovice_mor/moravian_walls/eastern_wall_crossing",
+                 description: "A narrow passageway leads to the Eastern Wall Crossing."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_spire/balcony_over_the_ruin",
-                 description: "The wind whispers secrets from above."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "entrance_door",
-                 name: "the entrance door",
-                 description: "Entrance door lies here.",
-                 keywords: ["entrance door", "door"]
+                 to: "kralovice_mor/moravian_walls/west_wall_crossing",
+                 description: "A short corridor extends to the West Wall Crossing."
                }
              ]
            },
-           "kraakenhavn/lighthouse_district/garden_of_memories" => %Zung.Game.Room{
-             id: "kraakenhavn/lighthouse_district/garden_of_memories",
-             title: "Garden of Memories",
+           "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy",
+             title: "Kancelar Skupce Borovy",
              description:
-               "A serene, winding garden filled with a variety of flowers, trees, and statues.||NL||Soft golden light filters through stained glass windows, casting a warm glow over the garden.",
+               "The office is a cramped, dimly lit space with peeling paint and rusty metal accents.||NL||A large wooden desk dominates the room, behind which sits a hulking figure with a thick beard and a calculating gaze.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_warden_house",
-                 description: "A narrow path leads north to the warden's residence."
-               },
-               %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/merchants_guild_office",
+                 to: "kralovice_mor/pohorenie_klasy/radnice_stavby",
                  description:
-                   "The garden stretches south towards the bustling merchants' guild office."
+                   "A narrow corridor stretches out into the darkness, lined with cobweb-covered portraits of forgotten shipwrights."
                },
                %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_lantern_room",
+                 to: "kralovice_mor/pohorenie_klasy/kapitanova_kamera",
                  description:
-                   "A winding path leads east, disappearing into the lantern room's warm light."
+                   "A heavy wooden door with iron hinges leads to a secure chamber, rumored to contain sensitive business dealings."
+               }
+             ]
+           },
+           "kralovice_mor/pohorenie_klasy/kapitanova_kamera" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/kapitanova_kamera",
+             title: "Kapitonska Kamera",
+             description:
+               "The small, cluttered office is dimly lit, with only a single, dusty lantern providing light.||NL||Shelves line the walls, overflowing with nautical charts, tattered maps, and various trinkets collected from years at sea.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/pohorenie_klasy/vytoky_na_doke",
+                 description: "A narrow corridor stretches out into the heart of the docks"
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/heirloom_bakery",
+                 to: "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy",
                  description:
-                   "The garden curves west towards the sweet scent of freshly baked heirlooms."
+                   "A door leads to a cramped storage room filled with barrels and crates"
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "small_weathered_stone_bench",
-                 name: "a small, weathered stone bench",
-                 description: "Small, weathered stone bench lies here.",
-                 keywords: ["small, weathered stone bench", "bench", "stone bench"]
+                 id: "worn_leather_bound_logbook",
+                 name: "a worn leather-bound logbook",
+                 description: "Worn leather-bound logbook lies here.",
+                 keywords: ["worn leather-bound logbook", "logbook", "leather-bound logbook"]
                },
                %Zung.Game.Object{
-                 id: "vase_with_a_single_long_stemmed_red_rose",
-                 name: "a vase with a single, long-stemmed red rose",
-                 description: "Vase with a single, long-stemmed red rose lies here.",
-                 keywords: ["vase with a single, long-stemmed red rose", "rose", "red rose"]
+                 id: "tarnished_brass_compass",
+                 name: "a tarnished brass compass",
+                 description: "Tarnished brass compass lies here.",
+                 keywords: ["tarnished brass compass", "compass", "brass compass"]
                }
              ]
            },
-           "kraakenhavn/the_spire/keeper_quarters" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/keeper_quarters",
-             title: "Erebus' Quarters",
+           "kralovice_mor/pohorenie_klasy/krajina_tovarne" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/krajina_tovarne",
+             title: "Krajina Tovarne",
              description:
-               "Flickering torches cast eerie shadows on crumbling stone walls.||NL||Ancient texts line the shelves, their yellowed pages whispering forgotten knowledge.",
+               "A maze of warehouses filled with crates, barrels, and shelves stacked haphazardly with all manner of goods.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :north,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description: "A narrow corridor stretches into darkness."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
-                 description: "The walls seem to press in on either side, casting long shadows."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "ancient_tome",
-                 name: " ancient tome",
-                 description: " ancient tome lies here.",
-                 keywords: [" ancient tome", "tome", "ancient tome"]
-               },
-               %Zung.Game.Object{
-                 id: "candle",
-                 name: "candle",
-                 description: "Candle lies here.",
-                 keywords: ["candle"]
-               },
-               %Zung.Game.Object{
-                 id: "small_desk",
-                 name: "small desk",
-                 description: "Small desk lies here.",
-                 keywords: ["small desk", "desk"]
-               }
-             ]
-           },
-           "kraakenhavn/the_spire/library_of_forbidden_knowledge" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
-             title: "The Labyrinthine Library",
-             description:
-               "Shelves upon shelves of ancient tomes stretch into the darkness, their leather bindings cracked and worn.||NL||Tomes bound in human skin seem to writhe on their shelves like living things.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description: "A narrow corridor leads back into the darkness of the spire."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
+                 to: "kralovice_mor/pohorenie_klasy/vytoky_na_doke",
                  description:
-                   "Corridors of ancient stone stretch out into the ruin, lined with cobweb-shrouded alcoves."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "tome_bound_in_human_skin",
-                 name: "A tome bound in human skin",
-                 description: "Tome bound in human skin lies here.",
-                 keywords: ["tome bound in human skin", "skin", "human skin"]
-               },
-               %Zung.Game.Object{
-                 id: "ancient_artifact_emitting_a_faint_hum",
-                 name: "An ancient artifact emitting a faint hum",
-                 description: "Ancient artifact emitting a faint hum lies here.",
-                 keywords: ["ancient artifact emitting a faint hum", "hum", "faint hum"]
-               }
-             ]
-           },
-           "kraakenhavn/dockside_quay/lighthouse_keeper_quarters" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/lighthouse_keeper_quarters",
-             title: "Lighthouse Keeper's Quarters",
-             description:
-               "A simple, yet well-maintained room with a single window offering a view of the city's waterways.||NL||The walls are adorned with dusty nautical maps and faded photographs.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/dockside_quay",
-                 description: "A long, narrow corridor stretches out into the darkness"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/dockside_quay/abandoned_ships_wharf",
-                 description: "The creaking of old wooden planks echoes through the air"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "lantern",
-                 name: "a lantern",
-                 description: "Lantern lies here.",
-                 keywords: ["lantern"]
-               },
-               %Zung.Game.Object{
-                 id: "old_logbook",
-                 name: "an old logbook",
-                 description: "Old logbook lies here.",
-                 keywords: ["old logbook", "logbook"]
-               }
-             ]
-           },
-           "kraakenhavn/lighthouse_district/lighthouse_lantern_room" => %Zung.Game.Room{
-             id: "kraakenhavn/lighthouse_district/lighthouse_lantern_room",
-             title: "Lantern Room",
-             description:
-               "Shelves lined with antique lanterns, each one unique and meticulously maintained.||NL||Soft golden light filters through stained glass windows above, casting a warm glow over the room.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_warden_house",
-                 description: "A narrow corridor leads north, into the warden's private quarters."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/merchant_guild_office",
-                 description:
-                   "Merchants and traders often pass through this way on their visits to the lighthouse."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/heirloom_bakery",
-                 description:
-                   "The bakery's sweet aroma wafts up from below, enticing visitors with treats."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "antique_lanterns",
-                 name: "Antique lanterns",
-                 description: "Antique lanterns lies here.",
-                 keywords: ["Antique lanterns", "lanterns"]
-               },
-               %Zung.Game.Object{
-                 id: "stained_glass_windows",
-                 name: "Stained glass windows",
-                 description: "Stained glass windows lies here.",
-                 keywords: ["Stained glass windows", "windows", "glass windows"]
-               }
-             ]
-           },
-           "kraakenhavn/lighthouse_district/lighthouse_library" => %Zung.Game.Room{
-             id: "kraakenhavn/lighthouse_district/lighthouse_library",
-             title: "Lighthouse Library",
-             description:
-               "Shelves line the walls, packed with ancient tomes and yellowed charts.||NL||Flickering candles cast a warm glow over the room.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_warden_house",
-                 description: "A narrow staircase leads up to the warden's private quarters"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/merchants_guild_office",
-                 description: "A doorway opens into a bustling marketplace"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_lantern_room",
-                 description: "The lantern room lies below, its light a beacon in the darkness"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "ancient_tome",
-                 name: "ancient_tome",
-                 description: "Ancient_tome lies here.",
-                 keywords: ["ancient_tome"]
-               },
-               %Zung.Game.Object{
-                 id: "nautical_chart",
-                 name: "nautical_chart",
-                 description: "Nautical_chart lies here.",
-                 keywords: ["nautical_chart"]
-               }
-             ]
-           },
-           "kraakenhavn/lighthouse_district/lighthouse_warden_house" => %Zung.Game.Room{
-             id: "kraakenhavn/lighthouse_district/lighthouse_warden_house",
-             title: "Warden's Residence",
-             description:
-               "A well-appointed home with a large garden and a view of the harbor, with soft golden light filtering through stained glass windows.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/merchants_guild_office",
-                 description: "A narrow corridor leads north to the Merchants' Guild Office."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_lantern_room",
-                 description:
-                   "An open door lets in a warm breeze from the Lighthouse Lantern Room."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/heirloom_bakery",
-                 description: "A short hallway leads south to the Heirloom Bakery."
+                   "A rickety wooden staircase leads up to a catwalk overlooking the docks."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/lighthouse_district/lighthouse_library",
-                 description: "A winding staircase descends west to the Lighthouse Library."
+                 to: "kralovice_mor/skalni_kraj/pristupna_cesta",
+                 description:
+                   "A rusty iron gate creaks in the wind, leading into the darkness of The Quarry."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "crates",
+                 name: "Crates",
+                 description: "Crates lies here.",
+                 keywords: ["Crates"]
+               },
+               %Zung.Game.Object{
+                 id: "barrels",
+                 name: "Barrels",
+                 description: "Barrels lies here.",
+                 keywords: ["Barrels"]
+               },
+               %Zung.Game.Object{
+                 id: "shelves",
+                 name: "Shelves",
+                 description: "Shelves lies here.",
+                 keywords: ["Shelves"]
                }
              ]
            },
-           "kraakenhavn/the_red_harbor/luna_s_apartment" => %Zung.Game.Room{
-             id: "kraakenhavn/the_red_harbor/luna_s_apartment",
-             title: "Luna's Apartment",
+           "kralovice_mor/vysoka_ulice/kropec_kavka" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/kropec_kavka",
+             title: "Pawn Shop",
              description:
-               "A cramped but cozy one-bedroom apartment, the walls adorned with tattered black lace and faded roses.||NL||A single, flickering candle casts eerie shadows on the walls.",
+               "Graffiti-covered walls and musty smell conceal the treasures within this scavenger's paradise.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_red_harbor/the_drowned_tavern",
-                 description: "A narrow stairway leads down into the darkness"
-               },
-               %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/the_red_harbor/red_viper_hive",
-                 description: "The stairs lead back up to the tavern's main floor"
+                 to: "kralovice_mor/vysoka_ulice/tradi_cafe",
+                 description:
+                   "A narrow alleyway leads to the bustling streets, where merchants hawk their wares with a mixture of charm and desperation."
                },
                %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/the_red_harbor/duke_mansion",
-                 description: "A small, grimy window opens onto a sprawling estate"
+                 to: "kralovice_mor/vysoka_ulice/ulice_celar",
+                 description:
+                   "A rickety staircase plunges into darkness, the air growing colder with each step."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "rusted_lockpick",
+                 name: "rusted lockpick",
+                 description: "Rusted lockpick lies here.",
+                 keywords: ["rusted lockpick", "lockpick"]
+               },
+               %Zung.Game.Object{
+                 id: "tattered_map",
+                 name: "tattered map",
+                 description: "Tattered map lies here.",
+                 keywords: ["tattered map", "map"]
+               }
+             ]
+           },
+           "kralovice_mor/skalni_kraj/krovna_vysledek" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/krovna_vysledek",
+             title: "Quarry's Central Gathering Area",
+             description:
+               "A large hall with rough-hewn wooden beams and a low ceiling, lit by flickering lanterns that cast eerie shadows on the walls.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/skalni_kraj/pristupna_cesta",
+                 description:
+                   "A rickety wooden staircase leads down to the Quarry Entrance, where a group of burly miners are gathered arguing over wages."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/skalni_kraj/zahnicky_budynek",
+                 description:
+                   "The entrance to the Old Mine's Office Building is marked by a faded sign that reads 'Miner's Guild' in peeling letters."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/skalni_kraj/smyczny_tunnel",
+                 description:
+                   "A narrow tunnel stretches out into darkness beyond the edge of the lanterns, the sound of scurrying rodents and dripping water echoing from within."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id:
+                   "large_wooden_table_in_the_center_of_the_room_is_scarred_and_worn_with_several_crates_and_barrels_stacked_haphazardly_around_its_edges",
+                 name:
+                   "A large wooden table in the center of the room is scarred and worn, with several crates and barrels stacked haphazardly around its edges.",
+                 description:
+                   "Large wooden table in the center of the room is scarred and worn, with several crates and barrels stacked haphazardly around its edges. lies here.",
+                 keywords: [
+                   "large wooden table in the center of the room is scarred and worn, with several crates and barrels stacked haphazardly around its edges.",
+                   "edges.",
+                   "its edges."
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/dokonalulice/north_gate_entrance" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/north_gate_entrance",
+             title: "North Gate Entrance",
+             description:
+               "A grand, ornate gate with intricate carvings and heavy iron hinges stands tall, guarded by two heavily armed city watchmen who eye potential intruders with suspicion.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/dokonalulice/east_gateway_bridgeway",
+                 description:
+                   "A wide, arched bridge spans a deep chasm, leading to the East Gateway Bridgeway beyond."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/south_gate_entrance",
+                 description:
+                   "A narrow alleyway stretches northward, terminating at the South Gate Entrance."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id:
+                   "large_wooden_gate_with_iron_hinges_and_a_heavy_iron_knocker_in_the_shape_of_a_lion_s_head",
+                 name:
+                   "a large wooden gate with iron hinges and a heavy iron knocker in the shape of a lion's head",
+                 description:
+                   "Large wooden gate with iron hinges and a heavy iron knocker in the shape of a lion's head lies here.",
+                 keywords: [
+                   "large wooden gate with iron hinges and a heavy iron knocker in the shape of a lion's head",
+                   "head",
+                   "lion's head"
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/dokonalulice/north_mansion_entrance" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/north_mansion_entrance",
+             title: "North Mansion Entrance",
+             description:
+               "A grand, high-ceilinged entrance with intricately carved stone columns and a sweeping staircase, its once-polished surface now worn by time and neglect.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/dokonalulice/east_town_hall",
+                 description:
+                   "A grand staircase leads down to a bustling town hall, filled with the sounds of commerce and politics."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_red_harbor/stealthing_alley",
-                 description: "A narrow alleyway stretches out into the darkness"
+                 to: "kralovice_mor/dokonalulice/south_balcony_view",
+                 description:
+                   "A narrow balcony offers a view of the sun-baked rooftops and crumbling walls of South Town."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "rose_tipped_dagger",
-                 name: "a rose-tipped dagger",
-                 description: "Rose-tipped dagger lies here.",
-                 keywords: ["rose-tipped dagger", "dagger"]
+                 id: "dusty_chandelier",
+                 name: "a dusty chandelier",
+                 description: "Dusty chandelier lies here.",
+                 keywords: ["dusty chandelier", "chandelier"]
                },
                %Zung.Game.Object{
-                 id: "black_lace_veil",
-                 name: "a black lace veil",
-                 description: "Black lace veil lies here.",
-                 keywords: ["black lace veil", "veil", "lace veil"]
+                 id: "worn_leather_armchair",
+                 name: "a worn leather armchair",
+                 description: "Worn leather armchair lies here.",
+                 keywords: ["worn leather armchair", "armchair", "leather armchair"]
                }
              ]
            },
-           "kraakenhavn/dockside_quay/midnight_market" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/midnight_market",
-             title: "Midnight Market",
+           "kralovice_mor/vysoka_ulice/pazar_stanec" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/pazar_stanec",
+             title: "Market Stand",
              description:
-               "Cramped stalls and vendors selling everything from dubious spices to worn-out gear line the narrow aisles, their wares scattered haphazardly on wooden crates and tables.||NL||Flickering lanterns cast eerie shadows on the walls as the crowd presses in.",
+               "The market stand is a cramped, shaded stall overflowing with exotic spices, rare herbs, and questionable trinkets.||NL||Shelves groan under the weight of dusty jars and tangled skeins of yarn.||NL||The air is thick with the scent of decay.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/dockside_quay/docks_master_office",
-                 description: "A worn set of stairs leads down into darkness"
+                 to: "kralovice_mor/vysoka_ulice/strojarne",
+                 description:
+                   "The entrance to a nearby smithy beckons, smoke drifting lazily from its chimney."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/dockside_quay/cargo_crane_pit",
-                 description: "A narrow corridor stretches off into the gloom"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/dockside_quay/abandoned_ships_wharf",
+                 to: "kralovice_mor/vysoka_ulice/tradi_cafe",
                  description:
-                   "A section of docked ships seems to lean drunkenly against its moorings"
+                   "A sign above the door reads 'Traditional Cafe', promising a respite from the city's grime."
                },
                %Zung.Game.Room.Exit{
                  direction: :north,
-                 to: "kraakenhavn/dockside_quay/smuggler_s_alley",
-                 description: "A narrow alleyway appears, lined with tall, grimy buildings"
+                 to: "kralovice_mor/vysoka_ulice/ulice_celar",
+                 description:
+                   "A narrow stairway descends into darkness, leading down into the depths of the cellars."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "worn_leather_satchel",
-                 name: "a worn leather satchel",
-                 description: "Worn leather satchel lies here.",
-                 keywords: ["worn leather satchel", "satchel", "leather satchel"]
+                 id: "exotic_spices",
+                 name: "exotic spices",
+                 description: "Exotic spices lies here.",
+                 keywords: ["exotic spices", "spices"]
                },
                %Zung.Game.Object{
-                 id: "rusty_lantern",
-                 name: "a rusty lantern",
-                 description: "Rusty lantern lies here.",
-                 keywords: ["rusty lantern", "lantern"]
+                 id: "rare_herbs",
+                 name: "rare herbs",
+                 description: "Rare herbs lies here.",
+                 keywords: ["rare herbs", "herbs"]
+               },
+               %Zung.Game.Object{
+                 id: "questionable_trinkets",
+                 name: "questionable trinkets",
+                 description: "Questionable trinkets lies here.",
+                 keywords: ["questionable trinkets", "trinkets"]
                }
              ]
            },
-           "kraakenhavn/the_spire/observation_deck" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/observation_deck",
-             title: "The Observation Deck",
+           "kralovice_mor/pohorenie_klasy/pristav_na_doke" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/pristav_na_doke",
+             title: "Pristav na Doke",
              description:
-               "Wind-whipped debris clings to crumbling stone walls as flickering torches cast eerie shadows.||NL||Below, the city's turrets and spires stretch into the darkness.",
+               "Cramped stalls and worn wooden planks line the narrow dock, with sailors and traders haggling over goods and ship repairs.||NL||The air is thick with the smell of saltwater, tar, and smoke from the nearby workshops.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :north,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description: "A narrow corridor leads back down into the depths of The Spire."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
-                 description: "Winding stairs descend into darkness, vanishing from sight."
+                 to: "kralovice_mor/pohorenie_klasy/radnice_stavby",
+                 description:
+                   "Leads to the town hall, where officials govern the dock's operations."
                },
                %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
+                 to: "kralovice_mor/pohorenie_klasy/krajina_tovarne",
                  description:
-                   "A row of ancient tomes lines one wall, their leather bindings worn and cracked."
+                   "Takes you into a network of cramped warehouses filled with cargo and supplies."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_spire/treasury_of_relics",
+                 to: "kralovice_mor/dokonalulice/east_gateway_bridgeway",
                  description:
-                   "Gilded display cases housing relics from a bygone era stand at attention."
+                   "Opens onto the East Gateway Bridgeway, leading out of the district."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "weathered_wooden_crate_a_worn_leather_satchel",
+                 name: "A weathered wooden crate, a worn leather satchel",
+                 description: "Weathered wooden crate, a worn leather satchel lies here.",
+                 keywords: [
+                   "weathered wooden crate, a worn leather satchel",
+                   "satchel",
+                   "leather satchel"
+                 ]
                }
              ]
            },
-           "kraakenhavn/the_graveyard/rachel_grimstone_office" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/rachel_grimstone_office",
-             title: "Rachel Grimstone's Office",
+           "kralovice_mor/skalni_kraj/pristupna_cesta" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/pristupna_cesta",
+             title: "The Quarry Entrance",
              description:
-               "A dimly lit room with dusty tomes lining the shelves, where yellowed scrolls are tied with black twine.||NL||A large, ornate desk sits at the far end of the room.",
+               "Dust and rock litter the air, while the sound of pickaxes echoes through the canyon.||NL||The stench of coal smoke and decay hangs heavy over the area.",
              exits: [
                %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/skalni_kraj/krovna_vysledek",
+                 description:
+                   "A narrow path winds deeper into the quarry, lined with makeshift stalls selling basic supplies."
+               },
+               %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/the_graveyard/the_lonesome_bell",
-                 description: "A narrow corridor stretches east, disappearing into darkness."
+                 to: "kralovice_mor/pohorenie_klasy/krajina_tovarne",
+                 description:
+                   "A rickety wooden gate leads to Krajina Tovarne, a hub of commerce and trade."
+               }
+             ]
+           },
+           "kralovice_mor/pohorenie_klasy/radnice_stavby" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/radnice_stavby",
+             title: "Radnice Stavby",
+             description:
+               "The room is cluttered with dusty maps, yellowed parchment, and scattered tools.||NL||The walls are lined with wooden crates and barrels, and a large wooden desk dominates one side of the room.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/pohorenie_klasy/pristav_na_doke",
+                 description:
+                   "A narrow corridor leads down to the docks, where the sound of seagulls and shouting dockworkers grows louder."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy",
+                 description:
+                   "A short staircase leads up to a small office, adorned with intricate carvings and symbols of the shipyard's guilds."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/pohorenie_klasy/vytoky_na_doke",
+                 description:
+                   "A large wooden door, adorned with iron hinges and a heavy-looking knocker in the shape of a sea serpent, opens onto a bustling dockside area."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "large_wooden_desk_a_set_of_dusty_maps_a_collection_of_old_tools",
+                 name: "a large wooden desk, a set of dusty maps, a collection of old tools",
+                 description:
+                   "Large wooden desk, a set of dusty maps, a collection of old tools lies here.",
+                 keywords: [
+                   "large wooden desk, a set of dusty maps, a collection of old tools",
+                   "tools",
+                   "old tools"
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/skalni_kraj/smyczny_tunnel" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/smyczny_tunnel",
+             title: "Broken Tunnel to the Old Mine",
+             description:
+               "A narrow, partially destroyed tunnel with rough-hewn stone walls and a low ceiling.||NL||Dust and debris coat everything, making it difficult to see more than a few feet ahead.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/skalni_kraj/dolu_pristup",
+                 description:
+                   "A rickety wooden ladder leads down into darkness, vanishing from view as you descend."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-                 description: "A winding path leads west, overgrown with vines and moss."
+                 to: "kralovice_mor/skalni_kraj/krovna_vysledek",
+                 description:
+                   "The tunnel opens up to reveal a bustling area filled with miners and supply carts."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/skalni_kraj/vchod_do_docku",
+                 description:
+                   "The air grows heavy with the scent of saltwater and seaweed as you approach the docks."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "rachel_grimstone_s_tattered_journal",
-                 name: "Rachel Grimstone's tattered journal",
-                 description: "Rachel Grimstone's tattered journal lies here.",
-                 keywords: ["Rachel Grimstone's tattered journal", "journal", "tattered journal"]
-               },
-               %Zung.Game.Object{
-                 id: "worn_leather_bound_book",
-                 name: "A worn leather-bound book",
-                 description: "Worn leather-bound book lies here.",
-                 keywords: ["worn leather-bound book", "book", "leather-bound book"]
+                 id: "rusty_lantern_hangs_from_a_hook_on_the_wall",
+                 name: "A rusty lantern hangs from a hook on the wall",
+                 description: "Rusty lantern hangs from a hook on the wall lies here.",
+                 keywords: ["rusty lantern hangs from a hook on the wall", "wall", "the wall"]
                }
              ]
            },
-           "kraakenhavn/the_red_harbor/red_viper_hive" => %Zung.Game.Room{
-             id: "kraakenhavn/the_red_harbor/red_viper_hive",
-             title: "The Red Vipers' Hideout",
+           "kralovice_mor/dokonalulice/south_balcony_view" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/south_balcony_view",
+             title: "South Balcony View",
              description:
-               "A dimly lit chamber filled with the stench of rotting seafood and cheap perfume.||NL||Flickering lanterns cast eerie shadows on rusty metal traps and menacing thugs.",
+               "A narrow, stone-walled balcony stretches out before you, its worn flagstones bearing faint scars from centuries of weathering.||NL||Above, a tangle of overgrown vines and creepers wraps itself around the sturdy stonework, as if nature itself is attempting to reclaim this once-majestic space.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_red_harbor/the_drowned_tavern",
-                 description: "A narrow staircase leads up to the tavern above."
-               },
-               %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/the_red_harbor/stealthing_alley",
+                 to: "kralovice_mor/dokonalulice/west_garden_path",
                  description:
-                   "The air grows thick with noxious fumes as you head deeper into the dock's underbelly."
+                   "A narrow path winds its way down into the West Garden Path, overgrown with weeds and vines that seem to be closing in on the crumbling stonework."
                },
                %Zung.Game.Room.Exit{
                  direction: :east,
-                 to: "kraakenhavn/the_red_harbor/luna_s_apartment",
-                 description: "A rickety wooden door creaks shut behind you, sealing your fate."
+                 to: "kralovice_mor/dokonalulice/north_mansion_entrance",
+                 description:
+                   "A grand entrance beckons from the North Mansion, flanked by ornate ironwork and guarded by imposing stone statues that appear to be watching your every move."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id:
+                   "worn_leather_bound_journal_lies_abandoned_on_a_nearby_stone_bench_its_pages_fluttering_in_the_breeze",
+                 name:
+                   "A worn, leather-bound journal lies abandoned on a nearby stone bench, its pages fluttering in the breeze.",
+                 description:
+                   "Worn, leather-bound journal lies abandoned on a nearby stone bench, its pages fluttering in the breeze. lies here.",
+                 keywords: [
+                   "worn, leather-bound journal lies abandoned on a nearby stone bench, its pages fluttering in the breeze.",
+                   "breeze.",
+                   "the breeze."
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/south_gate_entrance" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/south_gate_entrance",
+             title: "South Gate Entrance",
+             description:
+               "A large, heavy stone gate with iron hinges and a complex locking mechanism dominates the entrance.||NL||The walls surrounding it are covered in thick layers of grime and moss, giving the impression that they're slowly being consumed by the environment.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :west,
+                 to: "kralovice_mor/moravian_walls/wall_entry_point",
+                 description: "A narrow, dimly lit passageway leads to the Wall Entrance."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/west_wall_crossing",
+                 description:
+                   "A rickety wooden bridge spans a deep chasm, leading to the West Wall Crossing."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/moravian_walls/eastern_wall_crossing",
+                 description:
+                   "A broad, stone staircase descends into darkness, providing access to the Eastern Wall Crossing."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/dokonalulice/north_gate_entrance",
+                 description:
+                   "The North Gate Entrance is situated on the opposite side of the gate."
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/south_wall_gatehouse" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/south_wall_gatehouse",
+             title: "South Wall Gatehouse",
+             description:
+               "Grey stone walls loom above, casting long shadows in the fading light.||NL||The air is thick with dust and grime.||NL||A large wooden gate dominates one wall, its iron hinges creaking ominously.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/moravian_walls/west_wall_crossing",
+                 description:
+                   "A large wooden gate stretches across the wall, its iron hinges creaking ominously."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_red_harbor_streets",
+                 to: "kralovice_mor/moravian_walls/watchtower_viewpoint",
                  description:
-                   "The sound of scurrying rodents and dripping water fills the air as you venture further into the depths."
+                   "A narrow staircase spirals upwards into darkness, vanishing from view at the top."
+               }
+             ]
+           },
+           "kralovice_mor/vysoka_ulice/strojarne" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/strojarne",
+             title: "Smithy",
+             description:
+               "The cramped workshop is filled with hissing pipes and clanging hammers, casting a cacophonous glow over the space.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :west,
+                 to: "kralovice_mor/vysoka_ulice/ulice_jizba",
+                 description:
+                   "To the west lies the City Jail, a foreboding structure shrouded in darkness and despair."
                },
                %Zung.Game.Room.Exit{
-                 direction: :down,
-                 to: "kraakenhavn/the_abandoned_cistern",
+                 direction: :north,
+                 to: "kralovice_mor/vysoka_ulice/pazar_stanec",
                  description:
-                   "A seemingly bottomless pit yawns open before you, filled with jagged metal and broken crates."
+                   "Beyond the north wall lies the bustling Market Stand, filled with the vibrant sounds and smells of commerce."
+               }
+             ]
+           },
+           "kralovice_mor/vysoka_ulice/tradi_cafe" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/tradi_cafe",
+             title: "Traditional Cafe",
+             description:
+               "Worn, creaking tables and chairs surround a central fireplace in this humble eatery.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/vysoka_ulice/ulice_jizba",
+                 description:
+                   "A narrow corridor leads to the City Jail, its heavy doors adorned with iron hinges and rusted locks."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/vysoka_ulice/kropec_kavka",
+                 description:
+                   "The entrance to a cramped Pawn Shop beckons, its sign creaking in the faint breeze."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/vysoka_ulice/pazar_stanec",
+                 description:
+                   "A bustling Market Stand waits beyond, filled with the vibrant colors of exotic wares."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "rusty_dagger",
-                 name: "a rusty dagger",
-                 description: "Rusty dagger lies here.",
-                 keywords: ["rusty dagger", "dagger"]
+                 id: "rotten_bread",
+                 name: "rotten bread",
+                 description: "Rotten bread lies here.",
+                 keywords: ["rotten bread", "bread"]
                },
                %Zung.Game.Object{
-                 id: "torn_piece_of_paper",
-                 name: "a torn piece of paper",
-                 description: "Torn piece of paper lies here.",
-                 keywords: ["torn piece of paper", "paper", "of paper"]
+                 id: "burnt_coffee_beans",
+                 name: "burnt coffee beans",
+                 description: "Burnt coffee beans lies here.",
+                 keywords: ["burnt coffee beans", "beans", "coffee beans"]
                }
              ]
            },
-           "kraakenhavn/dockside_quay/smuggler_s_alley" => %Zung.Game.Room{
-             id: "kraakenhavn/dockside_quay/smuggler_s_alley",
-             title: "Smuggler's Alley",
+           "kralovice_mor/vysoka_ulice/ulice_celar" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/ulice_celar",
+             title: "Cellars",
              description:
-               "Narrow passageway lined with old warehouses, wooden crates stacked haphazardly, and rusty metal beams creaking in the wind.",
+               "Dark, damp tunnels filled with stacked crates and barrels, dimly lit by flickering torches.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/dockside_quay",
-                 description: "The narrow passageway opens up into a bustling dockside area"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/dockside_quay/cargo_crane_pit",
-                 description: "A makeshift staircase leads down to the cargo crane pit below"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "old_lantern",
-                 name: "old lantern",
-                 description: "Old lantern lies here.",
-                 keywords: ["old lantern", "lantern"]
-               },
-               %Zung.Game.Object{
-                 id: "rusted_key",
-                 name: "rusted key",
-                 description: "Rusted key lies here.",
-                 keywords: ["rusted key", "key"]
-               }
-             ]
-           },
-           "kraakenhavn/the_red_harbor/stealthing_alley" => %Zung.Game.Room{
-             id: "kraakenhavn/the_red_harbor/stealthing_alley",
-             title: "Stealthing Alley",
-             description:
-               "Trash cans and broken crates line the narrow alley, casting long shadows in the flickering lantern light.||NL||The air reeks of rotting seafood and cheap perfume.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_red_harbor/the_drowned_tavern",
+                 to: "kralovice_mor/vysoka_ulice/pazar_stanec",
                  description:
-                   "A worn wooden dock stretches out before you, disappearing into darkness."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_red_harbor/red_viper_hive",
-                 description:
-                   "The narrow alley continues on in the opposite direction, vanishing from view."
-               }
-             ]
-           },
-           "kraakenhavn/the_red_harbor/the_drowned_tavern" => %Zung.Game.Room{
-             id: "kraakenhavn/the_red_harbor/the_drowned_tavern",
-             title: "The Drunken Mermaid Tavern",
-             description:
-               "A dimly lit, smoke-filled room with a long bar in the center, adorned with rusty fishing nets and faded sea creature posters.||NL||Flickering lanterns cast eerie shadows on the walls.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_red_harbor/red_viper_hive",
-                 description: "A narrow corridor leads into darkness"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :down,
-                 to: "kraakenhavn/the_red_harbor/stealthing_alley",
-                 description: "Stairs lead down to a hidden entrance"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_red_harbor/duke_mansion",
-                 description: "A grand staircase leads up to a wealthy estate"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "mug_of_frothy_ale",
-                 name: "a mug of frothy ale",
-                 description: "Mug of frothy ale lies here.",
-                 keywords: ["mug of frothy ale", "ale", "frothy ale"]
-               },
-               %Zung.Game.Object{
-                 id: "wooden_tankard_with_a_cracked_handle",
-                 name: "a wooden tankard with a cracked handle",
-                 description: "Wooden tankard with a cracked handle lies here.",
-                 keywords: ["wooden tankard with a cracked handle", "handle", "cracked handle"]
-               },
-               %Zung.Game.Object{
-                 id: "fisherman_s_net_hung_on_the_wall",
-                 name: "a fisherman's net hung on the wall",
-                 description: "Fisherman's net hung on the wall lies here.",
-                 keywords: ["fisherman's net hung on the wall", "wall", "the wall"]
-               }
-             ]
-           },
-           "kraakenhavn/the_graveyard/the_graveyard_entrance" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/the_graveyard_entrance",
-             title: "The Graveyard Entrance",
-             description:
-               "Massive stone angels stand watch, their wings outstretched as they guard the entrance to this foreboding cemetery.||NL||The walls are covered in vines, and moss clings to crumbling headstones.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-                 description: "A narrow alleyway leads into the darkness of the overgrown tomb."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_graveyard/rachel_grimstone_office",
-                 description:
-                   "The entrance to Rachel Grimstone's office is visible through a wrought-iron gate."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_graveyard/the_lonesome_bell",
-                 description: "A narrow path winds down into the darkness of The Lonesome Bell."
+                   "A narrow stairway leads up to the bustling Market Stand, where merchants hawk their wares."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_graveyard/tomb_raider_supply_room",
+                 to: "kralovice_mor/vysoka_ulice/kropec_kavka",
                  description:
-                   "The entrance to the Tomb Raider Supply Room is marked by a large, rusty door."
+                   "A worn wooden door creaks in the breeze, leading to the Pawn Shop's dim interior."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "old_key",
-                 name: "old key",
-                 description: "Old key lies here.",
-                 keywords: ["old key", "key"]
-               },
-               %Zung.Game.Object{
-                 id: "tattered_cloak",
-                 name: "tattered cloak",
-                 description: "Tattered cloak lies here.",
-                 keywords: ["tattered cloak", "cloak"]
+                 id: "stacked_crates_dusty_barrels_flickering_torches",
+                 name: "Stacked crates, dusty barrels, flickering torches",
+                 description: "Stacked crates, dusty barrels, flickering torches lies here.",
+                 keywords: [
+                   "Stacked crates, dusty barrels, flickering torches",
+                   "torches",
+                   "flickering torches"
+                 ]
                }
              ]
            },
-           "kraakenhavn/the_graveyard/the_lonesome_bell" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/the_lonesome_bell",
-             title: "The Lone Bell",
+           "kralovice_mor/vysoka_ulice/ulice_jizba" => %Zung.Game.Room{
+             id: "kralovice_mor/vysoka_ulice/ulice_jizba",
+             title: "City Jail",
              description:
-               "A once-majestic church stands, its walls now cracked and worn.||NL||The lone bell tower rises above the crumbling roof, casting a shadow over the surrounding headstones.",
+               "Cold, damp stone walls and a low ceiling confine you to this small holding cell, with iron bars separating you from the darkness beyond.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-                 description: "A narrow alleyway leads north to more forgotten graves"
+                 direction: :east,
+                 to: "kralovice_mor/vysoka_ulice/strojarne",
+                 description:
+                   "A narrow doorway leads into a dimly lit smithy, where the sound of hammering on hot metal fills the air."
                },
                %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_graveyard/rachel_grimstone_office",
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/wall_entry_point",
                  description:
-                   "The door to Rachel Grimstone's office creaks open on the east side of the church"
+                   "A heavy wooden door with iron hinges creaks open to reveal a dark and foreboding wall entrance."
                }
              ]
            },
-           "kraakenhavn/the_graveyard/the_overgrown_tomb" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-             title: "The Overgrown Tomb",
+           "kralovice_mor/skalni_kraj/vchod_do_docku" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/vchod_do_docku",
+             title: "Gateway to Docks and Shipyards",
              description:
-               "Crumbling stone statues guard the entrance to this overgrown mausoleum.||NL||Vines crawl up the walls as far as they can reach, and moss clings to crumbling headstones.",
+               "A weathered wooden bridge spans a small chasm, connecting The Quarry to the bustling Docks and Shipyards district below.",
              exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_graveyard/the_graveyard_entrance",
-                 description: "A narrow path leads back to the graveyard entrance."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_graveyard/tomb_raider_supply_room",
-                 description:
-                   "A hidden door in the wall of vines conceals a room filled with supplies."
-               },
                %Zung.Game.Room.Exit{
                  direction: :south,
-                 to: "kraakenhavn/the_graveyard/rachel_grimstone_office",
+                 to: "kralovice_mor/skalni_kraj/vysoke_cesta",
                  description:
-                   "A narrow corridor stretches into Rachel Grimstone's office, her scent lingering on the air."
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "creepy_statue",
-                 name: "creepy_statue",
-                 description: "Creepy_statue lies here.",
-                 keywords: ["creepy_statue"]
-               },
-               %Zung.Game.Object{
-                 id: "tombstone",
-                 name: "tombstone",
-                 description: "Tombstone lies here.",
-                 keywords: ["tombstone"]
-               }
-             ]
-           },
-           "kraakenhavn/the_graveyard/the_sewer_access" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/the_sewer_access",
-             title: "Sewer Access",
-             description:
-               "A narrow, dimly lit stairway leads down into darkness.||NL||Dusty cobwebs cling to the walls.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_graveyard/the_graveyard_entrance",
-                 description: "A worn stone path leads up into the graveyard"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_graveyard/rachel_grimstone_office",
-                 description: "The dimly lit stairway continues downward, vanishing into darkness"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :down,
-                 to: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-                 description: "A rickety ladder descends into the sewer below"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "rusty_lantern",
-                 name: "a rusty lantern",
-                 description: "Rusty lantern lies here.",
-                 keywords: ["rusty lantern", "lantern"]
-               },
-               %Zung.Game.Object{
-                 id: "piece_of_torn_fabric",
-                 name: "a piece of torn fabric",
-                 description: "Piece of torn fabric lies here.",
-                 keywords: ["piece of torn fabric", "fabric", "torn fabric"]
-               }
-             ]
-           },
-           "kraakenhavn/the_graveyard/tomb_raider_supply_room" => %Zung.Game.Room{
-             id: "kraakenhavn/the_graveyard/tomb_raider_supply_room",
-             title: "Victoria Stonebrook's Supply Room",
-             description:
-               "Cramped shelves line the walls, stacked with pickaxes and lanterns.||NL||A small workbench sits in the corner, bearing tools for excavation.",
-             exits: [
-               %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_graveyard/the_overgrown_tomb",
-                 description: "A narrow corridor stretches into darkness"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_graveyard/rachel_grimstone_office",
-                 description: "A door with a rusted doorknob leads to a dimly lit room"
+                   "A set of steep stairs leads down to the Upper Quarry Level, a labyrinthine network of tunnels and caverns."
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_graveyard/the_lonesome_bell",
-                 description: "A set of stairs descends into the darkness"
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_graveyard/the_graveyard_entrance",
-                 description: "The entrance to the graveyard beckons from beyond a nearby gate"
-               }
-             ],
-             objects: [
-               %Zung.Game.Object{
-                 id: "pickaxe",
-                 name: "pickaxe",
-                 description: "Pickaxe lies here.",
-                 keywords: ["pickaxe"]
-               },
-               %Zung.Game.Object{
-                 id: "lantern",
-                 name: "lantern",
-                 description: "Lantern lies here.",
-                 keywords: ["lantern"]
-               },
-               %Zung.Game.Object{
-                 id: "trowel",
-                 name: "trowel",
-                 description: "Trowel lies here.",
-                 keywords: ["trowel"]
+                 to: "kralovice_mor/skalni_kraj/smyczny_tunnel",
+                 description:
+                   "The bridge creaks ominously as it spans the chasm, leading west into the darkness of the Broken Tunnel to the Old Mine."
                }
              ]
            },
-           "kraakenhavn/the_spire/treasury_of_relics" => %Zung.Game.Room{
-             id: "kraakenhavn/the_spire/treasury_of_relics",
-             title: "The Treasury of the Ancients",
+           "kralovice_mor/skalni_kraj/vysoke_cesta" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/vysoke_cesta",
+             title: "Upper Quarry Level",
              description:
-               "Glittering relics and artifacts adorn the walls, casting a warm glow in the dimly lit chamber.",
+               "A steeper, rockier area with fewer structures, offering better views of the surrounding landscape.",
              exits: [
                %Zung.Game.Room.Exit{
-                 direction: :north,
-                 to: "kraakenhavn/the_spire/entrance_to_the_spire",
-                 description: "A narrow corridor stretches into the darkness."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :east,
-                 to: "kraakenhavn/the_spire/corridors_of_the_ruin",
-                 description: "The air grows thick with the stench of decay as you proceed."
-               },
-               %Zung.Game.Room.Exit{
-                 direction: :south,
-                 to: "kraakenhavn/the_spire/library_of_forbidden_knowledge",
-                 description: "Shelved texts seem to lean in, as if sharing secrets."
-               },
-               %Zung.Game.Room.Exit{
                  direction: :west,
-                 to: "kraakenhavn/the_spire/balcony_over_the_ruin",
-                 description: "The wind whispers through the broken stones below."
+                 to: "kralovice_mor/skalni_kraj/dolu_pristup",
+                 description:
+                   "A narrow tunnel leads down to the Lower Quarry Level, a maze of dark passages and dusty tunnels."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/skalni_kraj/vchod_do_docku",
+                 description:
+                   "A rickety wooden bridge spans a deep chasm, leading to the Gateway to Docks and Shipyards."
                }
              ],
              objects: [
                %Zung.Game.Object{
-                 id: "ancient_tome",
-                 name: "Ancient Tome",
-                 description: "Ancient Tome lies here.",
-                 keywords: ["Ancient Tome", "Tome"]
+                 id: "rusty_old_lantern_hanging_from_the_wall_its_wick_dry_and_cracked",
+                 name: "a rusty old lantern hanging from the wall, its wick dry and cracked",
+                 description:
+                   "Rusty old lantern hanging from the wall, its wick dry and cracked lies here.",
+                 keywords: [
+                   "rusty old lantern hanging from the wall, its wick dry and cracked",
+                   "cracked",
+                   "and cracked"
+                 ]
                },
                %Zung.Game.Object{
-                 id: "golden_amulet",
-                 name: "Golden Amulet",
-                 description: "Golden Amulet lies here.",
-                 keywords: ["Golden Amulet", "Amulet"]
+                 id: "scattered_rocks_and_pebbles_littering_the_ground",
+                 name: "scattered rocks and pebbles littering the ground",
+                 description: "Scattered rocks and pebbles littering the ground lies here.",
+                 keywords: [
+                   "scattered rocks and pebbles littering the ground",
+                   "ground",
+                   "the ground"
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/pohorenie_klasy/vytoky_na_doke" => %Zung.Game.Room{
+             id: "kralovice_mor/pohorenie_klasy/vytoky_na_doke",
+             title: "Vykody na Doke",
+             description:
+               "A bustling area filled with carters and sailors unloading and loading goods from ships, crates stacked haphazardly on wooden pallets and barrels overflowing with tar and oil.||NL||The air is thick with the smell of saltwater and smoke.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/pohorenie_klasy/krajina_tovarne",
+                 description:
+                   "A narrow alleyway leads down into the depths of the docks, lined with crates and boxes stacked haphazardly on either side."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :west,
+                 to: "kralovice_mor/pohorenie_klasy/radnice_stavby",
+                 description:
+                   "The sound of hammering grows fainter as you make your way towards the town hall, where the mayor's office is said to be located."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/pohorenie_klasy/kapitanova_kamera",
+                 description:
+                   "A large wooden door leads up into the captain's quarters, a cozy cabin that seems out of place in this chaotic environment."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id:
+                   "worn_leather_satchel_leans_against_the_wall_a_half_empty_flask_of_grog_sitting_atop_it",
+                 name:
+                   "A worn leather satchel leans against the wall, a half-empty flask of grog sitting atop it.",
+                 description:
+                   "Worn leather satchel leans against the wall, a half-empty flask of grog sitting atop it. lies here.",
+                 keywords: [
+                   "worn leather satchel leans against the wall, a half-empty flask of grog sitting atop it.",
+                   "it.",
+                   "atop it."
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/wall_entry_point" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/wall_entry_point",
+             title: "Wall Entrance",
+             description:
+               "Grey stone walls tower above, casting long shadows in the fading light.||NL||The air is thick with the scent of damp earth and decay.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/wall_top_walkway",
+                 description:
+                   "A narrow staircase leads up to the Wall Top Walkway, accessible only to those with the proper clearance."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/moravian_walls/south_gate_entrance",
+                 description:
+                   "A large wooden gate bars entrance to the South Gate Entrance, guarded by two imposing stone statues."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/vysoka_ulice/ulice_jizba",
+                 description:
+                   "A heavy iron door seals off access to the City Jail, adorned with ominous warning signs."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "large_wooden_gate_key",
+                 name: "A large wooden gate key",
+                 description: "Large wooden gate key lies here.",
+                 keywords: ["large wooden gate key", "key", "gate key"]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/wall_top_walkway" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/wall_top_walkway",
+             title: "Wall Top Walkway",
+             description:
+               "A narrow, windswept walkway atop the grey stone walls of The Wards, lined with worn wooden railings and offering a bleak view over the city's twisted streets.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/moravian_walls/wall_entry_point",
+                 description:
+                   "A heavy wooden door, adorned with iron hinges and a large iron knocker in the shape of a snarling lion's head."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/watchtower_viewpoint",
+                 description:
+                   "A narrow staircase leading up to a small watchtower, its windows barred and its presence seeming to draw the very light out of the air."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/moravian_walls/west_wall_crossing",
+                 description: "A rusty iron gate, partially hidden by overgrown bushes and vines."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "tattered_flag_bearing_the_emblem_of_the_city_guard",
+                 name: "A tattered flag bearing the emblem of the city guard",
+                 description: "Tattered flag bearing the emblem of the city guard lies here.",
+                 keywords: [
+                   "tattered flag bearing the emblem of the city guard",
+                   "guard",
+                   "city guard"
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/watchtower_viewpoint" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/watchtower_viewpoint",
+             title: "Watchtower Viewpoint",
+             description:
+               "A raised platform with a view of the surrounding area, used by guards for surveillance and spotting potential threats.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/moravian_walls/wall_top_walkway",
+                 description:
+                   "A narrow walkway along the wall's edge, with steep drop-offs on either side."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/moravian_walls/south_wall_gatehouse",
+                 description:
+                   "A sturdy gatehouse door adorned with iron hinges and a heavy-looking iron knocker in the shape of a snarling lion's head."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "lantern_with_a_single_guttering_candle_a_battered_wooden_stool",
+                 name: "A lantern with a single, guttering candle, a battered wooden stool",
+                 description:
+                   "Lantern with a single, guttering candle, a battered wooden stool lies here.",
+                 keywords: [
+                   "lantern with a single, guttering candle, a battered wooden stool",
+                   "stool",
+                   "wooden stool"
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/dokonalulice/west_garden_path" => %Zung.Game.Room{
+             id: "kralovice_mor/dokonalulice/west_garden_path",
+             title: "West Garden Path",
+             description:
+               "A winding, overgrown path through a once-grand garden, now choked with weeds and vines that scrape against crumbling stone statues.||NL||Faded floral patterns still adorn the walls, but they seem more like a distant memory than a vibrant reality.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/dokonalulice/north_gate_entrance",
+                 description:
+                   "A grand stone archway looms ahead, covered in ivy and dust, with the North Gate Entrance guarded by two imposing stone statues."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/dokonalulice/south_balcony_view",
+                 description:
+                   "The overgrown path gives way to a balcony overlooking the town below, where the sounds of Upper Town's daily struggles and triumphs rise up on the wind."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/dokonalulice/east_town_hall",
+                 description:
+                   "A grand entrance to the East Town Hall beckons, its ornate doors adorned with carvings of forgotten gods and nobility."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id:
+                   "rusty_gardening_tool_lies_abandoned_on_the_path_its_handle_worn_smooth_by_time",
+                 name:
+                   "A rusty gardening tool lies abandoned on the path, its handle worn smooth by time.",
+                 description:
+                   "Rusty gardening tool lies abandoned on the path, its handle worn smooth by time. lies here.",
+                 keywords: [
+                   "rusty gardening tool lies abandoned on the path, its handle worn smooth by time.",
+                   "time.",
+                   "by time."
+                 ]
+               }
+             ]
+           },
+           "kralovice_mor/moravian_walls/west_wall_crossing" => %Zung.Game.Room{
+             id: "kralovice_mor/moravian_walls/west_wall_crossing",
+             title: "West Wall Crossing",
+             description:
+               "A narrow, dimly lit tunnel with grey stone walls, the air thick with dust and the stench of rotting wood.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/moravian_walls/south_gate_entrance",
+                 description:
+                   "A worn stone step leads down to the South Gate Entrance, where guards patrol the entrance to the Wards."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :west,
+                 to: "kralovice_mor/moravian_walls/wall_top_walkway",
+                 description:
+                   "A narrow ledge along the wall offers a precarious view of the Wall Top Walkway above."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :north,
+                 to: "kralovice_mor/moravian_walls/south_wall_gatehouse",
+                 description:
+                   "The heavy wooden door of the South Wall Gatehouse looms ahead, adorned with iron hinges and a large, rusty knocker."
+               },
+               %Zung.Game.Room.Exit{
+                 direction: :east,
+                 to: "kralovice_mor/moravian_walls/inner_gate_entrance",
+                 description:
+                   "A short corridor leads into the Inner Gate Entrance, where courtiers and dignitaries are often seen entering the Wards."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "rusty_iron_hinges",
+                 name: "Rusty iron hinges",
+                 description: "Rusty iron hinges lies here.",
+                 keywords: ["Rusty iron hinges", "hinges", "iron hinges"]
+               },
+               %Zung.Game.Object{
+                 id: "old_wooden_beam",
+                 name: "Old wooden beam",
+                 description: "Old wooden beam lies here.",
+                 keywords: ["Old wooden beam", "beam", "wooden beam"]
+               }
+             ]
+           },
+           "kralovice_mor/skalni_kraj/zahnicky_budynek" => %Zung.Game.Room{
+             id: "kralovice_mor/skalni_kraj/zahnicky_budynek",
+             title: "Old Mine's Office Building",
+             description:
+               "A cramped, dimly lit room with peeling plaster walls and a low ceiling, filled with dusty records, forgotten tools, and ancient mining equipment.",
+             exits: [
+               %Zung.Game.Room.Exit{
+                 direction: :south,
+                 to: "kralovice_mor/skalni_kraj/krovna_vysledek",
+                 description:
+                   "A narrow doorway leads to the bustling Quarry's Central Gathering Area."
+               }
+             ],
+             objects: [
+               %Zung.Game.Object{
+                 id: "abandoned_ledger_rusty_pen_dusty_mining_maps",
+                 name: "abandoned ledger, rusty pen, dusty mining maps",
+                 description: "Abandoned ledger, rusty pen, dusty mining maps lies here.",
+                 keywords: [
+                   "abandoned ledger, rusty pen, dusty mining maps",
+                   "maps",
+                   "mining maps"
+                 ]
                }
              ]
            }
