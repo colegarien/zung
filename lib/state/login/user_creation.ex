@@ -10,8 +10,8 @@ defmodule Zung.State.Login.UserCreation do
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    Zung.Client.raw_clear_screen(client)
-    Zung.Client.raw_write_line(client, @new_player_welcome)
+    _ = Zung.Client.raw_clear_screen(client)
+    _ = Zung.Client.raw_write_line(client, @new_player_welcome)
     {Zung.State.Login.Creation.Username, client, data}
   end
 end

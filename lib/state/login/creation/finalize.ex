@@ -16,18 +16,18 @@ defmodule Zung.State.Login.Creation.Finalize do
 
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
-    Zung.Client.raw_clear_screen(client)
-    Zung.Client.raw_write(client, String.replace(@finalize_message, "username", data[:username]))
+    _ = Zung.Client.raw_clear_screen(client)
+    _ = Zung.Client.raw_write(client, String.replace(@finalize_message, "username", data[:username]))
 
     # finalize and wait for user input
     finalize_user(data)
-    Zung.Client.raw_read(client)
+    _ = Zung.Client.raw_read(client)
 
     {Zung.State.Game.Init, client, %{username: data[:username]}}
   end
 
   defp finalize_user(%{username: username, password: password, use_ansi?: use_ansi?}) do
-    Zung.Client.User.create_user(username, password, %{use_ansi?: use_ansi?})
-    Zung.DataStore.update_current_room_id(username, "newbie/room_1")
+    _ = Zung.Client.User.create_user(username, password, %{use_ansi?: use_ansi?})
+    _ = Zung.DataStore.update_current_room_id(username, "newbie/room_1")
   end
 end

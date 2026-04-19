@@ -2,6 +2,8 @@ defmodule Zung.Client.Connection do
   @enforce_keys [:id]
   defstruct [:id]
 
+  @type t :: %__MODULE__{id: pid()}
+
   require Logger
   use GenServer
 
@@ -96,7 +98,7 @@ defmodule Zung.Client.Connection do
       {:noreply, state}
     else
       {message, new_queue} = build_output({"||NL||", state.output_buffer}, prompt?)
-      send_data(state.socket, message, state.use_ansi?)
+      _ = send_data(state.socket, message, state.use_ansi?)
       {:noreply, %{state | output_buffer: new_queue}}
     end
   end
@@ -104,12 +106,12 @@ defmodule Zung.Client.Connection do
   def handle_cast({:use_ansi, use_ansi?}, state), do: {:noreply, %{state | use_ansi?: use_ansi?}}
 
   def handle_cast(:end, %{socket: socket, use_ansi?: use_ansi?} = state) do
-    send_data(socket, "||BOLD||||GRN||Bye bye!||RESET||||NL||", use_ansi?)
+    _ = send_data(socket, "||BOLD||||GRN||Bye bye!||RESET||||NL||", use_ansi?)
     {:stop, :normal, %{state | is_closed: true}}
   end
 
   def handle_cast({:force_closed, reason}, %{socket: socket, use_ansi?: use_ansi?} = state) do
-    send_data(socket, reason, use_ansi?)
+    _ = send_data(socket, reason, use_ansi?)
     :gen_tcp.close(socket)
     {:stop, :normal, %{state | is_closed: true}}
   end

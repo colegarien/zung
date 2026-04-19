@@ -14,13 +14,13 @@ defmodule Zung.State.Login.Creation.Username do
         {Zung.State.Login.Creation.Password, client, Map.put(data, :username, username)}
 
       {:error, message} ->
-        Zung.Client.raw_write_line(client, message)
+        _ = Zung.Client.raw_write_line(client, message)
         handle_username(client, data)
     end
   end
 
   defp prompt_username(client) do
-    Zung.Client.raw_write(
+    _ = Zung.Client.raw_write(
       client,
       "Enter your new username (\"a-z\" and \"_\" allowed, 3-12 length): "
     )

@@ -26,7 +26,7 @@ defmodule Zung.State.Login.Intro do
   @impl Zung.State.State
   def run(%Zung.Client{} = client, data) do
     logged_in_count = String.pad_leading("#{Zung.Client.Session.get_session_count()}", 3, "0")
-    Zung.Client.raw_write(client, String.replace(@the_banner, "000", logged_in_count))
+    _ = Zung.Client.raw_write(client, String.replace(@the_banner, "000", logged_in_count))
     handle_intro(client, data)
   end
 
@@ -41,13 +41,13 @@ defmodule Zung.State.Login.Intro do
         {Zung.State.Login.UserLogin, client, %{username: username}}
 
       {:error, message} ->
-        Zung.Client.raw_write_line(client, message)
+        _ = Zung.Client.raw_write_line(client, message)
         handle_intro(client, data)
     end
   end
 
   defp prompt_login(%Zung.Client{} = client) do
-    Zung.Client.raw_write(client, "Enter your username: ")
+    _ = Zung.Client.raw_write(client, "Enter your username: ")
 
     with data <- Zung.Client.raw_read(client),
          {:ok, username} <- validate_username(data),

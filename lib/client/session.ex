@@ -14,7 +14,7 @@ defmodule Zung.Client.Session do
 
     @type t :: %__MODULE__{
             id: pos_integer() | nil,
-            connection: pid() | nil,
+            connection: Zung.Client.Connection.t() | nil,
             username: String.t() | nil,
             created: non_neg_integer(),
             last_activity: non_neg_integer(),
@@ -105,7 +105,7 @@ defmodule Zung.Client.Session do
   end
 
   # CLIENT SIDE
-  @spec new_session(pid()) :: pos_integer()
+  @spec new_session(Zung.Client.Connection.t()) :: pos_integer()
   def new_session(connection) do
     GenServer.call(
       __MODULE__,

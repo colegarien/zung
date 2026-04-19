@@ -8,8 +8,8 @@ defmodule Zung.Client do
 
   @type t :: %__MODULE__{
           session_id: pos_integer() | nil,
-          connection: pid(),
-          game_state: GameState.t() | nil
+          connection: Zung.Client.Connection.t(),
+          game_state: Zung.Client.GameState.t() | nil
         }
 
   alias Zung.Client.Connection
@@ -42,7 +42,7 @@ defmodule Zung.Client do
           }
   end
 
-  @spec new(pid()) :: t()
+  @spec new(Zung.Client.Connection.t()) :: t()
   def new(connection) do
     session_id = Session.new_session(connection)
 

@@ -23,8 +23,8 @@ defmodule Zung.Server do
   end
 
   def serve_client(%Zung.Client{} = client) do
-    try do
-      Zung.State.Manager.run({Zung.State.Login.Intro, client, %{}})
+    _ = try do
+      _ = Zung.State.Manager.run({Zung.State.Login.Intro, client, %{}})
     rescue
       e in [
         Zung.Error.Connection.Closed,
