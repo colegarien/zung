@@ -52,6 +52,12 @@ defmodule Zung.Game.Room do
 
   def look_at(_room, _target), do: "You see nothing of interest."
 
+  @spec examine(t(), look_target() | term()) :: String.t()
+  def examine(room, {:object, object_id}),
+    do: Zung.Game.Object.examine_target(room.objects, object_id)
+
+  def examine(room, target), do: look_at(room, target)
+
   @spec move(t(), {:direction, atom()} | {:exit, String.t()} | term()) ::
           {:ok, t()} | {:error, String.t()}
   def move(room, {:direction, direction}),

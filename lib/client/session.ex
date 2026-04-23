@@ -123,6 +123,11 @@ defmodule Zung.Client.Session do
     GenServer.call(__MODULE__, :active_session_count)
   end
 
+  @spec get_active_usernames() :: [String.t()]
+  def get_active_usernames() do
+    GenServer.call(__MODULE__, :active_usernames)
+  end
+
   @spec refresh_session(pos_integer()) :: :ok
   def refresh_session(session_id) do
     GenServer.cast(__MODULE__, {:refresh, session_id})
@@ -158,6 +163,18 @@ defmodule Zung.Client.Session do
      Enum.reduce(state, 0, fn {_k, session}, acc ->
        if State.is_active?(session) and session.is_authenticated, do: acc + 1, else: acc
      end), state}
+  end
+
+  def handle_call(:active_usernames, _from, state) do
+    usernames =
+      state
+      |> Enum.filter(fn {_k, session} ->
+        State.is_active?(session) and session.is_authenticated
+      end)
+      |> Enum.map(fn {_k, session} -> session.username end)
+      |> Enum.sort()
+
+    {:reply, usernames, state}
   end
 
   def handle_cast({:refresh, session_id}, state) do

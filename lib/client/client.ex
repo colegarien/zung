@@ -21,6 +21,7 @@ defmodule Zung.Client do
     defstruct [
       :username,
       room: %Zung.Game.Room{},
+      inventory: [],
       command_aliases: %{
         "l" => "look",
         "n" => "north",
@@ -29,6 +30,8 @@ defmodule Zung.Client do
         "w" => "west",
         "u" => "up",
         "d" => "down",
+        "x" => "examine",
+        "i" => "inventory",
         "ooc" => "csay ooc"
       },
       joined_chat_rooms: []
@@ -37,6 +40,7 @@ defmodule Zung.Client do
     @type t :: %__MODULE__{
             username: String.t(),
             room: Zung.Game.Room.t(),
+            inventory: [Zung.Game.Object.t()],
             command_aliases: %{String.t() => String.t()},
             joined_chat_rooms: [String.t()]
           }

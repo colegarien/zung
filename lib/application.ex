@@ -203,7 +203,8 @@ defmodule Zung.Application do
                  id: "small_rusty_key",
                  name: "a small, rusty key",
                  description: "Small, rusty key lies here.",
-                 keywords: ["small, rusty key", "key", "rusty key"]
+                 keywords: ["small, rusty key", "key", "rusty key"],
+                 takeable?: true
                }
              ]
            },
@@ -268,13 +269,19 @@ defmodule Zung.Application do
                  id: "worn_leather_bound_logbook",
                  name: "a worn leather-bound logbook",
                  description: "Worn leather-bound logbook lies here.",
-                 keywords: ["worn leather-bound logbook", "logbook", "leather-bound logbook"]
+                 keywords: ["worn leather-bound logbook", "logbook", "leather-bound logbook"],
+                 examine_text:
+                   "The leather cover is cracked and water-stained. Inside, page after page lists cargo manifests -- crates of iron ore, barrels of salt fish, bolts of linen. The last entry is dated months ago and reads: ||BOLD||||ITALIC||\"Cargo secured. Awaiting departure. The harbor master grows impatient.\"||RESET||",
+                 takeable?: true
                },
                %Zung.Game.Object{
                  id: "tarnished_brass_compass",
                  name: "a tarnished brass compass",
                  description: "Tarnished brass compass lies here.",
-                 keywords: ["tarnished brass compass", "compass", "brass compass"]
+                 keywords: ["tarnished brass compass", "compass", "brass compass"],
+                 examine_text:
+                   "You turn the compass over in your hands. The brass is tarnished and dull, but an inscription on the back reads: ||BOLD||||ITALIC||\"To Captain Borovy, who always found his way home.\"||RESET|| The needle still quivers faintly, pointing steadily northeast.",
+                 takeable?: true
                }
              ]
            },
@@ -342,13 +349,15 @@ defmodule Zung.Application do
                  id: "rusted_lockpick",
                  name: "rusted lockpick",
                  description: "Rusted lockpick lies here.",
-                 keywords: ["rusted lockpick", "lockpick"]
+                 keywords: ["rusted lockpick", "lockpick"],
+                 takeable?: true
                },
                %Zung.Game.Object{
                  id: "tattered_map",
                  name: "tattered map",
                  description: "Tattered map lies here.",
-                 keywords: ["tattered map", "map"]
+                 keywords: ["tattered map", "map"],
+                 takeable?: true
                }
              ]
            },

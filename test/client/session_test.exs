@@ -207,6 +207,50 @@ defmodule Zung.Client.SessionTest do
     assert true === actual[1].is_disconnected
   end
 
+  test "active usernames with no sessions" do
+    # Arrange
+    current_state = %{}
+
+    # Act
+    {_, actual, _} = Zung.Client.Session.handle_call(:active_usernames, nil, current_state)
+
+    # Assert
+    assert [] === actual
+  end
+
+  test "active usernames returns authenticated sorted usernames" do
+    # Arrange
+    current_state = %{
+      1 => %State{
+        State.new()
+        | id: 1,
+          username: "charlie",
+          is_authenticated: true,
+          is_disconnected: false
+      },
+      2 => %State{
+        State.new()
+        | id: 2,
+          username: "alice",
+          is_authenticated: true,
+          is_disconnected: false
+      },
+      3 => %State{
+        State.new()
+        | id: 3,
+          username: "bob",
+          is_authenticated: false,
+          is_disconnected: false
+      }
+    }
+
+    # Act
+    {_, actual, _} = Zung.Client.Session.handle_call(:active_usernames, nil, current_state)
+
+    # Assert
+    assert ["alice", "charlie"] === actual
+  end
+
   test "expire - one expired session one non expired" do
     # Arrange
     current_state = %{
