@@ -38,6 +38,14 @@ defmodule Zung.Game.Room do
     "#{title_string}||NL||#{description_string}||NL||#{exits_string}||NL||#{npcs_string}#{objects_string}||NL||"
   end
 
+  @spec describe_brief(t()) :: String.t()
+  def describe_brief(%Zung.Game.Room{} = room) do
+    title_string = "||BOLD||||GRN||#{room.title}||RESET||"
+    exits_string = Zung.Game.Room.Exit.describe(room.exits)
+
+    "#{title_string}||NL||#{exits_string}||NL||"
+  end
+
   @spec look_at(t(), look_target() | term()) :: String.t()
   def look_at(room, {:flavor, flavor_text_id}) do
     Enum.find(

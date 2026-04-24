@@ -32,7 +32,8 @@ defmodule Zung.Client.Connection do
       input_buffer: :queue.new(),
       output_buffer: :queue.new(),
       is_closed: false,
-      username: nil
+      username: nil,
+      pending_items: []
     })
   end
 
@@ -79,6 +80,10 @@ defmodule Zung.Client.Connection do
     GenServer.cast(connection.id, {:unsubscribe, channel})
   end
 
+  def drain_pending_items(connection) do
+    GenServer.call(connection.id, :drain_pending_items)
+  end
+
   # SERVER SIDE
   def handle_call(:read, _from, %{input_buffer: input_buffer, is_closed: is_closed} = state) do
     cond do
@@ -92,6 +97,10 @@ defmodule Zung.Client.Connection do
       true ->
         {:reply, {:none}, state}
     end
+  end
+
+  def handle_call(:drain_pending_items, _from, state) do
+    {:reply, state.pending_items, %{state | pending_items: []}}
   end
 
   def handle_cast({:write, data}, state) do
@@ -175,7 +184,10 @@ defmodule Zung.Client.Connection do
     handle_cast({:write, "||CYA||#{username} #{action}||RESET||"}, state)
   end
 
-  def handle_info({publisher_pid, {:room, _room_id}, {:shout, username, message, proximity}}, state) do
+  def handle_info(
+        {publisher_pid, {:room, _room_id}, {:shout, username, message, proximity}},
+        state
+      ) do
     text =
       cond do
         publisher_pid == self() -> "||RED||You shout: #{message}||RESET||"
@@ -202,7 +214,13 @@ defmodule Zung.Client.Connection do
   end
 
   def handle_info({_publisher_pid, {:follow, _username}, {:leader_moved, leader, room_id}}, state) do
-    {:noreply, %{state | input_buffer: :queue.in("__follow_move #{leader} #{room_id}", state.input_buffer)}}
+    {:noreply,
+     %{state | input_buffer: :queue.in("__follow_move #{leader} #{room_id}", state.input_buffer)}}
+  end
+
+  def handle_info({_publisher_pid, {:player, _username}, {:give_item, sender, object}}, state) do
+    new_state = %{state | pending_items: state.pending_items ++ [object]}
+    handle_cast({:write, "||GRN||#{sender} gives you #{object.name}.||RESET||"}, new_state)
   end
 
   def handle_info(msg, state) do

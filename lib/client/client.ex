@@ -35,7 +35,8 @@ defmodule Zung.Client do
         "ooc" => "csay ooc"
       },
       joined_chat_rooms: [],
-      following: nil
+      following: nil,
+      brief_mode: false
     ]
 
     @type t :: %__MODULE__{
@@ -44,7 +45,8 @@ defmodule Zung.Client do
             inventory: [Zung.Game.Object.t()],
             command_aliases: %{String.t() => String.t()},
             joined_chat_rooms: [String.t()],
-            following: String.t() | nil
+            following: String.t() | nil,
+            brief_mode: boolean()
           }
   end
 
@@ -117,11 +119,18 @@ defmodule Zung.Client do
 
       %Zung.Client.GameState{} = game_state = client.game_state
 
+      description =
+        if game_state.brief_mode do
+          Zung.Game.Room.describe_brief(new_room)
+        else
+          Zung.Game.Room.describe(new_room)
+        end
+
       %Zung.Client{
         client
         | game_state: %Zung.Client.GameState{game_state | room: new_room}
       }
-      |> Zung.Client.push_output(Zung.Game.Room.describe(new_room))
+      |> Zung.Client.push_output(description)
     else
       client
     end

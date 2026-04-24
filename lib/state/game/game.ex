@@ -14,7 +14,21 @@ defmodule Zung.State.Game.Game do
   end
 
   defp process_events(%Zung.Client{} = client) do
-    client
+    pending_items = Zung.Client.Connection.drain_pending_items(client.connection)
+
+    if Enum.empty?(pending_items) do
+      client
+    else
+      %Zung.Client.GameState{} = game_state = client.game_state
+
+      %Zung.Client{
+        client
+        | game_state: %Zung.Client.GameState{
+            game_state
+            | inventory: pending_items ++ game_state.inventory
+          }
+      }
+    end
   end
 
   defp process_input(%Zung.Client{} = client) do
@@ -28,9 +42,18 @@ defmodule Zung.State.Game.Game do
               moved_client =
                 if new_client.game_state.following != nil do
                   old_following = new_client.game_state.following
-                  Zung.Client.Connection.unsubscribe(new_client.connection, {:follow, old_following})
+
+                  Zung.Client.Connection.unsubscribe(
+                    new_client.connection,
+                    {:follow, old_following}
+                  )
+
                   %Zung.Client.GameState{} = game_state = new_client.game_state
-                  %Zung.Client{new_client | game_state: %Zung.Client.GameState{game_state | following: nil}}
+
+                  %Zung.Client{
+                    new_client
+                    | game_state: %Zung.Client.GameState{game_state | following: nil}
+                  }
                   |> Zung.Client.push_output("You stop following #{old_following}.")
                 else
                   new_client
@@ -135,7 +158,11 @@ defmodule Zung.State.Game.Game do
 
         {:read, _room, object_id} ->
           all_objects = new_client.game_state.room.objects ++ new_client.game_state.inventory
-          Zung.Client.push_output(new_client, Zung.Game.Object.read_target(all_objects, object_id))
+
+          Zung.Client.push_output(
+            new_client,
+            Zung.Game.Object.read_target(all_objects, object_id)
+          )
 
         {:search, room} ->
           if room.search_text != nil do
@@ -241,7 +268,12 @@ defmodule Zung.State.Game.Game do
           usernames = Zung.Client.Session.get_active_usernames()
 
           if target in usernames do
-            Zung.Client.whisper_to_room(new_client, new_client.game_state.room.id, target, message)
+            Zung.Client.whisper_to_room(
+              new_client,
+              new_client.game_state.room.id,
+              target,
+              message
+            )
           else
             Zung.Client.push_output(new_client, "||RED||#{target} is not online.||RESET||")
           end
@@ -271,7 +303,11 @@ defmodule Zung.State.Game.Game do
 
               updated_client =
                 if game_state.following != nil do
-                  Zung.Client.Connection.unsubscribe(new_client.connection, {:follow, game_state.following})
+                  Zung.Client.Connection.unsubscribe(
+                    new_client.connection,
+                    {:follow, game_state.following}
+                  )
+
                   new_client
                 else
                   new_client
@@ -319,6 +355,98 @@ defmodule Zung.State.Game.Game do
             Zung.Client.push_output(new_client, "You can't seem to follow them there.")
           end
 
+        :where ->
+          usernames = Zung.Client.Session.get_active_usernames()
+          Zung.Client.push_output(new_client, format_where_list(usernames))
+
+        :score ->
+          Zung.Client.push_output(new_client, format_score(new_client.game_state))
+
+        :toggle_brief ->
+          %Zung.Client.GameState{} = game_state = new_client.game_state
+          new_brief = !game_state.brief_mode
+
+          %Zung.Client{
+            new_client
+            | game_state: %Zung.Client.GameState{game_state | brief_mode: new_brief}
+          }
+          |> Zung.Client.push_output("Brief mode is now #{if new_brief, do: "on", else: "off"}.")
+
+        :list_settings ->
+          game_state = new_client.game_state
+          use_ansi? = Zung.Client.User.get_setting(game_state.username, :use_ansi?)
+
+          settings_text =
+            "||BOLD||||CYA||Settings:||RESET||||NL||" <>
+              "  ||GRN||ansi#{String.duplicate(" ", 8)}||RESET|| #{if use_ansi?, do: "on", else: "off"}||NL||" <>
+              "  ||GRN||brief#{String.duplicate(" ", 7)}||RESET|| #{if game_state.brief_mode, do: "on", else: "off"}||NL||"
+
+          Zung.Client.push_output(new_client, settings_text)
+
+        {:set_setting, "ansi", value} ->
+          Zung.Client.User.set_setting(new_client.game_state.username, :use_ansi?, value)
+          Zung.Client.Connection.use_ansi(new_client.connection, value)
+
+          Zung.Client.push_output(
+            new_client,
+            "ANSI colors #{if value, do: "enabled", else: "disabled"}."
+          )
+
+        {:set_setting, "brief", value} ->
+          %Zung.Client.GameState{} = game_state = new_client.game_state
+
+          %Zung.Client{
+            new_client
+            | game_state: %Zung.Client.GameState{game_state | brief_mode: value}
+          }
+          |> Zung.Client.push_output("Brief mode is now #{if value, do: "on", else: "off"}.")
+
+        {:set_setting, unknown, _value} ->
+          Zung.Client.push_output(
+            new_client,
+            "||RED||Unknown setting: \"#{unknown}\". Available settings: ansi, brief||RESET||"
+          )
+
+        {:give, object_id, target} ->
+          username = new_client.game_state.username
+          usernames = Zung.Client.Session.get_active_usernames()
+          object = Enum.find(new_client.game_state.inventory, &(&1.id === object_id))
+
+          cond do
+            target == username ->
+              Zung.Client.push_output(
+                new_client,
+                "||RED||You can't give items to yourself.||RESET||"
+              )
+
+            target not in usernames ->
+              Zung.Client.push_output(new_client, "||RED||#{target} is not online.||RESET||")
+
+            Zung.DataStore.get_current_room_id(target) != new_client.game_state.room.id ->
+              Zung.Client.push_output(
+                new_client,
+                "||RED||#{target} is not in the same room.||RESET||"
+              )
+
+            true ->
+              %Zung.Client.GameState{} = game_state = new_client.game_state
+
+              Zung.Client.Connection.publish(
+                new_client.connection,
+                {:player, target},
+                {:give_item, username, object}
+              )
+
+              %Zung.Client{
+                new_client
+                | game_state: %Zung.Client.GameState{
+                    game_state
+                    | inventory: Enum.reject(game_state.inventory, &(&1.id === object_id))
+                  }
+              }
+              |> Zung.Client.push_output("You give #{object.name} to #{target}.")
+          end
+
         :quit ->
           raise Zung.Error.Connection.Closed
 
@@ -342,7 +470,8 @@ defmodule Zung.State.Game.Game do
         {:exit, name} -> name
       end
 
-    matching_exit = Enum.find(room.exits, nil, &(&1.direction === target_value or &1.name === target_value))
+    matching_exit =
+      Enum.find(room.exits, nil, &(&1.direction === target_value or &1.name === target_value))
 
     if matching_exit == nil do
       Zung.Client.push_output(client, "||RED||You don't see that here.||RESET||")
@@ -462,5 +591,41 @@ defmodule Zung.State.Game.Game do
       end)
 
     header <> list
+  end
+
+  defp format_where_list(usernames) do
+    count = length(usernames)
+    header = "||BOLD||||CYA||Player Locations (#{count}):||RESET||||NL||"
+
+    list =
+      Enum.reduce(usernames, "", fn username, acc ->
+        room_id = Zung.DataStore.get_current_room_id(username)
+        room = Zung.DataStore.get_room(room_id)
+        room_title = if room != nil, do: room.title, else: "Unknown"
+        acc <> "  #{String.pad_trailing(username, 16)}#{room_title}||NL||"
+      end)
+
+    header <> list
+  end
+
+  defp format_score(%Zung.Client.GameState{} = game_state) do
+    room_title = game_state.room.title
+    item_count = length(game_state.inventory)
+    alias_count = map_size(game_state.command_aliases)
+    chat_count = length(game_state.joined_chat_rooms)
+
+    following_text =
+      if game_state.following != nil, do: game_state.following, else: "nobody"
+
+    brief_text = if game_state.brief_mode, do: "on", else: "off"
+
+    "||BOLD||||CYA||Character Summary:||RESET||||NL||" <>
+      "  ||GRN||Name:#{String.duplicate(" ", 7)}||RESET|| #{game_state.username}||NL||" <>
+      "  ||GRN||Location:#{String.duplicate(" ", 3)}||RESET|| #{room_title}||NL||" <>
+      "  ||GRN||Items:#{String.duplicate(" ", 6)}||RESET|| #{item_count}||NL||" <>
+      "  ||GRN||Aliases:#{String.duplicate(" ", 4)}||RESET|| #{alias_count}||NL||" <>
+      "  ||GRN||Chats:#{String.duplicate(" ", 6)}||RESET|| #{chat_count}||NL||" <>
+      "  ||GRN||Following:#{String.duplicate(" ", 2)}||RESET|| #{following_text}||NL||" <>
+      "  ||GRN||Brief mode:#{String.duplicate(" ", 1)}||RESET|| #{brief_text}||NL||"
   end
 end

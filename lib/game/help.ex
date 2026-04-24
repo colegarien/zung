@@ -61,8 +61,7 @@ defmodule Zung.Game.Help do
     "csay" => %{
       summary: "Say something to a chat channel",
       usage: "csay <channel> <message>",
-      detail:
-        "Send a message to a chat channel you have joined. Alias: ooc (for the ooc channel)"
+      detail: "Send a message to a chat channel you have joined. Alias: ooc (for the ooc channel)"
     },
     "who" => %{
       summary: "See who is currently online",
@@ -72,8 +71,7 @@ defmodule Zung.Game.Help do
     "get" => %{
       summary: "Pick up an item from the room",
       usage: "get <item>",
-      detail:
-        "Pick up an item from the current room and add it to your inventory. Alias: take"
+      detail: "Pick up an item from the current room and add it to your inventory. Alias: take"
     },
     "drop" => %{
       summary: "Drop an item from your inventory",
@@ -126,8 +124,7 @@ defmodule Zung.Game.Help do
     "unlock" => %{
       summary: "Unlock a locked exit",
       usage: "unlock <exit>",
-      detail:
-        "Unlock a locked door or gate. You must have the correct key in your inventory."
+      detail: "Unlock a locked door or gate. You must have the correct key in your inventory."
     },
     "talk" => %{
       summary: "Talk to someone",
@@ -185,6 +182,40 @@ defmodule Zung.Game.Help do
       summary: "Lead followers",
       usage: "lead",
       detail: "Anyone following you will automatically move when you do."
+    },
+    "where" => %{
+      summary: "See where all players are",
+      usage: "where",
+      detail: "Displays a list of all online players and the room they are currently in."
+    },
+    "score" => %{
+      summary: "View your character summary",
+      usage: "score",
+      detail:
+        "Displays a summary of your character including name, location, inventory count, aliases, chat rooms, follow status, and brief mode."
+    },
+    "brief" => %{
+      summary: "Toggle brief room descriptions",
+      usage: "brief",
+      detail:
+        "Toggle brief mode on or off. When brief mode is on, entering a room shows only the title and exits. The 'look' command always shows the full description."
+    },
+    "settings" => %{
+      summary: "View current settings",
+      usage: "settings",
+      detail: "Display all current settings and their values."
+    },
+    "set" => %{
+      summary: "Change a setting",
+      usage: "set <setting> <on|off>",
+      detail:
+        "Change a setting value. Available settings: ansi (enable/disable ANSI colors, persisted), brief (toggle brief room descriptions, session-only). Values can be on/off or true/false."
+    },
+    "give" => %{
+      summary: "Give an item to another player",
+      usage: "give <item> to <player>",
+      detail:
+        "Give an item from your inventory to another player in the same room. You can also use 'give <item> <player>' without 'to'."
     }
   }
 

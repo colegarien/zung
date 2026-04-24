@@ -43,6 +43,12 @@ defmodule Zung.Game.Parser do
           | :stop_following
           | :lead
           | {:follow_move, String.t(), String.t()}
+          | :where
+          | :score
+          | :toggle_brief
+          | :list_settings
+          | {:set_setting, String.t(), boolean()}
+          | {:give, String.t(), String.t()}
           | :quit
           | :unknown_command
           | {:bad_parse, String.t()}
@@ -93,6 +99,12 @@ defmodule Zung.Game.Parser do
       "follow" -> parse_follow(arguments)
       "lead" -> :lead
       "__follow_move" -> parse_follow_move(arguments)
+      "where" -> :where
+      "score" -> :score
+      "brief" -> :toggle_brief
+      "settings" -> :list_settings
+      "set" -> parse_set(arguments)
+      "give" -> parse_give(client, arguments)
       "quit" -> :quit
       _ -> :unknown_command
     end
@@ -276,7 +288,11 @@ defmodule Zung.Game.Parser do
       argument = join_arguments(valid_arguments) |> String.downcase()
 
       matching_object =
-        Enum.find(current_room.objects ++ inventory, nil, &(argument === &1.id or argument in &1.keywords))
+        Enum.find(
+          current_room.objects ++ inventory,
+          nil,
+          &(argument === &1.id or argument in &1.keywords)
+        )
 
       if matching_object !== nil do
         {:read, current_room, matching_object.id}
@@ -304,7 +320,11 @@ defmodule Zung.Game.Parser do
         argument = join_arguments(valid_arguments) |> String.downcase()
 
         matching_object =
-          Enum.find(inventory ++ current_room.objects, nil, &(argument === &1.id or argument in &1.keywords))
+          Enum.find(
+            inventory ++ current_room.objects,
+            nil,
+            &(argument === &1.id or argument in &1.keywords)
+          )
 
         if matching_object !== nil do
           {:use, current_room, matching_object.id}
@@ -323,8 +343,13 @@ defmodule Zung.Game.Parser do
       {:bad_parse, "Use it on what?"}
     else
       object_argument = join_arguments(object_args) |> String.downcase()
+
       matching_object =
-        Enum.find(inventory ++ current_room.objects, nil, &(object_argument === &1.id or object_argument in &1.keywords))
+        Enum.find(
+          inventory ++ current_room.objects,
+          nil,
+          &(object_argument === &1.id or object_argument in &1.keywords)
+        )
 
       if matching_object !== nil do
         target = parse_look_target(current_room, target_args, inventory)
@@ -490,6 +515,67 @@ defmodule Zung.Game.Parser do
     case arguments do
       [leader, room_id] -> {:follow_move, leader, room_id}
       _ -> :unknown_command
+    end
+  end
+
+  defp parse_set(arguments) do
+    case arguments do
+      [] ->
+        :list_settings
+
+      [_single] ->
+        {:bad_parse, "Usage: set <setting> <on|off>"}
+
+      [setting | value_parts] ->
+        case parse_on_off(join_arguments(value_parts)) do
+          {:ok, value} -> {:set_setting, String.downcase(setting), value}
+          :error -> {:bad_parse, "Value must be on/off or true/false."}
+        end
+    end
+  end
+
+  defp parse_on_off(value) do
+    case String.downcase(value) do
+      "on" -> {:ok, true}
+      "true" -> {:ok, true}
+      "off" -> {:ok, false}
+      "false" -> {:ok, false}
+      _ -> :error
+    end
+  end
+
+  defp parse_give(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+
+    if Enum.empty?(valid_arguments) do
+      {:bad_parse, "Usage: give <item> to <player>"}
+    else
+      to_index = Enum.find_index(valid_arguments, &(&1 === "to"))
+
+      {item_args, target_args} =
+        if to_index != nil and to_index > 0 do
+          {item, rest} = Enum.split(valid_arguments, to_index)
+          {item, Enum.drop(rest, 1)}
+        else
+          {Enum.drop(valid_arguments, -1), [List.last(valid_arguments)]}
+        end
+
+      if Enum.empty?(item_args) or Enum.empty?(target_args) do
+        {:bad_parse, "Usage: give <item> to <player>"}
+      else
+        inventory = client.game_state.inventory
+        item_argument = join_arguments(item_args) |> String.downcase()
+        target = join_arguments(target_args)
+
+        matching_object =
+          Enum.find(inventory, nil, &(item_argument === &1.id or item_argument in &1.keywords))
+
+        if matching_object != nil do
+          {:give, matching_object.id, target}
+        else
+          {:bad_parse, "You don't have that."}
+        end
+      end
     end
   end
 

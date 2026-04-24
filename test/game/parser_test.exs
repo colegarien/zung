@@ -1505,4 +1505,158 @@ defmodule Zung.Game.ParserTest do
     actual = Parser.parse(client, "__follow_move bob test_room2")
     assert actual === {:follow_move, "bob", "test_room2"}
   end
+
+  # -- Tier 4: where --
+
+  mocked_test "where/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "where")
+    assert actual === :where
+  end
+
+  # -- Tier 4: score --
+
+  mocked_test "score/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "score")
+    assert actual === :score
+  end
+
+  # -- Tier 4: brief --
+
+  mocked_test "brief/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "brief")
+    assert actual === :toggle_brief
+  end
+
+  # -- Tier 4: settings / set --
+
+  mocked_test "settings/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "settings")
+    assert actual === :list_settings
+  end
+
+  mocked_test "set/0 shows settings test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "set")
+    assert actual === :list_settings
+  end
+
+  mocked_test "set/2 valid setting test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    assert Parser.parse(client, "set ansi on") === {:set_setting, "ansi", true}
+    assert Parser.parse(client, "set ansi off") === {:set_setting, "ansi", false}
+    assert Parser.parse(client, "set brief true") === {:set_setting, "brief", true}
+    assert Parser.parse(client, "set brief false") === {:set_setting, "brief", false}
+  end
+
+  mocked_test "set/1 missing value bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "set ansi")
+    assert actual === {:bad_parse, "Usage: set <setting> <on|off>"}
+  end
+
+  mocked_test "set/2 invalid value bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "set ansi maybe")
+    assert actual === {:bad_parse, "Value must be on/off or true/false."}
+  end
+
+  # -- Tier 4: give --
+
+  mocked_test "give/2 with to delimiter test" do
+    item = %Zung.Game.Object{
+      id: "magic_sword",
+      name: "a magic sword",
+      description: "A shiny magic sword.",
+      keywords: ["magic sword", "sword"]
+    }
+
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          inventory: [item]
+        }
+    }
+
+    actual = Parser.parse(client, "give sword to bob")
+    assert actual === {:give, "magic_sword", "bob"}
+  end
+
+  mocked_test "give/2 without to delimiter test" do
+    item = %Zung.Game.Object{
+      id: "magic_sword",
+      name: "a magic sword",
+      description: "A shiny magic sword.",
+      keywords: ["magic sword", "sword"]
+    }
+
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          inventory: [item]
+        }
+    }
+
+    actual = Parser.parse(client, "give sword bob")
+    assert actual === {:give, "magic_sword", "bob"}
+  end
+
+  mocked_test "give/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "give")
+    assert actual === {:bad_parse, "Usage: give <item> to <player>"}
+  end
+
+  mocked_test "give/1 nonexistent item bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "give nonexistent to bob")
+    assert actual === {:bad_parse, "You don't have that."}
+  end
 end

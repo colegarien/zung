@@ -16,6 +16,10 @@ defmodule Zung.State.Game.GameTest do
     def publish(_, _, _) do
       # don't actually do anything during testing
     end
+
+    def drain_pending_items(_) do
+      []
+    end
   end
 
   defmock Zung.Client, preserve: true do
