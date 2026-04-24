@@ -4,7 +4,9 @@ defmodule Zung.Game.Room do
             description: "The blank, never-ending void.",
             flavor_texts: [],
             exits: [],
-            objects: []
+            objects: [],
+            search_text: nil,
+            npcs: []
 
   @type t :: %__MODULE__{
           id: String.t(),
@@ -12,7 +14,9 @@ defmodule Zung.Game.Room do
           description: String.t(),
           flavor_texts: [map()],
           exits: [Zung.Game.Room.Exit.t()],
-          objects: [Zung.Game.Object.t()]
+          objects: [Zung.Game.Object.t()],
+          search_text: String.t() | nil,
+          npcs: [Zung.Game.Npc.t()]
         }
 
   @type look_target ::
@@ -29,8 +33,9 @@ defmodule Zung.Game.Room do
     description_string = "   #{room.description}"
     exits_string = Zung.Game.Room.Exit.describe(room.exits)
     objects_string = Zung.Game.Object.describe(room.objects)
+    npcs_string = Zung.Game.Npc.describe(room.npcs)
 
-    "#{title_string}||NL||#{description_string}||NL||#{exits_string}||NL||#{objects_string}||NL||"
+    "#{title_string}||NL||#{description_string}||NL||#{exits_string}||NL||#{npcs_string}#{objects_string}||NL||"
   end
 
   @spec look_at(t(), look_target() | term()) :: String.t()
@@ -70,7 +75,13 @@ defmodule Zung.Game.Room do
     exits = Zung.Game.Room.Exit.match(room.exits, target)
 
     if Enum.count(exits) > 0 do
-      {:ok, hd(exits).to |> get_room()}
+      exit = hd(exits)
+
+      case exit.state do
+        :locked -> {:error, "It's locked."}
+        :closed -> {:error, "It's closed."}
+        :open -> {:ok, exit.to |> get_room()}
+      end
     else
       {:error, fail_message}
     end
@@ -79,13 +90,15 @@ end
 
 defmodule Zung.Game.Room.Exit do
   @enforce_keys [:to]
-  defstruct [:to, :direction, :name, :description]
+  defstruct [:to, :direction, :name, :description, :key_id, state: :open]
 
   @type t :: %__MODULE__{
           to: String.t(),
           direction: atom() | nil,
           name: String.t() | nil,
-          description: String.t() | nil
+          description: String.t() | nil,
+          state: :open | :closed | :locked,
+          key_id: String.t() | nil
         }
 
   @spec describe([t()] | t()) :: String.t()

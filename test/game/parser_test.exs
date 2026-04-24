@@ -17,6 +17,7 @@ defmodule Zung.Game.ParserTest do
     id: "test_room",
     title: "The Test Room",
     description: "A simple test room for testing units",
+    search_text: "You find a hidden compartment behind the wall.",
     flavor_texts: [
       %{
         id: "simple_flavor",
@@ -37,7 +38,9 @@ defmodule Zung.Game.ParserTest do
     exits: [
       %Zung.Game.Room.Exit{direction: :north, to: "test_room2"},
       %Zung.Game.Room.Exit{direction: :south, name: "named door", to: "test_room3"},
-      %Zung.Game.Room.Exit{name: "custom exit door", to: "test_room3"}
+      %Zung.Game.Room.Exit{name: "custom exit door", to: "test_room3"},
+      %Zung.Game.Room.Exit{direction: :west, to: "test_room4", state: :locked, key_id: "old_key"},
+      %Zung.Game.Room.Exit{direction: :east, to: "test_room5", state: :closed}
     ],
     objects: [
       %Zung.Game.Object{
@@ -45,6 +48,26 @@ defmodule Zung.Game.ParserTest do
         name: "a large fountain",
         description: "A large, glorious fountain is protuding from the ground here.",
         keywords: ["glorious fountain", "large fountain", "fountain"]
+      },
+      %Zung.Game.Object{
+        id: "old_book",
+        name: "an old book",
+        description: "An old, dusty book lies here.",
+        keywords: ["old book", "book"],
+        read_text: "The pages tell a tale of a forgotten kingdom.",
+        use_text: "You flip through the book absent-mindedly."
+      }
+    ],
+    npcs: [
+      %Zung.Game.Npc{
+        id: "old_man",
+        name: "An old man",
+        keywords: ["old man", "man"],
+        greeting: "The old man nods at you.",
+        topics: %{
+          "weather" => "He looks at the sky and shrugs.",
+          "fountain" => "He points at the fountain and smiles."
+        }
       }
     ]
   }
@@ -941,5 +964,297 @@ defmodule Zung.Game.ParserTest do
 
     # Assert
     assert actual === :inventory
+  end
+
+  # -- Tier 2: read --
+
+  mocked_test "read/1 object by keyword test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "read book")
+    assert actual === {:read, @test_room, "old_book"}
+  end
+
+  mocked_test "read/0 no target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "read")
+    assert actual === {:bad_parse, "What do you want to read?"}
+  end
+
+  mocked_test "read/1 nonexistent object bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "read nonexistent")
+    assert actual === {:bad_parse, "You don't see that here."}
+  end
+
+  mocked_test "read/1 inventory item test" do
+    item = %Zung.Game.Object{
+      id: "scroll",
+      name: "a scroll",
+      description: "A scroll.",
+      keywords: ["scroll"],
+      read_text: "The scroll reads: beware."
+    }
+
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          inventory: [item]
+        }
+    }
+
+    actual = Parser.parse(client, "read scroll")
+    assert actual === {:read, @test_room, "scroll"}
+  end
+
+  # -- Tier 2: search --
+
+  mocked_test "search/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "search")
+    assert actual === {:search, @test_room}
+  end
+
+  # -- Tier 2: use --
+
+  mocked_test "use/1 object by keyword test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "use book")
+    assert actual === {:use, @test_room, "old_book"}
+  end
+
+  mocked_test "use/0 no target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "use")
+    assert actual === {:bad_parse, "What do you want to use?"}
+  end
+
+  mocked_test "use/1 nonexistent object bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "use nonexistent")
+    assert actual === {:bad_parse, "You don't see that here."}
+  end
+
+  mocked_test "use/2 object on target test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "use book on fountain")
+    assert actual === {:use_on, @test_room, "old_book", {:object, "large_fountain"}}
+  end
+
+  mocked_test "use/2 on with no target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "use book on")
+    assert actual === {:bad_parse, "Use it on what?"}
+  end
+
+  # -- Tier 2: open / close / lock / unlock --
+
+  mocked_test "open/1 direction test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "open east")
+    assert actual === {:open, @test_room, {:direction, :east}}
+  end
+
+  mocked_test "open/1 named exit test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "open named door")
+    assert actual === {:open, @test_room, {:exit, "named door"}}
+  end
+
+  mocked_test "open/0 no target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "open")
+    assert actual === {:bad_parse, "What do you want to open?"}
+  end
+
+  mocked_test "open/1 nonexistent exit bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "open fake door")
+    assert actual === {:bad_parse, "You don't see that here."}
+  end
+
+  mocked_test "close/1 direction test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "close north")
+    assert actual === {:close, @test_room, {:direction, :north}}
+  end
+
+  mocked_test "unlock/1 direction test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "unlock west")
+    assert actual === {:unlock, @test_room, {:direction, :west}}
+  end
+
+  mocked_test "lock/1 direction test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "lock west")
+    assert actual === {:lock, @test_room, {:direction, :west}}
+  end
+
+  # -- Tier 2: talk / ask --
+
+  mocked_test "talk/1 npc by keyword test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "talk old man")
+    assert actual === {:talk, @test_room, "old_man"}
+  end
+
+  mocked_test "talk/1 npc by id test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "talk old_man")
+    assert actual === {:talk, @test_room, "old_man"}
+  end
+
+  mocked_test "talk/0 no target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "talk")
+    assert actual === {:bad_parse, "Who do you want to talk to?"}
+  end
+
+  mocked_test "talk/1 nonexistent npc bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "talk ghost")
+    assert actual === {:bad_parse, "You don't see anyone by that name."}
+  end
+
+  mocked_test "talk/1 with syntactic sugar words test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "talk to the old man")
+    assert actual === {:talk, @test_room, "old_man"}
+  end
+
+  mocked_test "ask/2 npc about topic test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "ask man about weather")
+    assert actual === {:ask, @test_room, "old_man", "weather"}
+  end
+
+  mocked_test "ask/2 npc about multi-word topic test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "ask old man about the fountain")
+    assert actual === {:ask, @test_room, "old_man", "fountain"}
+  end
+
+  mocked_test "ask/0 no about keyword bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "ask man weather")
+    assert actual === {:bad_parse, "Try: ask <person> about <topic>"}
+  end
+
+  mocked_test "ask/1 no topic bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "ask man about")
+    assert actual === {:bad_parse, "What do you want to ask about?"}
+  end
+
+  mocked_test "ask/2 nonexistent npc bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "ask ghost about weather")
+    assert actual === {:bad_parse, "You don't see anyone by that name."}
   end
 end

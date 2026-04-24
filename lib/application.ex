@@ -222,9 +222,13 @@ defmodule Zung.Application do
                %Zung.Game.Room.Exit{
                  direction: :west,
                  to: "kralovice_mor/moravian_walls/west_wall_crossing",
-                 description: "A short corridor extends to the West Wall Crossing."
+                 description: "A short corridor extends to the West Wall Crossing.",
+                 state: :locked,
+                 key_id: "small_rusty_key"
                }
-             ]
+             ],
+             search_text:
+               "You run your hands along the weathered stone. Near the base of the gate, you find scratch marks -- as if something heavy was dragged through here recently."
            },
            "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy" => %Zung.Game.Room{
              id: "kralovice_mor/pohorenie_klasy/kancelar_skupce_borovy",
@@ -242,7 +246,31 @@ defmodule Zung.Application do
                  direction: :east,
                  to: "kralovice_mor/pohorenie_klasy/kapitanova_kamera",
                  description:
-                   "A heavy wooden door with iron hinges leads to a secure chamber, rumored to contain sensitive business dealings."
+                   "A heavy wooden door with iron hinges leads to a secure chamber, rumored to contain sensitive business dealings.",
+                 state: :closed
+               }
+             ],
+             npcs: [
+               %Zung.Game.Npc{
+                 id: "borovy",
+                 name: "Skupce Borovy",
+                 keywords: ["borovy", "skupce", "skupce borovy", "harbor master"],
+                 greeting:
+                   "Borovy looks up from his paperwork with narrowed eyes. ||ITALIC||\"What do you want? I'm a busy man. If you're here about the ship, talk to the dock hands.\"||RESET||",
+                 topics: %{
+                   "ship" =>
+                     "Borovy waves dismissively. ||ITALIC||\"The ship stays until I say it goes. There are... irregularities with the cargo manifest that need resolving.\"||RESET||",
+                   "cargo" =>
+                     "His eyes narrow further. ||ITALIC||\"The cargo is none of your concern. It's being held for inspection. Official business.\"||RESET||",
+                   "manifest" =>
+                     "Borovy's face darkens. ||ITALIC||\"How do you know about the manifest? That captain was always too clever for his own good. If you find it, bring it to me. I'll make it worth your while.\"||RESET||",
+                   "captain" =>
+                     "||ITALIC||\"Captain? Which captain? Many ships come through here.\"||RESET|| He shuffles his papers nervously. ||ITALIC||\"If you mean the one from the Morava trade route, he left weeks ago. Good riddance.\"||RESET||",
+                   "key" =>
+                     "Borovy stiffens. ||ITALIC||\"I don't know anything about any key. Now get out of my office before I call the guard.\"||RESET||",
+                   "quarry" =>
+                     "||ITALIC||\"The quarry is a mess. The miners think they run this town, but they'll learn soon enough who controls the real trade here.\"||RESET||"
+                 }
                }
              ]
            },
@@ -272,6 +300,13 @@ defmodule Zung.Application do
                  keywords: ["worn leather-bound logbook", "logbook", "leather-bound logbook"],
                  examine_text:
                    "The leather cover is cracked and water-stained. Inside, page after page lists cargo manifests -- crates of iron ore, barrels of salt fish, bolts of linen. The last entry is dated months ago and reads: ||BOLD||||ITALIC||\"Cargo secured. Awaiting departure. The harbor master grows impatient.\"||RESET||",
+                 read_text:
+                   "||BOLD||||CYA||Captain's Logbook||RESET||||NL||||NL||" <>
+                     "||ITALIC||Day 14:||RESET|| Departed from Olomouc with a full hold. Crew in good spirits.||NL||" <>
+                     "||ITALIC||Day 23:||RESET|| Passed through the Morava narrows. Lost a crate of iron ore to rough waters.||NL||" <>
+                     "||ITALIC||Day 31:||RESET|| Arrived at Kralovice Mor. The harbor master, Skupce Borovy, met us at the dock. He seems... anxious.||NL||" <>
+                     "||ITALIC||Day 34:||RESET|| Borovy insists we delay departure. Something about 'irregular inspections.' The crew grows restless.||NL||" <>
+                     "||ITALIC||Day 41:||RESET|| ||BOLD||Cargo secured. Awaiting departure. The harbor master grows impatient. I've hidden the manifest key in the eastern walls -- he must not find it.||RESET||",
                  takeable?: true
                },
                %Zung.Game.Object{
@@ -281,6 +316,8 @@ defmodule Zung.Application do
                  keywords: ["tarnished brass compass", "compass", "brass compass"],
                  examine_text:
                    "You turn the compass over in your hands. The brass is tarnished and dull, but an inscription on the back reads: ||BOLD||||ITALIC||\"To Captain Borovy, who always found his way home.\"||RESET|| The needle still quivers faintly, pointing steadily northeast.",
+                 use_text:
+                   "You hold the compass level and watch the needle settle. It quivers once, twice, then points steadily ||BOLD||northeast||RESET||. Toward the old mine, perhaps? The needle seems unusually insistent.",
                  takeable?: true
                }
              ]
@@ -350,6 +387,8 @@ defmodule Zung.Application do
                  name: "rusted lockpick",
                  description: "Rusted lockpick lies here.",
                  keywords: ["rusted lockpick", "lockpick"],
+                 use_text:
+                   "You fiddle with the rusted lockpick. The metal is brittle and flakes of rust fall away, but it still holds its shape. You'd need something specific to use it on.",
                  takeable?: true
                },
                %Zung.Game.Object{
@@ -357,6 +396,10 @@ defmodule Zung.Application do
                  name: "tattered map",
                  description: "Tattered map lies here.",
                  keywords: ["tattered map", "map"],
+                 read_text:
+                   "The map is faded and torn, but you can make out the layout of Kralovice Mor. The quarry district is to the west, the docks to the east, and the walls surround everything. Someone has drawn a ||BOLD||red circle||RESET|| around a spot in the old mine tunnels, with a note scrawled beside it: ||ITALIC||\"Under the third stone.\"||RESET||",
+                 examine_text:
+                   "A hand-drawn map on brittle parchment. Much of the ink has faded, but the key landmarks of Kralovice Mor are still visible. There are annotations in a hasty hand.",
                  takeable?: true
                }
              ]
@@ -476,6 +519,31 @@ defmodule Zung.Application do
              title: "Market Stand",
              description:
                "The market stand is a cramped, shaded stall overflowing with exotic spices, rare herbs, and questionable trinkets.||NL||Shelves groan under the weight of dusty jars and tangled skeins of yarn.||NL||The air is thick with the scent of decay.",
+             npcs: [
+               %Zung.Game.Npc{
+                 id: "merchant",
+                 name: "A weathered merchant",
+                 keywords: ["merchant", "weathered merchant", "vendor", "shopkeeper"],
+                 greeting:
+                   "The merchant looks up from arranging her wares and offers a gap-toothed smile. ||ITALIC||\"Welcome, welcome! Looking for something special? I have spices from the eastern provinces, herbs that'll cure what ails you, and... other things, if you know what to ask for.\"||RESET||",
+                 topics: %{
+                   "spices" =>
+                     "||ITALIC||\"Finest spices this side of the Morava! Saffron, paprika, caraway -- whatever you need. Though the real treasure is the cinnamon. Hard to come by since the trade routes shifted.\"||RESET||",
+                   "herbs" =>
+                     "She leans in conspiratorially. ||ITALIC||\"The rare herbs? Ah, those aren't for just anyone. The miners buy them for tonics -- keeps them going in the deep tunnels. I get my supply from a contact in the quarry, but he's been... scarce lately.\"||RESET||",
+                   "quarry" =>
+                     "||ITALIC||\"Bad business up there. The foreman's been cracking down, says someone's been stealing from the old mine. Half the miners have quit. The other half are too scared to talk.\"||RESET||",
+                   "borovy" =>
+                     "The merchant's smile fades. ||ITALIC||\"Skupce Borovy? That man has his fingers in everything. Controls the docks, controls the trade, controls who comes and goes. I wouldn't cross him if I were you.\"||RESET||",
+                   "captain" =>
+                     "||ITALIC||\"You mean the captain from that ship at the docks? He came through here before he... left. Bought a map and asked strange questions about the old mine tunnels. Seemed like a man with a secret.\"||RESET||",
+                   "map" =>
+                     "||ITALIC||\"Maps? I sold the last good one to that ship captain. But there might be another at the pawn shop up the road. Kropec keeps all sorts of odds and ends.\"||RESET||",
+                   "key" =>
+                     "She glances around nervously. ||ITALIC||\"Keys open doors, doors hide secrets, and secrets in this town tend to get people hurt. That's all I'll say about that.\"||RESET||"
+                 }
+               }
+             ],
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
@@ -619,6 +687,8 @@ defmodule Zung.Application do
              title: "Broken Tunnel to the Old Mine",
              description:
                "A narrow, partially destroyed tunnel with rough-hewn stone walls and a low ceiling.||NL||Dust and debris coat everything, making it difficult to see more than a few feet ahead.",
+             search_text:
+               "You brush away the dust and debris, running your hands along the rough stone walls. Behind a collapsed support beam, you find a narrow crack in the wall -- just wide enough for a person to squeeze through. A faint draft of cool air flows from within, carrying the scent of stale earth and something... metallic.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
@@ -688,6 +758,27 @@ defmodule Zung.Application do
              title: "South Gate Entrance",
              description:
                "A large, heavy stone gate with iron hinges and a complex locking mechanism dominates the entrance.||NL||The walls surrounding it are covered in thick layers of grime and moss, giving the impression that they're slowly being consumed by the environment.",
+             npcs: [
+               %Zung.Game.Npc{
+                 id: "guard",
+                 name: "A stern-looking gate guard",
+                 keywords: ["guard", "gate guard", "stern guard"],
+                 greeting:
+                   "The guard straightens up and eyes you warily. ||ITALIC||\"State your business. The walls aren't a place for idle wandering.\"||RESET||",
+                 topics: %{
+                   "walls" =>
+                     "||ITALIC||\"These walls have stood for centuries. They've kept out invaders, bandits, and worse. My job is to make sure they keep doing their job.\"||RESET||",
+                   "gate" =>
+                     "||ITALIC||\"The south gate is the main way in and out of the wards. Everything that passes through gets inspected -- on Borovy's orders.\"||RESET||",
+                   "borovy" =>
+                     "The guard shifts uncomfortably. ||ITALIC||\"The harbor master? He's... influential. Pays well, asks questions later. Best not to get on his bad side.\"||RESET||",
+                   "watchtower" =>
+                     "||ITALIC||\"The watchtower? You can see half the city from up there. If you're heading that way, be careful on the walkway -- the railings aren't what they used to be.\"||RESET||",
+                   "quarry" =>
+                     "||ITALIC||\"Strange noises coming from the old mine lately. The miners say it's just settling, but I've heard stories. Keep your wits about you if you go that way.\"||RESET||"
+                 }
+               }
+             ],
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :west,
@@ -719,12 +810,15 @@ defmodule Zung.Application do
              title: "South Wall Gatehouse",
              description:
                "Grey stone walls loom above, casting long shadows in the fading light.||NL||The air is thick with dust and grime.||NL||A large wooden gate dominates one wall, its iron hinges creaking ominously.",
+             search_text:
+               "You search the dusty gatehouse carefully. Behind a loose stone in the wall, you find a tarnished brass lever -- it looks like it connects to the gate mechanism.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,
                  to: "kralovice_mor/moravian_walls/west_wall_crossing",
                  description:
-                   "A large wooden gate stretches across the wall, its iron hinges creaking ominously."
+                   "A large wooden gate stretches across the wall, its iron hinges creaking ominously.",
+                 state: :closed
                },
                %Zung.Game.Room.Exit{
                  direction: :west,
@@ -1059,6 +1153,8 @@ defmodule Zung.Application do
              title: "West Garden Path",
              description:
                "A winding, overgrown path through a once-grand garden, now choked with weeds and vines that scrape against crumbling stone statues.||NL||Faded floral patterns still adorn the walls, but they seem more like a distant memory than a vibrant reality.",
+             search_text:
+               "You push aside the overgrown weeds and dig through the loose soil near the base of a crumbling statue. Your fingers close around something small and cold -- a muddy coin stamped with an unfamiliar crest. The design shows a pickaxe crossed with a ship's anchor.",
              exits: [
                %Zung.Game.Room.Exit{
                  direction: :south,

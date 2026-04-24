@@ -121,6 +121,63 @@ defmodule Zung.State.Game.Game do
           }
           |> Zung.Client.push_output("You drop #{object.name}.")
 
+        {:read, _room, object_id} ->
+          all_objects = new_client.game_state.room.objects ++ new_client.game_state.inventory
+          Zung.Client.push_output(new_client, Zung.Game.Object.read_target(all_objects, object_id))
+
+        {:search, room} ->
+          if room.search_text != nil do
+            Zung.Client.push_output(new_client, room.search_text)
+          else
+            Zung.Client.push_output(new_client, "You search but find nothing of interest.")
+          end
+
+        {:use, _room, object_id} ->
+          all_objects = new_client.game_state.room.objects ++ new_client.game_state.inventory
+          Zung.Client.push_output(new_client, Zung.Game.Object.use_target(all_objects, object_id))
+
+        {:use_on, _room, _object_id, _target} ->
+          Zung.Client.push_output(new_client, "You can't figure out how to use that on it.")
+
+        {:open, _room, exit_target} ->
+          handle_exit_action(new_client, exit_target, :open)
+
+        {:close, _room, exit_target} ->
+          handle_exit_action(new_client, exit_target, :close)
+
+        {:lock, _room, exit_target} ->
+          handle_exit_action(new_client, exit_target, :lock)
+
+        {:unlock, _room, exit_target} ->
+          handle_exit_action(new_client, exit_target, :unlock)
+
+        {:talk, room, npc_id} ->
+          npc = Zung.Game.Npc.find(room.npcs, npc_id)
+
+          if npc != nil do
+            Zung.Client.push_output(new_client, npc.greeting)
+          else
+            Zung.Client.push_output(new_client, "They don't seem interested in talking.")
+          end
+
+        {:ask, room, npc_id, topic} ->
+          npc = Zung.Game.Npc.find(room.npcs, npc_id)
+
+          if npc != nil do
+            case Map.get(npc.topics, topic) do
+              nil ->
+                Zung.Client.push_output(
+                  new_client,
+                  "#{npc.name} doesn't seem to know anything about that."
+                )
+
+              response ->
+                Zung.Client.push_output(new_client, response)
+            end
+          else
+            Zung.Client.push_output(new_client, "They don't seem interested in talking.")
+          end
+
         :quit ->
           raise Zung.Error.Connection.Closed
 
@@ -132,6 +189,112 @@ defmodule Zung.State.Game.Game do
       end
     else
       new_client
+    end
+  end
+
+  defp handle_exit_action(%Zung.Client{} = client, exit_target, action) do
+    room = client.game_state.room
+
+    target_value =
+      case exit_target do
+        {:direction, dir} -> dir
+        {:exit, name} -> name
+      end
+
+    matching_exit = Enum.find(room.exits, nil, &(&1.direction === target_value or &1.name === target_value))
+
+    if matching_exit == nil do
+      Zung.Client.push_output(client, "||RED||You don't see that here.||RESET||")
+    else
+      case {action, matching_exit.state} do
+        {:open, :open} ->
+          Zung.Client.push_output(client, "It's already open.")
+
+        {:open, :locked} ->
+          Zung.Client.push_output(client, "It's locked.")
+
+        {:open, :closed} ->
+          Zung.DataStore.update_exit_state(room.id, target_value, :open)
+          updated_room = Zung.DataStore.get_room(room.id)
+          %Zung.Client.GameState{} = game_state = client.game_state
+
+          %Zung.Client{
+            client
+            | game_state: %Zung.Client.GameState{game_state | room: updated_room}
+          }
+          |> Zung.Client.push_output("You open it.")
+
+        {:close, :closed} ->
+          Zung.Client.push_output(client, "It's already closed.")
+
+        {:close, :locked} ->
+          Zung.Client.push_output(client, "It's already closed and locked.")
+
+        {:close, :open} ->
+          Zung.DataStore.update_exit_state(room.id, target_value, :closed)
+          updated_room = Zung.DataStore.get_room(room.id)
+          %Zung.Client.GameState{} = game_state = client.game_state
+
+          %Zung.Client{
+            client
+            | game_state: %Zung.Client.GameState{game_state | room: updated_room}
+          }
+          |> Zung.Client.push_output("You close it.")
+
+        {:unlock, :open} ->
+          Zung.Client.push_output(client, "It's already open.")
+
+        {:unlock, :closed} ->
+          Zung.Client.push_output(client, "It isn't locked.")
+
+        {:unlock, :locked} ->
+          if matching_exit.key_id == nil do
+            Zung.Client.push_output(client, "You can't figure out how to unlock it.")
+          else
+            has_key = Enum.any?(client.game_state.inventory, &(&1.id === matching_exit.key_id))
+
+            if has_key do
+              Zung.DataStore.update_exit_state(room.id, target_value, :closed)
+              updated_room = Zung.DataStore.get_room(room.id)
+              %Zung.Client.GameState{} = game_state = client.game_state
+
+              %Zung.Client{
+                client
+                | game_state: %Zung.Client.GameState{game_state | room: updated_room}
+              }
+              |> Zung.Client.push_output("||GRN||You unlock it.||RESET||")
+            else
+              Zung.Client.push_output(client, "You don't have the right key.")
+            end
+          end
+
+        {:lock, :open} ->
+          Zung.Client.push_output(client, "You need to close it first.")
+
+        {:lock, :locked} ->
+          Zung.Client.push_output(client, "It's already locked.")
+
+        {:lock, :closed} ->
+          if matching_exit.key_id == nil do
+            Zung.Client.push_output(client, "You can't figure out how to lock it.")
+          else
+            has_key = Enum.any?(client.game_state.inventory, &(&1.id === matching_exit.key_id))
+
+            if has_key do
+              Zung.DataStore.update_exit_state(room.id, target_value, :locked)
+              updated_room = Zung.DataStore.get_room(room.id)
+              %Zung.Client.GameState{} = game_state = client.game_state
+
+              %Zung.Client{
+                client
+                | game_state: %Zung.Client.GameState{game_state | room: updated_room}
+              }
+              |> Zung.Client.push_output("||GRN||You lock it.||RESET||")
+            else
+              Zung.Client.push_output(client, "You don't have the right key.")
+            end
+          end
+      end
     end
   end
 

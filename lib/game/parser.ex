@@ -6,6 +6,8 @@ defmodule Zung.Game.Parser do
   # TODO nice website -> https://dslmud.fandom.com/wiki/Commands
   # TODO neat thing about room/area building -> http://www.forgottenkingdoms.org/builders/blessons.php
 
+  @type exit_target :: {:direction, atom()} | {:exit, String.t()}
+
   @type command ::
           {:move, {:direction, atom()}}
           | {:move, {:exit, String.t()}}
@@ -20,6 +22,16 @@ defmodule Zung.Game.Parser do
           | {:get, Zung.Game.Room.t(), String.t()}
           | {:drop, Zung.Game.Room.t(), String.t()}
           | :inventory
+          | {:read, Zung.Game.Room.t(), String.t()}
+          | {:search, Zung.Game.Room.t()}
+          | {:use, Zung.Game.Room.t(), String.t()}
+          | {:use_on, Zung.Game.Room.t(), String.t(), Zung.Game.Room.look_target()}
+          | {:open, Zung.Game.Room.t(), exit_target()}
+          | {:close, Zung.Game.Room.t(), exit_target()}
+          | {:lock, Zung.Game.Room.t(), exit_target()}
+          | {:unlock, Zung.Game.Room.t(), exit_target()}
+          | {:talk, Zung.Game.Room.t(), String.t()}
+          | {:ask, Zung.Game.Room.t(), String.t(), String.t()}
           | :quit
           | :unknown_command
           | {:bad_parse, String.t()}
@@ -46,6 +58,15 @@ defmodule Zung.Game.Parser do
       "take" -> parse_get(client, arguments)
       "drop" -> parse_drop(client, arguments)
       "inventory" -> :inventory
+      "read" -> parse_read(client, arguments)
+      "search" -> {:search, client.game_state.room}
+      "use" -> parse_use(client, arguments)
+      "open" -> parse_exit_action(client, arguments, :open)
+      "close" -> parse_exit_action(client, arguments, :close)
+      "lock" -> parse_exit_action(client, arguments, :lock)
+      "unlock" -> parse_exit_action(client, arguments, :unlock)
+      "talk" -> parse_talk(client, arguments)
+      "ask" -> parse_ask(client, arguments)
       "quit" -> :quit
       _ -> :unknown_command
     end
@@ -214,6 +235,165 @@ defmodule Zung.Game.Parser do
         {:drop, client.game_state.room, matching_object.id}
       else
         {:bad_parse, "You don't have that."}
+      end
+    end
+  end
+
+  defp parse_read(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+
+    if Enum.empty?(valid_arguments) do
+      {:bad_parse, "What do you want to read?"}
+    else
+      current_room = client.game_state.room
+      inventory = client.game_state.inventory
+      argument = join_arguments(valid_arguments) |> String.downcase()
+
+      matching_object =
+        Enum.find(current_room.objects ++ inventory, nil, &(argument === &1.id or argument in &1.keywords))
+
+      if matching_object !== nil do
+        {:read, current_room, matching_object.id}
+      else
+        {:bad_parse, "You don't see that here."}
+      end
+    end
+  end
+
+  defp parse_use(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+
+    if Enum.empty?(valid_arguments) do
+      {:bad_parse, "What do you want to use?"}
+    else
+      on_index = Enum.find_index(valid_arguments, &(&1 === "on"))
+
+      if on_index != nil and on_index > 0 do
+        {object_args, target_args} = Enum.split(valid_arguments, on_index)
+        target_args = Enum.drop(target_args, 1) |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+        parse_use_on(client, object_args, target_args)
+      else
+        current_room = client.game_state.room
+        inventory = client.game_state.inventory
+        argument = join_arguments(valid_arguments) |> String.downcase()
+
+        matching_object =
+          Enum.find(inventory ++ current_room.objects, nil, &(argument === &1.id or argument in &1.keywords))
+
+        if matching_object !== nil do
+          {:use, current_room, matching_object.id}
+        else
+          {:bad_parse, "You don't see that here."}
+        end
+      end
+    end
+  end
+
+  defp parse_use_on(%Zung.Client{} = client, object_args, target_args) do
+    current_room = client.game_state.room
+    inventory = client.game_state.inventory
+
+    if Enum.empty?(target_args) do
+      {:bad_parse, "Use it on what?"}
+    else
+      object_argument = join_arguments(object_args) |> String.downcase()
+      matching_object =
+        Enum.find(inventory ++ current_room.objects, nil, &(object_argument === &1.id or object_argument in &1.keywords))
+
+      if matching_object !== nil do
+        target = parse_look_target(current_room, target_args, inventory)
+        {:use_on, current_room, matching_object.id, target}
+      else
+        {:bad_parse, "You don't see that here."}
+      end
+    end
+  end
+
+  defp parse_exit_action(%Zung.Client{} = client, arguments, action) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+    action_word = Atom.to_string(action)
+
+    if Enum.empty?(valid_arguments) do
+      {:bad_parse, "What do you want to #{action_word}?"}
+    else
+      current_room = client.game_state.room
+      argument = join_arguments(valid_arguments) |> String.downcase()
+
+      direction_atom =
+        case argument do
+          "north" -> :north
+          "south" -> :south
+          "east" -> :east
+          "west" -> :west
+          "up" -> :up
+          "down" -> :down
+          _ -> nil
+        end
+
+      matching_exit =
+        if direction_atom do
+          Enum.find(current_room.exits, nil, &(&1.direction === direction_atom))
+        else
+          Enum.find(current_room.exits, nil, &(Map.has_key?(&1, :name) and argument === &1.name))
+        end
+
+      cond do
+        matching_exit != nil and direction_atom != nil ->
+          {action, current_room, {:direction, direction_atom}}
+
+        matching_exit != nil ->
+          {action, current_room, {:exit, matching_exit.name}}
+
+        true ->
+          {:bad_parse, "You don't see that here."}
+      end
+    end
+  end
+
+  defp parse_talk(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["to", "the", "a", "an", "with"]))
+
+    if Enum.empty?(valid_arguments) do
+      {:bad_parse, "Who do you want to talk to?"}
+    else
+      current_room = client.game_state.room
+      argument = join_arguments(valid_arguments) |> String.downcase()
+
+      matching_npc = Zung.Game.Npc.find(current_room.npcs, argument)
+
+      if matching_npc !== nil do
+        {:talk, current_room, matching_npc.id}
+      else
+        {:bad_parse, "You don't see anyone by that name."}
+      end
+    end
+  end
+
+  defp parse_ask(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["the", "a", "an"]))
+
+    about_index = Enum.find_index(valid_arguments, &(&1 === "about"))
+
+    if about_index == nil or about_index == 0 do
+      {:bad_parse, "Try: ask <person> about <topic>"}
+    else
+      {npc_args, topic_args} = Enum.split(valid_arguments, about_index)
+      topic_args = Enum.drop(topic_args, 1)
+
+      if Enum.empty?(topic_args) do
+        {:bad_parse, "What do you want to ask about?"}
+      else
+        current_room = client.game_state.room
+        npc_argument = join_arguments(npc_args) |> String.downcase()
+        topic = join_arguments(topic_args) |> String.downcase()
+
+        matching_npc = Zung.Game.Npc.find(current_room.npcs, npc_argument)
+
+        if matching_npc !== nil do
+          {:ask, current_room, matching_npc.id, topic}
+        else
+          {:bad_parse, "You don't see anyone by that name."}
+        end
       end
     end
   end

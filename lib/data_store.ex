@@ -29,6 +29,10 @@ defmodule Zung.DataStore do
     GenServer.cast(DataStore, {:add_object_to_room, room_id, object})
   end
 
+  def update_exit_state(room_id, exit_target, new_state) do
+    GenServer.call(DataStore, {:update_exit_state, room_id, exit_target, new_state})
+  end
+
   # SERVER SIDE
 
   def handle_call({:get_current_room_id, username}, _from, state) do
@@ -63,6 +67,23 @@ defmodule Zung.DataStore do
         updated_room = %{room | objects: updated_objects}
         updated_rooms = Map.put(Map.get(state, :rooms, %{}), room_id, updated_room)
         {:reply, {:ok, object}, Map.put(state, :rooms, updated_rooms)}
+    end
+  end
+
+  def handle_call({:update_exit_state, room_id, exit_target, new_state}, _from, state) do
+    room = Map.get(state, :rooms, %{}) |> Map.get(room_id, %Zung.Game.Room{})
+
+    matching_index =
+      Enum.find_index(room.exits, &(&1.direction === exit_target or &1.name === exit_target))
+
+    if matching_index != nil do
+      updated_exit = %{Enum.at(room.exits, matching_index) | state: new_state}
+      updated_exits = List.replace_at(room.exits, matching_index, updated_exit)
+      updated_room = %{room | exits: updated_exits}
+      updated_rooms = Map.put(Map.get(state, :rooms, %{}), room_id, updated_room)
+      {:reply, {:ok, updated_exit}, Map.put(state, :rooms, updated_rooms)}
+    else
+      {:reply, {:error, "You don't see that here."}, state}
     end
   end
 

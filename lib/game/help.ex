@@ -89,6 +89,56 @@ defmodule Zung.Game.Help do
       summary: "Quit the game",
       usage: "quit",
       detail: "Disconnect from the game."
+    },
+    "read" => %{
+      summary: "Read text on an object",
+      usage: "read <object>",
+      detail:
+        "Read text written on an object such as a book, sign, scroll, or map. The object can be in the room or in your inventory."
+    },
+    "search" => %{
+      summary: "Search the room for hidden things",
+      usage: "search",
+      detail:
+        "Actively search the current room for hidden items, exits, or clues that aren't immediately visible."
+    },
+    "use" => %{
+      summary: "Use an object",
+      usage: "use <object> [on <target>]",
+      detail:
+        "Use an object in a context-appropriate way. You can also specify a target: 'use key on door'."
+    },
+    "open" => %{
+      summary: "Open a door or exit",
+      usage: "open <exit>",
+      detail: "Open a closed door, gate, or other exit so you can pass through."
+    },
+    "close" => %{
+      summary: "Close a door or exit",
+      usage: "close <exit>",
+      detail: "Close an open door, gate, or other exit."
+    },
+    "lock" => %{
+      summary: "Lock a closed exit",
+      usage: "lock <exit>",
+      detail: "Lock a closed door or gate. You must have the correct key in your inventory."
+    },
+    "unlock" => %{
+      summary: "Unlock a locked exit",
+      usage: "unlock <exit>",
+      detail:
+        "Unlock a locked door or gate. You must have the correct key in your inventory."
+    },
+    "talk" => %{
+      summary: "Talk to someone",
+      usage: "talk <person>",
+      detail: "Start a conversation with a character in the room."
+    },
+    "ask" => %{
+      summary: "Ask someone about a topic",
+      usage: "ask <person> about <topic>",
+      detail:
+        "Ask a character about a specific topic. Different topics may reveal different information."
     }
   }
 
