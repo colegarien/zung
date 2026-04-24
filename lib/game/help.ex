@@ -139,6 +139,52 @@ defmodule Zung.Game.Help do
       usage: "ask <person> about <topic>",
       detail:
         "Ask a character about a specific topic. Different topics may reveal different information."
+    },
+    "alias" => %{
+      summary: "Set or list command aliases",
+      usage: "alias [name] [command]",
+      detail:
+        "Without arguments, lists all current aliases. With two arguments, creates a new alias so that typing 'name' will execute 'command'. Example: alias hw help who"
+    },
+    "unalias" => %{
+      summary: "Remove a command alias",
+      usage: "unalias <name>",
+      detail: "Remove a previously defined command alias."
+    },
+    "emote" => %{
+      summary: "Perform an emote action",
+      usage: "emote <action>",
+      detail:
+        "Display an action to the room. Example: 'emote waves hello' shows 'Username waves hello'. Alias: me. Built-in emotes: bow, wave, nod, shrug."
+    },
+    "shout" => %{
+      summary: "Shout a message to nearby rooms",
+      usage: "shout <message>",
+      detail:
+        "Shout a message that can be heard in the current room and adjacent rooms. Alias: yell"
+    },
+    "whisper" => %{
+      summary: "Whisper to a player in the room",
+      usage: "whisper <player> <message>",
+      detail:
+        "Whisper a private message to a player in the same room. Others will see that you whispered but not what you said. You can optionally use 'to': whisper to <player> <message>"
+    },
+    "tell" => %{
+      summary: "Send a private message to a player",
+      usage: "tell <player> <message>",
+      detail:
+        "Send a private message to another player anywhere in the game. The target must be online."
+    },
+    "follow" => %{
+      summary: "Follow another player",
+      usage: "follow [player]",
+      detail:
+        "Start following a player — you will automatically move when they do. Without arguments, stop following. Manual movement also breaks follow."
+    },
+    "lead" => %{
+      summary: "Lead followers",
+      usage: "lead",
+      detail: "Anyone following you will automatically move when you do."
     }
   }
 

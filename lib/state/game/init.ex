@@ -28,6 +28,8 @@ defmodule Zung.State.Game.Init do
   end
 
   defp place_in_world(client) do
+    Zung.Client.Connection.subscribe(client.connection, {:player, client.game_state.username})
+
     client
     |> Zung.Client.push_output("||NL||||YEL||Welcome #{client.game_state.username}!||RESET||")
     |> Zung.Client.enter_room(client.game_state.room)

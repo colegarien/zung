@@ -34,7 +34,8 @@ defmodule Zung.Client do
         "i" => "inventory",
         "ooc" => "csay ooc"
       },
-      joined_chat_rooms: []
+      joined_chat_rooms: [],
+      following: nil
     ]
 
     @type t :: %__MODULE__{
@@ -42,7 +43,8 @@ defmodule Zung.Client do
             room: Zung.Game.Room.t(),
             inventory: [Zung.Game.Object.t()],
             command_aliases: %{String.t() => String.t()},
-            joined_chat_rooms: [String.t()]
+            joined_chat_rooms: [String.t()],
+            following: String.t() | nil
           }
   end
 
@@ -92,6 +94,7 @@ defmodule Zung.Client do
     User.log_login(username)
     Session.authenticate_session(client.session_id, username)
     Connection.use_ansi(client.connection, use_ansi?)
+    Connection.set_username(client.connection, username)
 
     client
   end
@@ -167,6 +170,61 @@ defmodule Zung.Client do
     )
 
     client
+  end
+
+  @spec emote_to_room(t(), String.t(), String.t()) :: t()
+  def emote_to_room(%Zung.Client{} = client, room_id, action) do
+    Connection.publish(
+      client.connection,
+      {:room, room_id},
+      {:emote, client.game_state.username, action}
+    )
+
+    client
+  end
+
+  @spec shout(t(), Zung.Game.Room.t(), String.t()) :: t()
+  def shout(%Zung.Client{} = client, room, message) do
+    Connection.publish(
+      client.connection,
+      {:room, room.id},
+      {:shout, client.game_state.username, message, :local}
+    )
+
+    room.exits
+    |> Enum.map(& &1.to)
+    |> Enum.uniq()
+    |> Enum.each(fn adjacent_room_id ->
+      Connection.publish(
+        client.connection,
+        {:room, adjacent_room_id},
+        {:shout, client.game_state.username, message, :distant}
+      )
+    end)
+
+    client
+  end
+
+  @spec whisper_to_room(t(), String.t(), String.t(), String.t()) :: t()
+  def whisper_to_room(%Zung.Client{} = client, room_id, target, message) do
+    Connection.publish(
+      client.connection,
+      {:room, room_id},
+      {:whisper, client.game_state.username, target, message}
+    )
+
+    client
+  end
+
+  @spec tell_player(t(), String.t(), String.t()) :: t()
+  def tell_player(%Zung.Client{} = client, target, message) do
+    Connection.publish(
+      client.connection,
+      {:player, target},
+      {:tell, client.game_state.username, message}
+    )
+
+    push_output(client, "||MAG||You tell #{target}: #{message}||RESET||")
   end
 
   def force_ansi(%Zung.Client{} = client, use_ansi?) do

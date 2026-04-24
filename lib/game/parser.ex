@@ -32,6 +32,17 @@ defmodule Zung.Game.Parser do
           | {:unlock, Zung.Game.Room.t(), exit_target()}
           | {:talk, Zung.Game.Room.t(), String.t()}
           | {:ask, Zung.Game.Room.t(), String.t(), String.t()}
+          | :list_aliases
+          | {:set_alias, String.t(), String.t()}
+          | {:remove_alias, String.t()}
+          | {:emote, Zung.Game.Room.t(), String.t()}
+          | {:shout, Zung.Game.Room.t(), String.t()}
+          | {:whisper, Zung.Game.Room.t(), String.t(), String.t()}
+          | {:tell, String.t(), String.t()}
+          | {:follow, String.t()}
+          | :stop_following
+          | :lead
+          | {:follow_move, String.t(), String.t()}
           | :quit
           | :unknown_command
           | {:bad_parse, String.t()}
@@ -67,6 +78,21 @@ defmodule Zung.Game.Parser do
       "unlock" -> parse_exit_action(client, arguments, :unlock)
       "talk" -> parse_talk(client, arguments)
       "ask" -> parse_ask(client, arguments)
+      "alias" -> parse_alias(client, arguments)
+      "unalias" -> parse_unalias(arguments)
+      "emote" -> parse_emote(client, arguments)
+      "me" -> parse_emote(client, arguments)
+      "bow" -> {:emote, client.game_state.room, "bows gracefully."}
+      "wave" -> {:emote, client.game_state.room, "waves."}
+      "nod" -> {:emote, client.game_state.room, "nods."}
+      "shrug" -> {:emote, client.game_state.room, "shrugs."}
+      "shout" -> parse_shout(client, arguments)
+      "yell" -> parse_shout(client, arguments)
+      "whisper" -> parse_whisper(client, arguments)
+      "tell" -> parse_tell(arguments)
+      "follow" -> parse_follow(arguments)
+      "lead" -> :lead
+      "__follow_move" -> parse_follow_move(arguments)
       "quit" -> :quit
       _ -> :unknown_command
     end
@@ -395,6 +421,75 @@ defmodule Zung.Game.Parser do
           {:bad_parse, "You don't see anyone by that name."}
         end
       end
+    end
+  end
+
+  defp parse_alias(%Zung.Client{} = _client, arguments) do
+    case arguments do
+      [] -> :list_aliases
+      [_single] -> {:bad_parse, "Usage: alias <name> <command>"}
+      [name | expansion] -> {:set_alias, name, join_arguments(expansion)}
+    end
+  end
+
+  defp parse_unalias(arguments) do
+    case arguments do
+      [] -> {:bad_parse, "Usage: unalias <name>"}
+      [name | _] -> {:remove_alias, name}
+    end
+  end
+
+  defp parse_emote(%Zung.Client{} = client, arguments) do
+    action = join_arguments(arguments)
+
+    if action === "" do
+      {:bad_parse, "What do you want to do?"}
+    else
+      {:emote, client.game_state.room, action}
+    end
+  end
+
+  defp parse_shout(%Zung.Client{} = client, arguments) do
+    message = join_arguments(arguments)
+
+    if message === "" do
+      {:bad_parse, "What do you want to shout?"}
+    else
+      {:shout, client.game_state.room, message}
+    end
+  end
+
+  defp parse_whisper(%Zung.Client{} = client, arguments) do
+    valid_arguments = arguments |> Enum.filter(&(&1 not in ["to"]))
+
+    if Enum.count(valid_arguments) < 2 do
+      {:bad_parse, "Usage: whisper <player> <message>"}
+    else
+      [target | message_parts] = valid_arguments
+      {:whisper, client.game_state.room, target, join_arguments(message_parts)}
+    end
+  end
+
+  defp parse_tell(arguments) do
+    if Enum.count(arguments) < 2 do
+      {:bad_parse, "Usage: tell <player> <message>"}
+    else
+      [target | message_parts] = arguments
+      {:tell, target, join_arguments(message_parts)}
+    end
+  end
+
+  defp parse_follow(arguments) do
+    case arguments do
+      [] -> :stop_following
+      [target | _] -> {:follow, target}
+    end
+  end
+
+  defp parse_follow_move(arguments) do
+    case arguments do
+      [leader, room_id] -> {:follow_move, leader, room_id}
+      _ -> :unknown_command
     end
   end
 

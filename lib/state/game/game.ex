@@ -25,9 +25,21 @@ defmodule Zung.State.Game.Game do
         {:move, target} ->
           case Zung.Game.Room.move(new_client.game_state.room, target) do
             {:ok, new_room} ->
-              new_client
+              moved_client =
+                if new_client.game_state.following != nil do
+                  old_following = new_client.game_state.following
+                  Zung.Client.Connection.unsubscribe(new_client.connection, {:follow, old_following})
+                  %Zung.Client.GameState{} = game_state = new_client.game_state
+                  %Zung.Client{new_client | game_state: %Zung.Client.GameState{game_state | following: nil}}
+                  |> Zung.Client.push_output("You stop following #{old_following}.")
+                else
+                  new_client
+                end
+
+              moved_client
               |> Zung.Client.leave_room(client.game_state.room)
               |> Zung.Client.enter_room(new_room)
+              |> notify_followers()
 
             {:error, error_message} ->
               Zung.Client.push_output(new_client, error_message)
@@ -178,6 +190,135 @@ defmodule Zung.State.Game.Game do
             Zung.Client.push_output(new_client, "They don't seem interested in talking.")
           end
 
+        :list_aliases ->
+          aliases = new_client.game_state.command_aliases
+
+          if map_size(aliases) == 0 do
+            Zung.Client.push_output(new_client, "You have no aliases defined.")
+          else
+            header = "||BOLD||||CYA||Aliases:||RESET||||NL||"
+
+            list =
+              Enum.reduce(aliases, "", fn {name, expansion}, acc ->
+                acc <> "  ||GRN||#{name}||RESET|| -> #{expansion}||NL||"
+              end)
+
+            Zung.Client.push_output(new_client, header <> list)
+          end
+
+        {:set_alias, name, expansion} ->
+          %Zung.Client.GameState{} = game_state = new_client.game_state
+          new_aliases = Map.put(game_state.command_aliases, name, expansion)
+
+          %Zung.Client{
+            new_client
+            | game_state: %Zung.Client.GameState{game_state | command_aliases: new_aliases}
+          }
+          |> Zung.Client.push_output("Alias set: ||GRN||#{name}||RESET|| -> #{expansion}")
+
+        {:remove_alias, name} ->
+          %Zung.Client.GameState{} = game_state = new_client.game_state
+
+          if Map.has_key?(game_state.command_aliases, name) do
+            new_aliases = Map.delete(game_state.command_aliases, name)
+
+            %Zung.Client{
+              new_client
+              | game_state: %Zung.Client.GameState{game_state | command_aliases: new_aliases}
+            }
+            |> Zung.Client.push_output("Alias removed: #{name}")
+          else
+            Zung.Client.push_output(new_client, "||RED||No alias found for \"#{name}\".||RESET||")
+          end
+
+        {:emote, room, action} ->
+          Zung.Client.emote_to_room(new_client, room.id, action)
+
+        {:shout, room, message} ->
+          Zung.Client.shout(new_client, room, message)
+
+        {:whisper, _room, target, message} ->
+          usernames = Zung.Client.Session.get_active_usernames()
+
+          if target in usernames do
+            Zung.Client.whisper_to_room(new_client, new_client.game_state.room.id, target, message)
+          else
+            Zung.Client.push_output(new_client, "||RED||#{target} is not online.||RESET||")
+          end
+
+        {:tell, target, message} ->
+          usernames = Zung.Client.Session.get_active_usernames()
+
+          if target in usernames do
+            Zung.Client.tell_player(new_client, target, message)
+          else
+            Zung.Client.push_output(new_client, "||RED||#{target} is not online.||RESET||")
+          end
+
+        {:follow, target} ->
+          username = new_client.game_state.username
+          usernames = Zung.Client.Session.get_active_usernames()
+
+          cond do
+            target == username ->
+              Zung.Client.push_output(new_client, "||RED||You can't follow yourself.||RESET||")
+
+            target not in usernames ->
+              Zung.Client.push_output(new_client, "||RED||#{target} is not online.||RESET||")
+
+            true ->
+              %Zung.Client.GameState{} = game_state = new_client.game_state
+
+              updated_client =
+                if game_state.following != nil do
+                  Zung.Client.Connection.unsubscribe(new_client.connection, {:follow, game_state.following})
+                  new_client
+                else
+                  new_client
+                end
+
+              Zung.Client.Connection.subscribe(updated_client.connection, {:follow, target})
+
+              %Zung.Client{
+                updated_client
+                | game_state: %Zung.Client.GameState{game_state | following: target}
+              }
+              |> Zung.Client.push_output("You begin following #{target}.")
+          end
+
+        :stop_following ->
+          %Zung.Client.GameState{} = game_state = new_client.game_state
+
+          if game_state.following == nil do
+            Zung.Client.push_output(new_client, "You are not following anyone.")
+          else
+            old_target = game_state.following
+            Zung.Client.Connection.unsubscribe(new_client.connection, {:follow, old_target})
+
+            %Zung.Client{
+              new_client
+              | game_state: %Zung.Client.GameState{game_state | following: nil}
+            }
+            |> Zung.Client.push_output("You stop following #{old_target}.")
+          end
+
+        :lead ->
+          Zung.Client.push_output(new_client, "Anyone following you will move when you do.")
+
+        {:follow_move, leader, room_id} ->
+          new_room = Zung.DataStore.get_room(room_id)
+
+          if new_room != nil do
+            game_state = new_client.game_state
+
+            new_client
+            |> Zung.Client.leave_room(game_state.room)
+            |> Zung.Client.enter_room(new_room)
+            |> Zung.Client.push_output("You follow #{leader}.")
+          else
+            Zung.Client.push_output(new_client, "You can't seem to follow them there.")
+          end
+
         :quit ->
           raise Zung.Error.Connection.Closed
 
@@ -296,6 +437,19 @@ defmodule Zung.State.Game.Game do
           end
       end
     end
+  end
+
+  defp notify_followers(%Zung.Client{} = client) do
+    username = client.game_state.username
+    room_id = client.game_state.room.id
+
+    Zung.Client.Connection.publish(
+      client.connection,
+      {:follow, username},
+      {:leader_moved, username, room_id}
+    )
+
+    client
   end
 
   defp format_who_list(usernames) do

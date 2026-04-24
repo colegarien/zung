@@ -31,7 +31,8 @@ defmodule Zung.Client.Connection do
       use_ansi?: false,
       input_buffer: :queue.new(),
       output_buffer: :queue.new(),
-      is_closed: false
+      is_closed: false,
+      username: nil
     })
   end
 
@@ -52,6 +53,10 @@ defmodule Zung.Client.Connection do
 
   def use_ansi(connection, use_ansi?) do
     GenServer.cast(connection.id, {:use_ansi, use_ansi?})
+  end
+
+  def set_username(connection, username) do
+    GenServer.cast(connection.id, {:set_username, username})
   end
 
   def end_connection(connection) do
@@ -102,6 +107,8 @@ defmodule Zung.Client.Connection do
       {:noreply, %{state | output_buffer: new_queue}}
     end
   end
+
+  def handle_cast({:set_username, username}, state), do: {:noreply, %{state | username: username}}
 
   def handle_cast({:use_ansi, use_ansi?}, state), do: {:noreply, %{state | use_ansi?: use_ansi?}}
 
@@ -162,6 +169,40 @@ defmodule Zung.Client.Connection do
   def handle_info({publisher_pid, {:room, _room_id}, {:say, username, message}}, state) do
     from_user_text = if publisher_pid != self(), do: "#{username} says: ", else: "You say: "
     handle_cast({:write, "||CYA||#{from_user_text}#{message}||RESET||"}, state)
+  end
+
+  def handle_info({_publisher_pid, {:room, _room_id}, {:emote, username, action}}, state) do
+    handle_cast({:write, "||CYA||#{username} #{action}||RESET||"}, state)
+  end
+
+  def handle_info({publisher_pid, {:room, _room_id}, {:shout, username, message, proximity}}, state) do
+    text =
+      cond do
+        publisher_pid == self() -> "||RED||You shout: #{message}||RESET||"
+        proximity == :local -> "||RED||#{username} shouts: #{message}||RESET||"
+        true -> "||RED||You hear #{username} shout from nearby: #{message}||RESET||"
+      end
+
+    handle_cast({:write, text}, state)
+  end
+
+  def handle_info({_publisher_pid, {:room, _room_id}, {:whisper, sender, target, message}}, state) do
+    text =
+      cond do
+        state.username == sender -> "||MAG||You whisper to #{target}: #{message}||RESET||"
+        state.username == target -> "||MAG||#{sender} whispers to you: #{message}||RESET||"
+        true -> "||MAG||#{sender} whispers something to #{target}.||RESET||"
+      end
+
+    handle_cast({:write, text}, state)
+  end
+
+  def handle_info({_publisher_pid, {:player, _username}, {:tell, sender, message}}, state) do
+    handle_cast({:write, "||MAG||#{sender} tells you: #{message}||RESET||"}, state)
+  end
+
+  def handle_info({_publisher_pid, {:follow, _username}, {:leader_moved, leader, room_id}}, state) do
+    {:noreply, %{state | input_buffer: :queue.in("__follow_move #{leader} #{room_id}", state.input_buffer)}}
   end
 
   def handle_info(msg, state) do

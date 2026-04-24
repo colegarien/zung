@@ -1257,4 +1257,252 @@ defmodule Zung.Game.ParserTest do
     actual = Parser.parse(client, "ask ghost about weather")
     assert actual === {:bad_parse, "You don't see anyone by that name."}
   end
+
+  # -- Tier 3: alias / unalias --
+
+  mocked_test "alias/0 list aliases test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "alias")
+    assert actual === :list_aliases
+  end
+
+  mocked_test "alias/1 one arg bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "alias hw")
+    assert actual === {:bad_parse, "Usage: alias <name> <command>"}
+  end
+
+  mocked_test "alias/2 set alias test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "alias hw help who")
+    assert actual === {:set_alias, "hw", "help who"}
+  end
+
+  mocked_test "unalias/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "unalias")
+    assert actual === {:bad_parse, "Usage: unalias <name>"}
+  end
+
+  mocked_test "unalias/1 remove alias test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "unalias hw")
+    assert actual === {:remove_alias, "hw"}
+  end
+
+  # -- Tier 3: emote / me --
+
+  mocked_test "emote/1 with text test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "emote waves hello")
+    assert actual === {:emote, @test_room, "waves hello"}
+  end
+
+  mocked_test "me/1 alias for emote test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "me dances")
+    assert actual === {:emote, @test_room, "dances"}
+  end
+
+  mocked_test "emote/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "emote")
+    assert actual === {:bad_parse, "What do you want to do?"}
+  end
+
+  mocked_test "bow built-in emote test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    assert Parser.parse(client, "bow") === {:emote, @test_room, "bows gracefully."}
+    assert Parser.parse(client, "wave") === {:emote, @test_room, "waves."}
+    assert Parser.parse(client, "nod") === {:emote, @test_room, "nods."}
+    assert Parser.parse(client, "shrug") === {:emote, @test_room, "shrugs."}
+  end
+
+  # -- Tier 3: shout / yell --
+
+  mocked_test "shout/1 with message test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "shout hello everyone")
+    assert actual === {:shout, @test_room, "hello everyone"}
+  end
+
+  mocked_test "yell/1 alias for shout test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "yell watch out")
+    assert actual === {:shout, @test_room, "watch out"}
+  end
+
+  mocked_test "shout/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "shout")
+    assert actual === {:bad_parse, "What do you want to shout?"}
+  end
+
+  # -- Tier 3: whisper --
+
+  mocked_test "whisper/2 with target and message test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "whisper bob hey there")
+    assert actual === {:whisper, @test_room, "bob", "hey there"}
+  end
+
+  mocked_test "whisper/2 with to sugar word test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "whisper to bob secret stuff")
+    assert actual === {:whisper, @test_room, "bob", "secret stuff"}
+  end
+
+  mocked_test "whisper/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "whisper")
+    assert actual === {:bad_parse, "Usage: whisper <player> <message>"}
+  end
+
+  mocked_test "whisper/1 only target no message bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "whisper bob")
+    assert actual === {:bad_parse, "Usage: whisper <player> <message>"}
+  end
+
+  # -- Tier 3: tell --
+
+  mocked_test "tell/2 with target and message test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "tell bob hello there")
+    assert actual === {:tell, "bob", "hello there"}
+  end
+
+  mocked_test "tell/0 no args bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "tell")
+    assert actual === {:bad_parse, "Usage: tell <player> <message>"}
+  end
+
+  mocked_test "tell/1 only target bad parse test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "tell bob")
+    assert actual === {:bad_parse, "Usage: tell <player> <message>"}
+  end
+
+  # -- Tier 3: follow / lead --
+
+  mocked_test "follow/1 with target test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "follow bob")
+    assert actual === {:follow, "bob"}
+  end
+
+  mocked_test "follow/0 no args stop following test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "follow")
+    assert actual === :stop_following
+  end
+
+  mocked_test "lead/0 test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{username: "tim_allen", room: @test_room}
+    }
+
+    actual = Parser.parse(client, "lead")
+    assert actual === :lead
+  end
+
+  mocked_test "__follow_move parsing test" do
+    client = %Zung.Client{
+      Zung.Client.new(nil)
+      | game_state: %Zung.Client.GameState{
+          username: "tim_allen",
+          room: @test_room,
+          command_aliases: %{}
+        }
+    }
+
+    actual = Parser.parse(client, "__follow_move bob test_room2")
+    assert actual === {:follow_move, "bob", "test_room2"}
+  end
 end
